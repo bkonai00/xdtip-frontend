@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="description" content="XDTIP Privacy Policy. Learn how we protect creator data, secure UPI transactions, and ensure strict confidentiality for the Indian streaming community.">
+    <meta name="keywords" content="XDTIP Privacy Policy, Data Protection, Creator Security, UPI Transaction Privacy, GDPR Compliance India">
+    <meta name="robots" content="index, follow">
+    
+    <title>Privacy Policy | XDTIP</title>
+    
+    <style>
+        /* --- VISUAL IDENTITY (Matches About Page) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Inter:wght@400;600&display=swap');
+
+        :root {
+            --primary: #00ff88;
+            --bg: #050505;
+            --card-bg: #0e0e0e;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.8;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 5%;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -1px; }
+        .dot { color: var(--primary); }
+        .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 25px; font-size: 14px; font-weight: 500; transition: 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* --- CONTENT CONTAINER --- */
+        .legal-container {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 0 20px 100px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .last-updated {
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 50px;
+            display: block;
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            color: white;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        p, ul {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        ul { list-style: none; padding: 0; }
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+        }
+        ul li::before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #444;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" style="text-decoration:none; color:white;">
+            <div class="logo">XDTIP<span class="dot">.</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="register.html">Register</a>
+        </div>
+    </nav>
+
+    <div class="legal-container">
+        <h1>Privacy Policy</h1>
+        <span class="last-updated">Last Updated: January 18, 2026</span>
+
+        <p>At <strong>XDTIP</strong> (accessible via https://xdtip.in), we recognize that trust is the currency of the creator economy. We are steadfastly committed to safeguarding the digital sovereignty and personal information of our creators and their community of supporters.</p>
+        
+        <p>This Privacy Policy outlines the technical and procedural protocols we employ to collect, utilize, and protect your data.</p>
+
+        <h2>1. Information Architecture & Data Collection</h2>
+        <p>To provide our monetization infrastructure, we collect specific data points categorized as follows:</p>
+        <ul>
+            <li><strong>Identity Verification Data:</strong> Full Name, Email Address, and Channel Identity (required for account authentication and security).</li>
+            <li><strong>Financial Routing Data:</strong> Unified Payments Interface (UPI) IDs. Note: This data is strictly utilized for the processing of payouts.</li>
+            <li><strong>Transactional Metadata:</strong> Payment timestamps, gross amounts, and supporter messages required for the generation of "Tip Alerts."</li>
+        </ul>
+        <div class="highlight-box">
+            <strong style="color:white;">Non-Storage Policy:</strong> XDTIP does <u>not</u> store sensitive payment instrument details (Credit Card/Debit Card numbers) on our servers. All processing is offloaded to PCI-DSS compliant gateways (e.g., Razorpay).
+        </div>
+
+        <h2>2. Operational Use of Data</h2>
+        <p>We leverage your data exclusively for the following operational objectives:</p>
+        <ul>
+            <li><strong>Service Delivery:</strong> To facilitate the instant settlement of funds from supporter to creator via UPI rails.</li>
+            <li><strong>Real-Time Overlay Generation:</strong> To trigger visual and auditory alerts (TTS) on your livestream via our WebSocket architecture.</li>
+            <li><strong>Fraud Detection:</strong> To monitor transactional velocity and prevent chargeback fraud or money laundering attempts.</li>
+            <li><strong>Compliance:</strong> To adhere to Indian financial regulations and digital tax reporting requirements.</li>
+        </ul>
+
+        <h2>3. Data Sovereignty & Sharing Protocol</h2>
+        <p>We adhere to a strict "Need-to-Know" sharing policy. XDTIP does not sell, rent, or trade your personal data to advertisers or data brokers.</p>
+        <p>Data is shared strictly with:</p>
+        <ul>
+            <li><strong>Payment Processors:</strong> (e.g., Razorpay) solely to execute financial transactions.</li>
+            <li><strong>Legal Authorities:</strong> Only when compelled by a valid court order or to investigate illegal activity within the platform.</li>
+        </ul>
+
+        <h2>4. Security Infrastructure</h2>
+        <p>We employ enterprise-grade security measures to protect your data in transit and at rest:</p>
+        <ul>
+            <li><strong>SSL Encryption:</strong> All data transmission between your browser and our servers is encrypted via Secure Socket Layer (SSL) technology.</li>
+            <li><strong>Database Isolation:</strong> User financial data is isolated from public-facing application logic.</li>
+            <li><strong>Access Control:</strong> Internal access to user data is restricted to authorized personnel with multi-factor authentication.</li>
+        </ul>
+
+        <h2>5. Your Rights</h2>
+        <p>As a user of the XDTIP platform, you retain the right to request the deletion of your account and associated data from our servers. To initiate a data erasure request, please contact our Data Protection Officer at <strong>privacy@xdtip.in</strong>.</p>
+
+    </div>
+
+    <footer>
+        &copy; 2026 XDTIP Inc. All Rights Reserved.<br>
+        Engineered for privacy in India.
+    </footer>
+
+</body>
+</html>
