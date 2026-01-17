@@ -47,7 +47,12 @@ async function loadDashboard() {
                 document.getElementById('tip-page-url').value = tipLink;
 
                 // Load History
+                // Load Tips History
                 loadHistory(token);
+                
+                // ✅ Load Withdrawal History
+                loadWithdrawals(token);
+                
 
             } else {
                 // SHOW Viewer Section
@@ -186,5 +191,42 @@ async function submitWithdraw() {
     }
 }
 
+// Fetch and Render Withdrawals
+async function loadWithdrawals(token) {
+    try {
+        const res = await fetch(`${API_URL}/withdrawals`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        const container = document.getElementById('payout-container');
+        
+        if (data.success && data.history.length > 0) {
+            let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody>';
+            
+            data.history.forEach(w => {
+                // Color code status
+                let color = w.status === 'paid' ? '#4caf50' : '#ff9800'; // Green if paid, Orange if pending
+
+                html += `
+                    <tr>
+                        <td>${w.date}</td>
+                        <td style="font-weight:bold;">${w.amount}</td>
+                        <td style="color:${color}; text-transform:uppercase; font-size:12px; font-weight:bold;">${w.status}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<p style="color: #444; font-size:13px;">No withdrawal requests yet.</p>';
+        }
+    } catch (err) {
+        console.error("Payout History Error", err);
+    }
+}
+
 // Run on load
 loadDashboard();
+
