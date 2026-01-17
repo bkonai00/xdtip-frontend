@@ -1,8 +1,7 @@
 // ⚠️ REPLACE WITH YOUR RENDER URL
 const API_URL = "https://xdtip-backend.onrender.com"; 
 
-// ⚠️ REPLACE WITH YOUR GITHUB PAGES URL (Where your frontend lives)
-// Example: "https://yourname.github.io/xdtip-frontend"
+// ⚠️ REPLACE WITH YOUR GITHUB PAGES URL
 const FRONTEND_URL = "https://bkonai00.github.io/xdtip-frontend/"; 
 
 async function loadDashboard() {
@@ -16,28 +15,27 @@ async function loadDashboard() {
         });
         const data = await res.json();
 
-        // ... inside loadDashboard() ...
-if (data.success) {
-    const user = data.user;
-    // ... existing lines ...
-    document.getElementById('role-badge').innerText = user.role.toUpperCase();
-
-    // ✅ ADD THIS: Show Current Logo
-    if (user.logo_url) {
-        document.getElementById('current-logo').src = user.logo_url;
-    }
-    // ...
+        if (data.success) {
+            const user = data.user;
 
             // 2. Fill Basic Info
             document.getElementById('user-name').innerText = user.username;
             document.getElementById('balance').innerText = user.balance;
             document.getElementById('role-badge').innerText = user.role.toUpperCase();
 
-            // 3. HANDLE ROLES
+            // 3. Show Current Logo (If it exists)
+            if (user.logo_url) {
+                document.getElementById('current-logo').src = user.logo_url;
+            }
+
+            // 4. HANDLE ROLES
             if (user.role === 'creator') {
                 // SHOW Creator Tools
                 document.getElementById('creator-section').style.display = 'block';
-                document.getElementById('withdraw-btn').style.display = 'inline-block'; // Show withdraw
+                
+                // Show Withdraw Button (This was hidden by default)
+                const withdrawBtn = document.getElementById('withdraw-btn');
+                if(withdrawBtn) withdrawBtn.style.display = 'inline-block';
 
                 // Generate Links
                 // A. Alert Box (Points to Backend)
@@ -111,6 +109,7 @@ function logout() {
     localStorage.removeItem('token');
     window.location.href = "login.html";
 }
+
 // UPLOAD LOGO FUNCTION
 async function uploadLogo() {
     const fileInput = document.getElementById('logo-file');
@@ -156,9 +155,36 @@ async function uploadLogo() {
     }
 }
 
+// ✅ NEW: SUBMIT WITHDRAWAL FUNCTION
+async function submitWithdraw() {
+    const amount = document.getElementById('w-amount').value;
+    const upiId = document.getElementById('w-upi').value;
+    const token = localStorage.getItem('token');
+
+    if(!amount || !upiId) return alert("Please fill all details");
+
+    try {
+        const res = await fetch(`${API_URL}/withdraw`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ amount, upiId })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            document.getElementById('withdraw-modal').style.display = 'none';
+            loadDashboard(); // Refresh balance
+        } else {
+            alert(data.error);
+        }
+    } catch (err) {
+        alert("Request Failed");
+    }
+}
+
 // Run on load
 loadDashboard();
-
-
-
-
