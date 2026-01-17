@@ -5,6 +5,16 @@
     <title>Dashboard | xdtip</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Hide sections by default to prevent flickering */
+        #creator-section, #viewer-section, #withdraw-btn { display: none; }
+        
+        /* History Table Styles */
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
+        .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
+        .history-amount { color: #ff3b3b; font-weight: bold; }
+    </style>
 </head>
 <body>
 
@@ -17,56 +27,60 @@
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
         <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span></h1>
+        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="position:static; vertical-align:middle; font-size:12px; margin-left:10px;">...</span></h1>
     </div>
 
     <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
-        <div class="pricing-grid" style="margin-top: 0;">
-            
-            <div class="price-card" style="width: 100%; max-width: 400px; cursor: default; background: #0a0a0a;">
-                <p style="color: #888; font-size: 14px; margin-bottom: 10px;">TOTAL BALANCE</p>
-                <h2 style="font-size: 56px; margin: 0; color: white;">
-                    <span id="balance">0</span> <span style="font-size: 20px; color: #444;">Tokens</span>
-                </h2>
-                <div style="margin-top: 30px; display: flex; gap: 10px;">
-                    <a href="buy.html" class="btn" style="flex: 1;">+ Add Money</a>
-                    <a href="#" onclick="alert('Withdrawals coming soon!')" class="btn btn-secondary" style="flex: 1;">Withdraw</a>
-                </div>
+        
+        <div class="price-card" style="width: 100%; max-width: 400px; margin: 0 auto; background: #0a0a0a; cursor: default;">
+            <p style="color: #888; font-size: 14px; margin-bottom: 10px;">TOTAL BALANCE</p>
+            <h2 style="font-size: 56px; margin: 0; color: white;">
+                <span id="balance">0</span> <span style="font-size: 20px; color: #444;">Tokens</span>
+            </h2>
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
+                <a href="buy.html" class="btn" style="flex: 1;">+ Add Money</a>
+                <button id="withdraw-btn" onclick="alert('Withdrawals coming soon!')" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
             </div>
-
         </div>
 
-        <div style="margin-top: 60px;">
-            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">YOUR TOOLS</h3>
+        <div id="creator-section" style="margin-top: 60px;">
+            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">STREAMER TOOLS</h3>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 
                 <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
-                    <h4 style="margin: 0 0 10px 0;">Alert Box URL</h4>
-                    <p style="color: #666; font-size: 13px;">Use this link in OBS to show alerts on stream.</p>
-                    <button class="btn btn-secondary" style="width: 100%; margin-top: 15px; margin-left:0;" onclick="alert('Overlay Link Copied! (Simulated)')">Copy Link</button>
+                    <h4 style="margin: 0 0 10px 0;">🔴 Alert Box URL</h4>
+                    <p style="color: #666; font-size: 13px;">Add this as a "Browser Source" in OBS.</p>
+                    <input type="text" id="overlay-url" readonly style="font-size: 12px; color: #888; margin-bottom: 10px;">
+                    <button class="btn btn-secondary" style="width: 100%; margin:0;" onclick="copyToClipboard('overlay-url')">Copy URL</button>
                 </div>
 
                 <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
-                    <h4 style="margin: 0 0 10px 0;">Tipping Page</h4>
-                    <p style="color: #666; font-size: 13px;">Share this public link with your viewers.</p>
-                    <button class="btn btn-secondary" style="width: 100%; margin-top: 15px; margin-left:0;" onclick="alert('Profile Link Copied! (Simulated)')">Copy Link</button>
+                    <h4 style="margin: 0 0 10px 0;">🔗 Your Tipping Page</h4>
+                    <p style="color: #666; font-size: 13px;">Share this link with your viewers.</p>
+                    <input type="text" id="tip-page-url" readonly style="font-size: 12px; color: #888; margin-bottom: 10px;">
+                    <button class="btn btn-secondary" style="width: 100%; margin:0;" onclick="copyToClipboard('tip-page-url')">Copy URL</button>
                 </div>
-
             </div>
+
+            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">RECENT TIPS</h3>
+            <div id="history-container">
+                <p style="color: #666; font-style: italic;">Loading history...</p>
+            </div>
+        </div>
+
+        <div id="viewer-section" style="margin-top: 60px; text-align: center;">
+            <h3 style="color: #fff;">Ready to support?</h3>
+            <p style="color: #888;">Find a creator and send your first tip.</p>
+            <a href="tip.html" class="btn" style="display: inline-block; margin-top: 10px;">Send a Tip</a>
         </div>
 
     </div>
 
-    <script src="js/dashboard.js"></script>
-<footer>
+    <footer>
         <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Refund Policy</a>
-            <a href="mailto:support@xdtip.com">Contact Us</a>
-        </div>
     </footer>
+
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
