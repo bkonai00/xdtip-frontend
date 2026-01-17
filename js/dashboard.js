@@ -16,8 +16,17 @@ async function loadDashboard() {
         });
         const data = await res.json();
 
-        if (data.success) {
-            const user = data.user;
+        // ... inside loadDashboard() ...
+if (data.success) {
+    const user = data.user;
+    // ... existing lines ...
+    document.getElementById('role-badge').innerText = user.role.toUpperCase();
+
+    // ✅ ADD THIS: Show Current Logo
+    if (user.logo_url) {
+        document.getElementById('current-logo').src = user.logo_url;
+    }
+    // ...
 
             // 2. Fill Basic Info
             document.getElementById('user-name').innerText = user.username;
@@ -105,5 +114,6 @@ function logout() {
 
 // Run on load
 loadDashboard();
+
 
 
