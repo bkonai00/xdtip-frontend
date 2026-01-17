@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamTipz - The Future of Monetization</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap');
+
+        :root {
+            --primary: #00ff88;     /* Neon Green */
+            --bg: #050505;          /* Deep Black */
+            --card-bg: #0f0f0f;     /* Slightly lighter black */
+            --text-main: #ffffff;
+            --text-muted: #888888;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 5%;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -1px; }
+        .dot { color: var(--primary); }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+        .btn-nav {
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 6px;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Background Glow Effect */
+        .glow-spot {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: -1;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* --- MISSION SECTION --- */
+        .mission-box {
+            background: linear-gradient(180deg, rgba(20,20,20,0.8), rgba(10,10,10,1));
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 50px;
+            margin: 40px auto;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h2 { font-family: 'Outfit', sans-serif; font-size: 32px; margin-bottom: 20px; }
+        .highlight { color: var(--primary); }
+
+        /* --- FOUNDER QUOTE --- */
+        .quote-container {
+            max-width: 800px;
+            margin: 80px auto;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .quote-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .quote-text {
+            font-size: 24px;
+            font-style: italic;
+            color: #ddd;
+            font-weight: 300;
+            margin: 0;
+        }
+
+        .founder {
+            margin-top: 20px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 14px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .founder span { color: var(--primary); }
+
+        /* --- FEATURES GRID --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            margin-top: 0;
+            color: white;
+        }
+
+        .card p { color: var(--text-muted); font-size: 15px; }
+
+        .stat-big {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: block;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* --- CTA FOOTER --- */
+        .cta-section {
+            text-align: center;
+            padding: 100px 20px;
+            background: radial-gradient(circle at center, rgba(0,255,136,0.05) 0%, rgba(5,5,5,0) 70%);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: black;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,255,136,0.4); }
+
+        /* MOBILE TWEAKS */
+        @media (max-width: 600px) {
+            h1 { font-size: 40px; }
+            .quote-text { font-size: 18px; }
+            .mission-box { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" style="text-decoration:none; color:white;">
+            <div class="logo">StreamTipz<span class="dot">.</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="login.html" class="btn-nav">Login</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="glow-spot"></div>
+        <p style="color:var(--primary); font-weight:700; letter-spacing:2px; font-size:12px; text-transform:uppercase; margin-bottom:10px;">The Ultimate Infrastructure</p>
+        <h1>Built specifically for the<br>Indian Streaming Ecosystem.</h1>
+        <p class="subtitle">
+            Traditional platforms take massive cuts and delay your money. 
+            We changed the paradigm. Instant support, secure payments, max retention.
+        </p>
+    </div>
+
+    <div class="quote-container">
+        <div class="quote-line"></div>
+        <p class="quote-text">
+            "I built StreamTipz because I'm a gamer first. I know the struggle of delayed payments and high fees. 
+            I wanted a system where the 'Tip Alert' feels instant, and the money hits your bank just as fast."
+        </p>
+        <div class="founder">
+            EXPOSUREEE <span>// FOUNDER</span>
+        </div>
+    </div>
+
+    <div class="mission-box">
+        <h2>Our Mission</h2>
+        <p>
+            Content creation is real work. Whether you're grinding ranked matches or entertaining thousands, 
+            you deserve to keep the majority of what you earn. 
+            <br><br>
+            Our goal is simple: <span style="color:white; font-weight:600;">Empower streamers to accept support from true fans instantly, securely, and with maximum earnings retention.</span>
+        </p>
+    </div>
+
+    <div class="features-grid">
+        <div class="card">
+            <span class="stat-big">92%</span>
+            <h3>Revenue Retention</h3>
+            <p>The industry standard is taking 40-50%. We take a small fee to keep the servers running; <span style="color:white;">you keep the wealth.</span></p>
+        </div>
+
+        <div class="card">
+            <span class="stat-big">⚡</span>
+            <h3>Instant Settlement</h3>
+            <p>Built for India's favorite payment method (UPI). No international waits. Money moves as fast as your gameplay.</p>
+        </div>
+
+        <div class="card">
+            <span class="stat-big">🎮</span>
+            <h3>Zero-Lag Alerts</h3>
+            <p>Integrated with our custom overlay system for that instant dopamine hit on stream. No delays.</p>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <h2 style="font-size:36px; margin-bottom:10px;">Ready to Upgrade?</h2>
+        <p style="color:#888; margin-bottom:30px;">Join the new standard for Indian creators.</p>
+        <a href="register.html" class="btn-primary">Start Earning Now</a>
+    </div>
+
+</body>
+</html>
