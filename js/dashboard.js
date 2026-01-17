@@ -212,8 +212,8 @@ async function loadWithdrawals(token) {
                     <tr>
                         <td>${w.date}</td>
                         <td style="font-weight:bold;">${w.amount}</td>
-                        <td style="font-weight:bold;">${w.T_ID}</td>
                         <td style="color:${color}; text-transform:uppercase; font-size:12px; font-weight:bold;">${w.status}</td>
+                        <td style="font-weight:bold;">${w.t_id}</td>
                     </tr>
                 `;
             });
@@ -230,5 +230,6 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
 
 
