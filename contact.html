@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support | XDTIP</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;800&family=Inter:wght@400;600&display=swap');
+
+        :root {
+            --primary: #00ff88;
+            --bg: #050505;
+            --card-bg: #0e0e0e;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* NAV */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 5%;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -1px; }
+        .dot { color: var(--primary); }
+        .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 25px; font-size: 14px; font-weight: 500; transition: 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* HERO */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 40px;
+        }
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: white;
+        }
+        .subtitle { color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto; }
+
+        /* CONTACT GRID */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
+        }
+
+        .icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        h3 { font-family: 'Outfit', sans-serif; font-size: 24px; margin-bottom: 10px; color: white; }
+        p { color: var(--text-muted); margin-bottom: 25px; }
+
+        .btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: black;
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: black;
+            border: 1px solid var(--primary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #444;
+            font-size: 13px;
+            margin-top: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" style="text-decoration:none; color:white;">
+            <div class="logo">XDTIP<span class="dot">.</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Global Support Infrastructure</h1>
+        <p class="subtitle">Whether you have a technical question or a partnership inquiry, our team is deployed and ready to assist.</p>
+    </div>
+
+    <div class="contact-grid">
+        
+        <div class="card">
+            <span class="icon">✉️</span>
+            <h3>Email Support</h3>
+            <p>For account recovery, API access, and legal inquiries.</p>
+            <a href="mailto:connect@xdfun.in" class="btn">connect@xdfun.in</a>
+        </div>
+
+        <div class="card">
+            <span class="icon">💬</span>
+            <h3>Live Operations</h3>
+            <p>Instant support via our encrypted chat network.</p>
+            <a href="javascript:void(0);" onclick="Tawk_API.toggle();" class="btn btn-primary">Start Chat</a>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 XDTIP Inc. <br>
+        <a href="privacy.html" style="color:#444; text-decoration:none;">Privacy</a> • 
+        <a href="terms.html" style="color:#444; text-decoration:none;">Terms</a>
+    </footer>
+
+    <!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/5f9ce72e7f0a8e57c2d8984c/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+
+    </body>
+</html>
