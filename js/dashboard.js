@@ -3,7 +3,7 @@ const API_URL = "https://xdtip-backend.onrender.com";
 
 // ⚠️ REPLACE WITH YOUR GITHUB PAGES URL (Where your frontend lives)
 // Example: "https://yourname.github.io/xdtip-frontend"
-const FRONTEND_URL = "https://github.com/bkonai00/xdtip-frontend"; 
+const FRONTEND_URL = "https://bkonai00.github.io/xdtip-frontend/"; 
 
 async function loadDashboard() {
     const token = localStorage.getItem('token');
@@ -105,4 +105,5 @@ function logout() {
 
 // Run on load
 loadDashboard();
+
 
