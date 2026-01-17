@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="description" content="XDTIP Terms of Service. Read the user agreement regarding platform fees, UPI payouts, and acceptable use policies for the XDTIP monetization infrastructure.">
+    <meta name="keywords" content="XDTIP Terms of Service, User Agreement, Streamer Monetization Rules, UPI Payout Policy, Creator Platform Legal">
+    <meta name="robots" content="noindex, follow"> <title>Terms of Service | XDTIP</title>
+    
+    <style>
+        /* --- VISUAL IDENTITY (Matches Privacy/About) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Inter:wght@400;600&display=swap');
+
+        :root {
+            --primary: #00ff88;
+            --bg: #050505;
+            --card-bg: #0e0e0e;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.8;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 5%;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -1px; }
+        .dot { color: var(--primary); }
+        .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 25px; font-size: 14px; font-weight: 500; transition: 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* --- CONTENT CONTAINER --- */
+        .legal-container {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 0 20px 100px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .last-updated {
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 50px;
+            display: block;
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            color: white;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        p, ul {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        ul { list-style: none; padding: 0; }
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 15px;
+        }
+        ul li::before {
+            content: "➜";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+            font-size: 12px;
+            top: 4px;
+        }
+
+        .warning-box {
+            background: rgba(255, 59, 59, 0.05);
+            border: 1px solid rgba(255, 59, 59, 0.2);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            color: #ffaaaa;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #444;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" style="text-decoration:none; color:white;">
+            <div class="logo">XDTIP<span class="dot">.</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="register.html">Register</a>
+        </div>
+    </nav>
+
+    <div class="legal-container">
+        <h1>Terms of Service</h1>
+        <span class="last-updated">Last Updated: January 18, 2026</span>
+
+        <p>Welcome to <strong>XDTIP</strong>. By creating an account, accessing our dashboard, or utilizing our overlay infrastructure, you enter into a legally binding agreement with XDTIP ("we," "us," or "platform"). Please read these terms meticulously.</p>
+
+        <h2>1. Scope of Service</h2>
+        <p>XDTIP operates as a <strong>Technical Intermediary</strong>. We provide the digital infrastructure that enables content creators ("Streamers") to receive monetary support ("Tips") from their audience via third-party payment gateways. We do not act as a bank, wallet, or financial institution. We facilitate the notification (alerts) and record-keeping of these transactions.</p>
+
+        <h2>2. Financial Protocol & Fees</h2>
+        <p>By using our platform, you acknowledge and agree to the following financial structure:</p>
+        <ul>
+            <li><strong>Platform Operational Fee:</strong> XDTIP retains a flat fee of <strong>8%</strong> from the gross transaction value of every tip received. This fee is deducted at source and covers server maintenance, WebSocket connectivity costs, and gateway processing charges.</li>
+            <li><strong>Settlement via UPI:</strong> All payouts are processed via the Unified Payments Interface (UPI). It is your sole responsibility to ensure your UPI ID is accurate and active.</li>
+            <li><strong>Liability for Errors:</strong> XDTIP shall <u>not</u> be held liable for funds transferred to an incorrect bank account or UPI ID resulting from user error during the setup process.</li>
+            <li><strong>Fiscal Responsibility:</strong> You (the Creator) are solely responsible for declaring this income and paying any applicable direct or indirect taxes (e.g., GST, Income Tax) as per the laws of your jurisdiction.</li>
+        </ul>
+
+        <h2>3. Acceptable Use Policy (AUP)</h2>
+        <p>We maintain a Zero-Tolerance Policy regarding the misuse of our financial rails. You may strictly <strong>NOT</strong> use XDTIP for:</p>
+        <ul>
+            <li>Money laundering, terrorist financing, or any form of financial fraud.</li>
+            <li>The distribution of pornography, sexually explicit content, or content promoting hate speech and violence.</li>
+            <li>Harassing, bullying, or doxxing other individuals.</li>
+            <li>Testing stolen credit cards or payment instruments.</li>
+        </ul>
+        <div class="warning-box">
+            <strong>Enforcement:</strong> Our automated fraud detection systems monitor transaction velocity. Any account suspected of "Self-Tipping" (using stolen cards to wash money) or violating the AUP will be <strong>banned instantly</strong> and funds will be frozen pending a legal investigation.
+        </div>
+
+        <h2>4. Disclaimer of Warranties</h2>
+        <p>The XDTIP service is provided on an "AS IS" and "AS AVAILABLE" basis. While we strive for 99.9% uptime:</p>
+        <ul>
+            <li>We do not guarantee that the service will be uninterrupted, secure, or strictly error-free.</li>
+            <li>We are not responsible for downtime caused by third-party APIs (e.g., Razorpay outages, UPI banking server failures).</li>
+        </ul>
+
+        <h2>5. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by applicable law, XDTIP and its founder (XDFUN) shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of the service.</p>
+
+        <h2>6. Governing Law</h2>
+        <p>These Terms shall be governed and construed in accordance with the laws of <strong>India</strong>, without regard to its conflict of law provisions.</p>
+
+    </div>
+
+    <footer>
+        &copy; 2026 XDTIP Inc. All Rights Reserved.<br>
+        Engineered in India.
+    </footer>
+
+</body>
+</html>
