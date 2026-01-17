@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamTipz - The Future of Monetization</title>
+    <meta name="description" content="XDTIP is India's premier monetization infrastructure for streamers. Accept UPI donations with instant settlement, zero-lag overlays, and 92% revenue retention. Built by XDFUN.">
+    <meta name="keywords" content="Streamer Monetization, UPI Donation, Indian Gaming, OBS Overlay, XDTIP, Creator Tools, Instant Payout">
+    <meta name="author" content="XDFUN">
+    
+    <title>Why XDTIP? The Future of Creator Monetization</title>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Inter:wght@400;600&display=swap');
+        /* --- FONTS & VISUAL IDENTITY --- */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;800&family=Inter:wght@400;500;600&display=swap');
 
         :root {
-            --primary: #00ff88;     /* Neon Green */
-            --bg: #050505;          /* Deep Black */
-            --card-bg: #0f0f0f;     /* Slightly lighter black */
-            --text-main: #ffffff;
-            --text-muted: #888888;
+            --primary: #00ff88;     /* The "Success" Green */
+            --accent: #ffffff;      /* Pure White */
+            --bg: #050505;          /* Deepest Black */
+            --card-bg: #0e0e0e;     /* Surface Color */
+            --text-muted: #9ca3af;  /* Readable Grey */
         }
 
         body {
             background-color: var(--bg);
-            color: var(--text-main);
+            color: var(--accent);
             font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            line-height: 1.7;
             overflow-x: hidden;
         }
 
@@ -31,62 +37,84 @@
             justify-content: space-between;
             padding: 20px 5%;
             align-items: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            background: rgba(5, 5, 5, 0.7);
             position: sticky;
             top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-        .logo { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -1px; }
+        .logo { 
+            font-family: 'Outfit', sans-serif; 
+            font-weight: 800; 
+            font-size: 26px; 
+            letter-spacing: -1px; 
+            text-transform: uppercase;
+        }
         .dot { color: var(--primary); }
 
         .nav-links a {
             color: var(--text-muted);
             text-decoration: none;
-            margin-left: 25px;
+            margin-left: 30px;
             font-size: 14px;
             font-weight: 500;
-            transition: 0.3s;
+            transition: color 0.3s ease;
         }
         .nav-links a:hover { color: var(--primary); }
         .btn-nav {
             border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
         }
 
         /* --- HERO SECTION --- */
         .hero {
             text-align: center;
-            padding: 80px 20px 60px;
-            max-width: 900px;
+            padding: 120px 20px 80px;
+            max-width: 960px;
             margin: 0 auto;
             position: relative;
         }
 
-        /* Background Glow Effect */
+        /* Ambient Light */
         .glow-spot {
             position: absolute;
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             background: var(--primary);
-            filter: blur(150px);
-            opacity: 0.15;
+            filter: blur(180px);
+            opacity: 0.12;
             border-radius: 50%;
             z-index: -1;
-            top: -50px;
+            top: -100px;
             left: 50%;
             transform: translateX(-50%);
         }
 
+        .eyebrow {
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 3px;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: inline-block;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 5px 15px;
+            border-radius: 50px;
+        }
+
         h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 56px;
+            font-size: 64px;
             font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.1;
-            background: linear-gradient(to right, #fff, #aaa);
+            margin-bottom: 25px;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -95,133 +123,174 @@
             font-size: 20px;
             color: var(--text-muted);
             max-width: 700px;
-            margin: 0 auto 40px;
+            margin: 0 auto 50px;
+            font-weight: 400;
         }
 
         /* --- MISSION SECTION --- */
         .mission-box {
-            background: linear-gradient(180deg, rgba(20,20,20,0.8), rgba(10,10,10,1));
+            background: rgba(20, 20, 20, 0.6);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px;
-            padding: 50px;
+            border-radius: 24px;
+            padding: 60px;
             margin: 40px auto;
-            max-width: 800px;
+            max-width: 850px;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
-        h2 { font-family: 'Outfit', sans-serif; font-size: 32px; margin-bottom: 20px; }
-        .highlight { color: var(--primary); }
+        h2 { 
+            font-family: 'Outfit', sans-serif; 
+            font-size: 36px; 
+            margin-bottom: 25px; 
+            color: white; 
+            font-weight: 700;
+        }
+        
+        .mission-text p {
+            font-size: 18px;
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
 
         /* --- FOUNDER QUOTE --- */
         .quote-container {
-            max-width: 800px;
-            margin: 80px auto;
+            max-width: 850px;
+            margin: 100px auto;
             position: relative;
-            padding-left: 40px;
+            padding-left: 50px;
         }
 
         .quote-line {
             position: absolute;
             left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--primary);
-            border-radius: 2px;
-            box-shadow: 0 0 15px var(--primary);
+            top: 10px;
+            bottom: 10px;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), transparent);
         }
 
         .quote-text {
-            font-size: 24px;
-            font-style: italic;
-            color: #ddd;
-            font-weight: 300;
-            margin: 0;
+            font-size: 26px;
+            font-style: normal;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            color: #ffffff;
+            line-height: 1.4;
         }
 
         .founder {
-            margin-top: 20px;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            letter-spacing: 1px;
+            margin-top: 30px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
             font-size: 14px;
             color: var(--text-muted);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .founder span { color: var(--primary); }
+        .founder-img {
+            width: 40px;
+            height: 40px;
+            background: #222;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
 
         /* --- FEATURES GRID --- */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            max-width: 1000px;
-            margin: 80px auto;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1100px;
+            margin: 100px auto;
             padding: 0 20px;
         }
 
         .card {
             background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 30px;
-            border-radius: 16px;
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 40px;
+            border-radius: 20px;
+            transition: all 0.4s ease;
             position: relative;
-            overflow: hidden;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 255, 136, 0.3);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px -10px rgba(0, 255, 136, 0.1);
+        }
+
+        .stat-big {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+            letter-spacing: -2px;
         }
 
         .card h3 {
             font-family: 'Outfit', sans-serif;
-            font-size: 22px;
-            margin-top: 0;
+            font-size: 24px;
+            margin: 0 0 15px 0;
             color: white;
         }
 
-        .card p { color: var(--text-muted); font-size: 15px; }
-
-        .stat-big {
-            font-size: 42px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 10px;
-            display: block;
-            font-family: 'Outfit', sans-serif;
+        .card p { 
+            color: var(--text-muted); 
+            font-size: 16px; 
+            margin: 0; 
         }
 
-        /* --- CTA FOOTER --- */
+        /* --- CTA SECTION --- */
         .cta-section {
             text-align: center;
-            padding: 100px 20px;
-            background: radial-gradient(circle at center, rgba(0,255,136,0.05) 0%, rgba(5,5,5,0) 70%);
+            padding: 120px 20px;
+            background: radial-gradient(circle at center, rgba(0,255,136,0.08) 0%, rgba(5,5,5,0) 60%);
+            margin-top: 50px;
         }
 
         .btn-primary {
             background: var(--primary);
-            color: black;
-            padding: 15px 40px;
-            border-radius: 50px;
+            color: #000;
+            padding: 20px 50px;
+            border-radius: 100px;
             font-weight: 700;
             font-size: 18px;
             text-decoration: none;
             display: inline-block;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
             font-family: 'Outfit', sans-serif;
+            border: 2px solid var(--primary);
         }
-        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,255,136,0.4); }
+        .btn-primary:hover { 
+            background: transparent;
+            color: var(--primary);
+            box-shadow: 0 0 30px rgba(0,255,136,0.2); 
+        }
 
-        /* MOBILE TWEAKS */
-        @media (max-width: 600px) {
-            h1 { font-size: 40px; }
-            .quote-text { font-size: 18px; }
-            .mission-box { padding: 30px 20px; }
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            color: #555;
+            font-size: 14px;
+            border-top: 1px solid #111;
+        }
+
+        /* MOBILE OPTIMIZATION */
+        @media (max-width: 768px) {
+            h1 { font-size: 42px; }
+            .hero { padding-top: 80px; }
+            .mission-box { padding: 40px 25px; }
+            .quote-text { font-size: 20px; }
+            .features-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -229,70 +298,81 @@
 
     <nav>
         <a href="index.html" style="text-decoration:none; color:white;">
-            <div class="logo">StreamTipz<span class="dot">.</span></div>
+            <div class="logo">XDTIP<span class="dot">.</span></div>
         </a>
         <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="login.html" class="btn-nav">Login</a>
+            <a href="index.html">Platform</a>
+            <a href="login.html" class="btn-nav">Dashboard Login</a>
         </div>
     </nav>
 
     <div class="hero">
         <div class="glow-spot"></div>
-        <p style="color:var(--primary); font-weight:700; letter-spacing:2px; font-size:12px; text-transform:uppercase; margin-bottom:10px;">The Ultimate Infrastructure</p>
-        <h1>Built specifically for the<br>Indian Streaming Ecosystem.</h1>
+        <span class="eyebrow">ABOUT XDTIP INFRASTRUCTURE</span>
+        <h1>The Operating System for<br>India's Creator Economy.</h1>
         <p class="subtitle">
-            Traditional platforms take massive cuts and delay your money. 
-            We changed the paradigm. Instant support, secure payments, max retention.
+            We are replacing outdated donation systems with a high-velocity, low-latency financial layer built specifically for Indian streamers.
         </p>
+    </div>
+
+    <div class="mission-box">
+        <h2>The Mission Blueprint</h2>
+        <div class="mission-text">
+            <p>
+                Content creation is labor. Whether you are grinding competitive ranked queues or entertaining thousands of live viewers, 
+                you are building value. However, traditional platforms dilute that value through exorbitant fees and weeks-long settlement delays.
+            </p>
+            <p style="color: white; font-weight: 600; margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px;">
+                XDTIP was engineered to dismantle these barriers. We empower creators to accept UPI support from fans instantly, securely, and with maximum revenue retention.
+            </p>
+        </div>
     </div>
 
     <div class="quote-container">
         <div class="quote-line"></div>
         <p class="quote-text">
-            "I built StreamTipz because I'm a gamer first. I know the struggle of delayed payments and high fees. 
-            I wanted a system where the 'Tip Alert' feels instant, and the money hits your bank just as fast."
+            "I didn't build XDTIP just to make another platform; I built it to solve a pain point I lived through daily. 
+            The Indian gaming ecosystem deserves infrastructure that moves as fast as our gameplay. 
+            No delays. No hidden cuts. Just pure performance."
         </p>
         <div class="founder">
-            EXPOSUREEE <span>// FOUNDER</span>
+            <div class="founder-img" style="background: url('https://ui-avatars.com/api/?name=X+D&background=00ff88&color=000') center/cover;"></div>
+            <div>
+                XDFUN <br><span style="color: var(--primary); font-size: 11px; letter-spacing: 0.5px;">FOUNDER & ARCHITECT</span>
+            </div>
         </div>
-    </div>
-
-    <div class="mission-box">
-        <h2>Our Mission</h2>
-        <p>
-            Content creation is real work. Whether you're grinding ranked matches or entertaining thousands, 
-            you deserve to keep the majority of what you earn. 
-            <br><br>
-            Our goal is simple: <span style="color:white; font-weight:600;">Empower streamers to accept support from true fans instantly, securely, and with maximum earnings retention.</span>
-        </p>
     </div>
 
     <div class="features-grid">
         <div class="card">
             <span class="stat-big">92%</span>
             <h3>Revenue Retention</h3>
-            <p>The industry standard is taking 40-50%. We take a small fee to keep the servers running; <span style="color:white;">you keep the wealth.</span></p>
+            <p>While industry standards demand a 40-50% cut of your hard-earned money, XDTIP operates on a minimal operational fee model. <strong>You keep the wealth you generate.</strong></p>
         </div>
 
         <div class="card">
-            <span class="stat-big">⚡</span>
+            <span class="stat-big">UPI</span>
             <h3>Instant Settlement</h3>
-            <p>Built for India's favorite payment method (UPI). No international waits. Money moves as fast as your gameplay.</p>
+            <p>Built natively for India's Unified Payments Interface. Bypassing international holding periods, your funds move directly from fan to creator in real-time.</p>
         </div>
 
         <div class="card">
-            <span class="stat-big">🎮</span>
-            <h3>Zero-Lag Alerts</h3>
-            <p>Integrated with our custom overlay system for that instant dopamine hit on stream. No delays.</p>
+            <span class="stat-big">0ms</span>
+            <h3>Cognitive Overlays</h3>
+            <p>Our websocket architecture ensures that "Tip Alerts" trigger the millisecond a transaction clears, maximizing viewer engagement and dopamine loops.</p>
         </div>
     </div>
 
     <div class="cta-section">
-        <h2 style="font-size:36px; margin-bottom:10px;">Ready to Upgrade?</h2>
-        <p style="color:#888; margin-bottom:30px;">Join the new standard for Indian creators.</p>
-        <a href="register.html" class="btn-primary">Start Earning Now</a>
+        <h2 style="font-size:42px; font-weight: 800; margin-bottom:15px; font-family: 'Outfit', sans-serif;">Ready to Upgrade?</h2>
+        <p style="color:#888; margin-bottom:40px; font-size: 18px;">Join the new standard for professional creators.</p>
+        <a href="register.html" class="btn-primary">Claim Your Dashboard</a>
     </div>
+
+    <footer>
+        <p>&copy; 2026 XDTIP Inc. Engineered in India by XDFUN.</p>
+        <p style="color:#333; font-size: 12px; margin-top: 10px;">Terms of Service • Privacy Policy • Developer API</p>
+    </footer>
 
 </body>
 </html>
