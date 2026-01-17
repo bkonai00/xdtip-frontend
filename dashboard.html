@@ -44,6 +44,25 @@
         </div>
 
         <div id="creator-section" style="margin-top: 60px;">
+            <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
+    
+    <div style="position: relative;">
+        <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
+             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+    </div>
+
+    <div style="flex: 1;">
+        <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
+        <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Upload a square image (PNG/JPG).</p>
+        
+        <input type="file" id="logo-file" accept="image/*" style="display: none;" onchange="uploadLogo()">
+        <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">
+            📸 Upload New Logo
+        </button>
+        <span id="upload-status" style="font-size: 12px; margin-left: 10px; color: #888;"></span>
+    </div>
+
+</div>
             <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">STREAMER TOOLS</h3>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
@@ -84,3 +103,4 @@
     <script src="js/dashboard.js"></script>
 </body>
 </html>
+
