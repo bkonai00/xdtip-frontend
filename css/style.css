@@ -1,0 +1,211 @@
+/* ============================
+   XD-TIP PROFESSIONAL THEME
+   ============================ */
+:root {
+    --bg-color: #050505;
+    --card-bg: #111111;
+    --primary: #ff3b3b;
+    --primary-hover: #d32f2f;
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --border: #222222;
+    --glass: rgba(255, 255, 255, 0.03);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- NAVIGATION --- */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    background: rgba(5, 5, 5, 0.8);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.dot { color: var(--primary); }
+
+.nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-left: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.nav-links a:hover { color: var(--text-main); }
+
+/* --- HERO SECTION --- */
+.hero {
+    text-align: center;
+    padding: 120px 20px;
+    background: radial-gradient(circle at 50% 10%, #1a0505 0%, #050505 60%);
+}
+
+.hero h1 {
+    font-size: 64px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -2px;
+    line-height: 1.1;
+}
+
+.hero p {
+    color: var(--text-muted);
+    font-size: 20px;
+    max-width: 600px;
+    margin: 0 auto 40px auto;
+}
+
+/* --- BUTTONS --- */
+.btn {
+    padding: 15px 35px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 59, 59, 0.2);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    margin-left: 10px;
+}
+
+.btn-secondary:hover {
+    border-color: var(--text-main);
+    background: var(--card-bg);
+}
+
+/* --- FORMS & CARDS --- */
+.container {
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 40px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #0f0f0f;
+}
+
+/* --- PRICING CARDS --- */
+.pricing-grid {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.price-card {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    width: 220px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.price-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+.price-card.popular {
+    border: 1px solid var(--primary);
+    background: linear-gradient(145deg, #1a0505, #111);
+}
+
+.badge {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: var(--primary);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+/* --- FOOTER --- */
+footer {
+    margin-top: auto; /* Pushes footer to the bottom */
+    background: #080808;
+    border-top: 1px solid #111;
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: #444;
+}
+
+.footer-links {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: #666;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.footer-links a:hover {
+    color: #ff3b3b; /* Highlights red on hover */
+}

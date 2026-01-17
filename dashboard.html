@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | xdtip</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">xdtip<span class="dot">.</span></div>
+        <div class="nav-links">
+            <button onclick="logout()" class="btn btn-secondary" style="padding: 8px 20px; font-size: 14px;">Logout</button>
+        </div>
+    </nav>
+
+    <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
+        <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
+        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span></h1>
+    </div>
+
+    <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
+        <div class="pricing-grid" style="margin-top: 0;">
+            
+            <div class="price-card" style="width: 100%; max-width: 400px; cursor: default; background: #0a0a0a;">
+                <p style="color: #888; font-size: 14px; margin-bottom: 10px;">TOTAL BALANCE</p>
+                <h2 style="font-size: 56px; margin: 0; color: white;">
+                    <span id="balance">0</span> <span style="font-size: 20px; color: #444;">Tokens</span>
+                </h2>
+                <div style="margin-top: 30px; display: flex; gap: 10px;">
+                    <a href="buy.html" class="btn" style="flex: 1;">+ Add Money</a>
+                    <a href="#" onclick="alert('Withdrawals coming soon!')" class="btn btn-secondary" style="flex: 1;">Withdraw</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="margin-top: 60px;">
+            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">YOUR TOOLS</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                
+                <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
+                    <h4 style="margin: 0 0 10px 0;">Alert Box URL</h4>
+                    <p style="color: #666; font-size: 13px;">Use this link in OBS to show alerts on stream.</p>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 15px; margin-left:0;" onclick="alert('Overlay Link Copied! (Simulated)')">Copy Link</button>
+                </div>
+
+                <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
+                    <h4 style="margin: 0 0 10px 0;">Tipping Page</h4>
+                    <p style="color: #666; font-size: 13px;">Share this public link with your viewers.</p>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 15px; margin-left:0;" onclick="alert('Profile Link Copied! (Simulated)')">Copy Link</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/dashboard.js"></script>
+<footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Refund Policy</a>
+            <a href="mailto:support@xdtip.com">Contact Us</a>
+        </div>
+    </footer>
+</body>
+</html>
