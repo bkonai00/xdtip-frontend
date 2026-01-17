@@ -111,9 +111,54 @@ function logout() {
     localStorage.removeItem('token');
     window.location.href = "login.html";
 }
+// UPLOAD LOGO FUNCTION
+async function uploadLogo() {
+    const fileInput = document.getElementById('logo-file');
+    const file = fileInput.files[0];
+    const status = document.getElementById('upload-status');
+    const token = localStorage.getItem('token');
+
+    if (!file) return;
+
+    // specific check for file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        alert("File too big! Max size is 2MB.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    try {
+        status.innerText = "Uploading...";
+        
+        const res = await fetch(`${API_URL}/upload-logo`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }, // No Content-Type needed for FormData
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            status.innerText = "Done!";
+            // Update the image immediately
+            document.getElementById('current-logo').src = data.url;
+            alert("Logo Updated Successfully!");
+        } else {
+            status.innerText = "Failed.";
+            alert("Upload Failed: " + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        status.innerText = "Error.";
+        alert("Server Error");
+    }
+}
 
 // Run on load
 loadDashboard();
+
 
 
 
