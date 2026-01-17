@@ -202,7 +202,7 @@ async function loadWithdrawals(token) {
         const container = document.getElementById('payout-container');
         
         if (data.success && data.history.length > 0) {
-            let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody>';
+            let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>T_ID</th></tr></thead><tbody>';
             
             data.history.forEach(w => {
                 // Color code status
@@ -212,6 +212,7 @@ async function loadWithdrawals(token) {
                     <tr>
                         <td>${w.date}</td>
                         <td style="font-weight:bold;">${w.amount}</td>
+                        <td style="font-weight:bold;">${w.T_ID}</td>
                         <td style="color:${color}; text-transform:uppercase; font-size:12px; font-weight:bold;">${w.status}</td>
                     </tr>
                 `;
@@ -229,4 +230,5 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
 
