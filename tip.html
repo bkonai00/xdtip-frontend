@@ -74,6 +74,20 @@
                 btn.innerText = "Send Tip";
             }
         });
+
+        // ... previous code ...
+
+    // ADD THIS AT THE BOTTOM OF YOUR SCRIPT
+    // Auto-fill Receiver from URL (e.g., tip.html?u=Ninja)
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('u');
+        if (username) {
+            document.getElementById('receiver').value = username;
+            document.getElementById('receiver').setAttribute('readonly', true); // Lock it so they can't change it
+        }
+    };
+        
     </script>
 <footer>
         <p>&copy; 2024 xdtip. All rights reserved.</p>
@@ -85,4 +99,5 @@
         </div>
     </footer>
 </body>
+
 </html>
