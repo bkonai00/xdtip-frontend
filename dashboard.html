@@ -70,7 +70,18 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 
                 <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
-                    <h4 style="margin: 0 0 10px 0;">🔴 Alert Box URL</h4>
+                    <h4 style="margin: 0 0 10px 0;">🔴 Alert Box Settings</h4>
+                    
+                    <label style="color:#666; font-size:12px;">DESIGN STYLE</label>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <select id="theme-selector" style="flex:1; padding:8px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                            <option value="classic">Classic (Standard)</option>
+                            <option value="neon">Neon (Cyberpunk)</option>
+                            <option value="minimal">Minimal (Clean)</option>
+                        </select>
+                        <button class="btn" style="padding:8px 15px; font-size:12px;" onclick="saveTheme()">Save</button>
+                    </div>
+
                     <p style="color: #666; font-size: 13px;">Add this as a "Browser Source" in OBS.</p>
                     <input type="text" id="overlay-url" readonly style="font-size: 12px; color: #888; margin-bottom: 10px;">
                     <button class="btn btn-secondary" style="width: 100%; margin:0;" onclick="copyToClipboard('overlay-url')">Copy URL</button>
@@ -123,6 +134,7 @@
     </div>
 </body>
 </html>
+
 
 
 
