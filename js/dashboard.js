@@ -2,7 +2,7 @@
 const API_URL = "https://app.xdfun.in"; 
 
 // ⚠️ REPLACE WITH YOUR GITHUB PAGES URL
-const FRONTEND_URL = "https://bkonai00.github.io/xdtip-frontend/"; 
+const FRONTEND_URL = "https://tip.xdfun.in/xdtip-frontend/"; 
 
 async function loadDashboard() {
     const token = localStorage.getItem('token');
@@ -237,6 +237,7 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
 
 
 
