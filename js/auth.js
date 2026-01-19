@@ -7,12 +7,12 @@ if (window.location.pathname.endsWith('.html')) {
 }
 // ----------------------------------------------------
 
-// ... rest of your existing code (API_URL, etc.) ...
+// ⚠️ USE YOUR RENDER BACKEND URL TO BE SAFE
+const API_URL = "https://xdtip-backend.onrender.com"; 
 
-// ⚠️ REPLACE THIS WITH YOUR RENDER BACKEND URL
-const API_URL = "https://app.xdfun.in"; 
-
-// LOGIN LOGIC (No changes needed here, but keeping it for completeness)
+// ==========================================
+// 1. LOGIN LOGIC
+// ==========================================
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -32,26 +32,29 @@ if (loginForm) {
             const data = await res.json();
             if (data.success) {
                 localStorage.setItem('token', data.token);
-                window.location.href = "/dashboard/";
+                // Redirect to dashboard.html (URL cleaner will hide the .html)
+                window.location.href = "/dashboard.html";
             } else {
                 alert(data.error || "Login Failed");
             }
         } catch (err) {
-            alert("Cannot connect to server.");
+            alert("Cannot connect to server. Check your internet.");
         } finally {
             btn.innerText = "Log In";
         }
     });
 }
 
-// REGISTER LOGIC (Updated to include ROLE)
+// ==========================================
+// 2. REGISTER LOGIC
+// ==========================================
 const registerForm = document.getElementById('register-form');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         // 1. Get Values
-        const role = document.getElementById('role').value; // <--- NEW
+        const role = document.getElementById('role').value; 
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -68,14 +71,15 @@ if (registerForm) {
                     username, 
                     email, 
                     password, 
-                    role // <--- sending role to server
+                    role 
                 })
             });
 
             const data = await res.json();
             if (data.success) {
                 alert("Account Created! Please Login.");
-                window.location.href = "/login/";
+                // Redirect to login.html (URL cleaner will hide the .html)
+                window.location.href = "/login.html";
             } else {
                 alert(data.error);
             }
@@ -86,6 +90,4 @@ if (registerForm) {
             btn.innerText = "Create Account";
         }
     });
-
-
 }
