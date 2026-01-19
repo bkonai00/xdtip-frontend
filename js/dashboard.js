@@ -54,7 +54,7 @@ if (user.logo_url) {
                 const overlayLink = `${API_URL}/overlay/${user.obs_token}`;
                 document.getElementById('overlay-url').value = overlayLink;
 
-                const tipLink = `${FRONTEND_URL}/tip/?u=${user.username}`;
+                const tipLink = `https://tip.xdfun.in/${user.username}`;
                 document.getElementById('tip-page-url').value = tipLink;
 
                 // Load History
@@ -237,6 +237,7 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
 
 
 
