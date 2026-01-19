@@ -23,11 +23,14 @@ async function loadDashboard() {
             document.getElementById('balance').innerText = user.balance;
             document.getElementById('role-badge').innerText = user.role.toUpperCase();
 
-            // 3. Show Current Logo (If it exists)
-            if (user.logo_url) {
-                document.getElementById('current-logo').src = user.logo_url;
-            }
+            const logoImg = document.getElementById('current-logo');
 
+if (user.logo_url) {
+    logoImg.src = user.logo_url;
+} else {
+    // Generates a nice avatar with their initials
+    logoImg.src = `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
+}
             // 4. HANDLE ROLES
             // ✅ FIXED SYNTAX ERROR HERE (It was missing 'user.role')
             if (user.role === 'creator') {
@@ -234,6 +237,7 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
 
 
 
