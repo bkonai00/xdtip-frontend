@@ -1,5 +1,5 @@
 // ⚠️ REPLACE WITH YOUR RENDER URL
-const API_URL = "https://app.xdfun.in/"; 
+const API_URL = "https://app.xdfun.in"; 
 
 // ⚠️ REPLACE WITH YOUR GITHUB PAGES URL
 const FRONTEND_URL = "https://bkonai00.github.io/xdtip-frontend/"; 
@@ -234,5 +234,6 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
 
 
