@@ -76,25 +76,47 @@
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 
-                <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
-                    <h4 style="margin: 0 0 10px 0;">🔴 Alert Box Settings</h4>
-                    
-                    <label style="color:#666; font-size:12px;">DESIGN STYLE</label>
-                    
-                    <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
-    <p style="color:#aaa; font-size:14px; margin-bottom:10px;">Test your overlay:</p>
-                        
-    <button onclick="sendTestAlert()" id="test-btn" style="background: #ff9800; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%;">
-        🔥 Send Test Alert
-    </button>
+                <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; gap: 20px; max-width: 350px;">
+
+    <h4 style="margin: 0; color: white; font-size: 16px;">
+        🔴 Alert Box Settings
+    </h4>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">DESIGN STYLE</label>
+        
+        <div style="display: flex; gap: 10px;">
+            <select id="theme-selector" style="flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; outline: none; font-size: 13px;">
+                <option value="classic">Classic (Standard)</option>
+                <option value="neon">Neon (Cyberpunk)</option>
+                <option value="minimal">Minimal (Clean)</option>
+            </select>
+            <button class="btn" onclick="saveTheme()" style="padding: 0 16px; background: #333; color: white; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                Save
+            </button>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        <p style="color: #666; font-size: 13px; margin: 0;">Add this as a "Browser Source" in OBS.</p>
+        
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="overlay-url" readonly value="https://stream.url/..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+            <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">
+                Copy
+            </button>
+        </div>
+    </div>
+
+    <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+        <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
+        
+        <button onclick="sendTestAlert()" id="test-btn" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s;">
+            🔥 Send Test Alert
+        </button>
+    </div>
+
 </div>
-                    
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <select id="theme-selector" style="flex:1; padding:8px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
-                            <option value="classic">Classic (Standard)</option>
-                            <option value="neon">Neon (Cyberpunk)</option>
-                            <option value="minimal">Minimal (Clean)</option>
-                        </select>
                         <button class="btn" style="padding:8px 15px; font-size:12px;" onclick="saveTheme()">Save</button>
                     </div>
 
@@ -159,6 +181,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
