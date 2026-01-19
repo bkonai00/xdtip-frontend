@@ -11,7 +11,7 @@
 <body>
 
     <nav>
-        <a href="index.html" style="text-decoration:none; color:white;">
+        <a href="/index/" style="text-decoration:none; color:white;">
             <div class="logo">xdtip<span class="dot">.</span></div>
         </a>
         <div class="nav-links">
@@ -55,7 +55,7 @@
             const token = localStorage.getItem('token');
             if(!token) {
                 alert("Please Login First");
-                window.location.href = "login.html";
+                window.location.href = "/login/";
                 return;
             }
             alert("⚠️ IMPORTANT: Enter your USERNAME on the payment page to receive tokens.");
@@ -64,16 +64,17 @@
     </script>
 <footer>
         <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms of Service</a>
-            <a href="refund-policy.html">Refund Policy</a>
-            <a href="contact.html">Contact Us</a>
+        <div class="/footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms/">Terms of Service</a>
+            <a href="/refund-policy/">Refund Policy</a>
+            <a href="/contact/">Contact Us</a>
         </div>
     </footer>
 </body>
 
 </html>
+
 
 
 
