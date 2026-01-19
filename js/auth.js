@@ -1,5 +1,5 @@
 // ⚠️ REPLACE THIS WITH YOUR RENDER BACKEND URL
-const API_URL = "https://xdtip-backend.onrender.com"; 
+const API_URL = "https://app.xdfun.in/"; 
 
 // LOGIN LOGIC (No changes needed here, but keeping it for completeness)
 const loginForm = document.getElementById('login-form');
@@ -77,3 +77,4 @@ if (registerForm) {
     });
 
 }
+
