@@ -94,11 +94,29 @@
 
         // 1. Load Creator Profile on Start
         window.onload = async function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const username = urlParams.get('u');
+            // ---------------------------------------------------------
+            // ✅ NEW: EXTRACT USERNAME FROM URL PATH (e.g. /xdfunYT)
+            // ---------------------------------------------------------
+            const path = window.location.pathname;
+            let username = path.substring(1); // Remove the leading slash "/"
 
+            // Clean up: Remove trailing slash if present (e.g. /xdfunYT/)
+            if (username.endsWith('/')) {
+                username = username.slice(0, -1);
+            }
+
+            // Clean up: Ignore system files if mistakenly loaded
+            if (username === "index.html" || username === "" || username === "tip") {
+                username = null;
+            }
+
+            // ---------------------------------------------------------
+            // MAIN LOGIC
+            // ---------------------------------------------------------
             if (username) {
-                document.getElementById('receiver').value = username;
+                // Set hidden receiver field
+                const receiverField = document.getElementById('receiver');
+                if(receiverField) receiverField.value = username;
                 
                 try {
                     // Fetch Creator Details (Logo)
@@ -113,24 +131,37 @@
                             const avatarBox = document.getElementById('avatar-placeholder');
                             // We use innerHTML to insert the image
                             avatarBox.innerHTML = `<img src="${data.user.logo_url}" alt="Logo">`;
-                            avatarBox.style.border = "2px solid #ff3b3b";
+                            avatarBox.style.border = "2px solid #00ff88"; // Changed to Green (Brand Color)
                         } else {
-                            document.getElementById('avatar-placeholder').innerText = username.charAt(0).toUpperCase();
+                            // UI Avatars Fallback (Better than text)
+                            const avatarBox = document.getElementById('avatar-placeholder');
+                            avatarBox.innerHTML = `<img src="https://ui-avatars.com/api/?name=${data.user.username}&background=00ff88&color=000&size=128" alt="Logo">`;
                         }
+                    } else {
+                        // User not found in backend
+                        console.error("User not found");
+                        showSearchBox();
                     }
                 } catch (err) {
-                    console.error("Could not load profile");
+                    console.error("Could not load profile", err);
+                    showSearchBox();
                 }
             } else {
-                // If no username in URL, show manual input
-                document.querySelector('.profile-header').innerHTML = `
-                    <h1 style="text-align:center;">Send a Tip</h1>
-                    <input type="text" placeholder="Enter Creator Username" 
-                    style="margin-top:20px; text-align:center; width:100%; padding:10px;" 
-                    onchange="document.getElementById('receiver').value = this.value">
-                `;
+                // No username in URL -> Show Search Box
+                showSearchBox();
             }
         };
+
+        // Helper function to show manual input if no user found
+        function showSearchBox() {
+             document.querySelector('.profile-header').innerHTML = `
+                <h1 style="text-align:center;">Send a Tip</h1>
+                <p style="color:#888; font-size:14px; text-align:center;">Enter a username to support them.</p>
+                <input type="text" placeholder="Enter Creator Username" 
+                style="margin-top:20px; text-align:center; width:100%; padding:15px; background:#111; border:1px solid #333; color:white; border-radius:8px;" 
+                onchange="window.location.href = '/' + this.value">
+            `;
+        }
 
         // 2. Chip Selection Helper
         function setAmount(val) {
