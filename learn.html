@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,9 +10,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="XDTIP is India's premier monetization infrastructure for streamers. Accept UPI donations with instant settlement, zero-lag overlays, and 92% revenue retention. Built by XDFUN.">
-    <meta name="keywords" content="Streamer Monetization, UPI Donation, Indian Gaming, OBS Overlay, XDTIP, Creator Tools, Instant Payout">
-    <meta name="author" content="XDFUN">
-    
     <title>Why XDTIP? The Future of Creator Monetization</title>
     
     <style>
@@ -206,10 +202,11 @@
             border: 2px solid var(--primary);
         }
 
-        /* --- FEATURES GRID --- */
+        /* --- FEATURES GRID (2x2 Layout Fix) --- */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            /* 👇 THIS FORCES 2 COLUMNS ALWAYS 👇 */
+            grid-template-columns: 1fr 1fr; 
             gap: 30px;
             max-width: 1100px;
             margin: 100px auto;
@@ -223,6 +220,9 @@
             border-radius: 20px;
             transition: all 0.4s ease;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .card:hover {
@@ -253,6 +253,7 @@
             color: var(--text-muted); 
             font-size: 16px; 
             margin: 0; 
+            line-height: 1.6;
         }
 
         /* --- CTA SECTION --- */
@@ -297,6 +298,7 @@
             .hero { padding-top: 80px; }
             .mission-box { padding: 40px 25px; }
             .quote-text { font-size: 20px; }
+            /* On mobile, stack them 1 by 1 */
             .features-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -367,6 +369,12 @@
             <span class="stat-big">0ms</span>
             <h3>Cognitive Overlays</h3>
             <p>Our websocket architecture ensures that "Tip Alerts" trigger the millisecond a transaction clears, maximizing viewer engagement and dopamine loops.</p>
+        </div>
+
+        <div class="card" style="border: 1px solid var(--primary); background: linear-gradient(180deg, rgba(0,255,136,0.05) 0%, rgba(14,14,14,1) 100%);">
+            <span class="stat-big" style="font-size: 42px;">PRO</span>
+            <h3>Enterprise Solutions</h3>
+            <p>Scale your brand identity with Completely Custom-Made Systems. We engineer custom overlay suites, exclusive stats widgets, and tailored alert mechanics for high-volume creators. <a href="/contact/" style="color: var(--primary); text-decoration: none; border-bottom: 1px solid var(--primary); font-weight:600;">Contact us</a> to design your signature identity.</p>
         </div>
     </div>
 
