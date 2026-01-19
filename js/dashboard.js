@@ -6,7 +6,7 @@ const FRONTEND_URL = "https://bkonai00.github.io/xdtip-frontend/";
 
 async function loadDashboard() {
     const token = localStorage.getItem('token');
-    if (!token) return window.location.href = "login.html";
+    if (!token) return window.location.href = "/login/";
 
     try {
         // 1. Fetch User Data
@@ -51,7 +51,7 @@ async function loadDashboard() {
                 const overlayLink = `${API_URL}/overlay/${user.obs_token}`;
                 document.getElementById('overlay-url').value = overlayLink;
 
-                const tipLink = `${FRONTEND_URL}/tip.html?u=${user.username}`;
+                const tipLink = `${FRONTEND_URL}/tip/?u=${user.username}`;
                 document.getElementById('tip-page-url').value = tipLink;
 
                 // Load History
@@ -103,7 +103,7 @@ function copyToClipboard(elementId) {
 
 function logout() {
     localStorage.removeItem('token');
-    window.location.href = "login.html";
+    window.location.href = "/login/";
 }
 
 // Save Theme Function
@@ -234,3 +234,4 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
