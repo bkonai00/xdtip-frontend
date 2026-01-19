@@ -1,3 +1,14 @@
+// ----------------------------------------------------
+// 🧹 URL CLEANER: Hides ".html" from the browser bar
+// ----------------------------------------------------
+if (window.location.pathname.endsWith('.html')) {
+    const cleanUrl = window.location.pathname.replace('.html', '');
+    window.history.replaceState(null, '', cleanUrl);
+}
+// ----------------------------------------------------
+
+// ... rest of your existing code (API_URL, etc.) ...
+
 // ⚠️ REPLACE THIS WITH YOUR RENDER BACKEND URL
 const API_URL = "https://app.xdfun.in"; 
 
@@ -75,19 +86,5 @@ if (registerForm) {
             btn.innerText = "Create Account";
         }
     });
-
-    // ----------------------------------------------------
-// 🧹 URL CLEANER: Hides ".html" from the browser bar
-// ----------------------------------------------------
-if (window.location.pathname.endsWith('.html')) {
-    const cleanUrl = window.location.pathname.replace('.html', '');
-    window.history.replaceState(null, '', cleanUrl);
-}
-// ----------------------------------------------------
-
-// ... rest of your existing code (API_URL, etc.) ...
-
-}
-
 
 
