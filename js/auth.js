@@ -21,7 +21,7 @@ if (loginForm) {
             const data = await res.json();
             if (data.success) {
                 localStorage.setItem('token', data.token);
-                window.location.href = "dashboard.html";
+                window.location.href = "/dashboard/";
             } else {
                 alert(data.error || "Login Failed");
             }
@@ -64,7 +64,7 @@ if (registerForm) {
             const data = await res.json();
             if (data.success) {
                 alert("Account Created! Please Login.");
-                window.location.href = "login.html";
+                window.location.href = "/login/";
             } else {
                 alert(data.error);
             }
@@ -75,4 +75,5 @@ if (registerForm) {
             btn.innerText = "Create Account";
         }
     });
+
 }
