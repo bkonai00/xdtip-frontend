@@ -1,9 +1,13 @@
----
----
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
     <meta charset="UTF-8">
     <title>Login | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
@@ -46,6 +50,7 @@
 </body>
 
 </html>
+
 
 
 
