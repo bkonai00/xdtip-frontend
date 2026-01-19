@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,108 +52,105 @@
 
         <div id="creator-section" style="margin-top: 60px;">
             <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
+                <div style="position: relative;">
+                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
+                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                </div>            
+                <div style="flex: 1;">
+                    <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
+                    <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Upload a square image (PNG/JPG).</p>
+                    
+                    <input type="file" id="logo-file" accept="image/*" style="display: none;" onchange="uploadLogo()">
+                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">
+                        📸 Upload New Logo
+                    </button>
+                    <span id="upload-status" style="font-size: 12px; margin-left: 10px; color: #888;"></span>
+                </div>
+            </div>
 
-    
-    <div style="position: relative;">
-        <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
-             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
-    </div>            
-
-    <div style="flex: 1;">
-        <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
-        <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Upload a square image (PNG/JPG).</p>
-        
-        <input type="file" id="logo-file" accept="image/*" style="display: none;" onchange="uploadLogo()">
-        <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">
-            📸 Upload New Logo
-        </button>
-        <span id="upload-status" style="font-size: 12px; margin-left: 10px; color: #888;"></span>
-    </div>
-                
-</div>
             <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
+                <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
+                    STREAMER TOOLS
+                </h3>
 
-    <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
-        STREAMER TOOLS
-    </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
+                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
+                        <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box Settings</h4>
 
-        <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-            <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box Settings</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">DESIGN STYLE</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="theme-selector" style="flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; outline: none; font-size: 13px;">
+                                    <option value="classic">Classic (Standard)</option>
+                                    <option value="neon">Neon (Cyberpunk)</option>
+                                    <option value="minimal">Minimal (Clean)</option>
+                                </select>
+                                <button class="btn" onclick="saveTheme()" style="padding: 0 16px; background: #333; color: white; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-size: 13px;">Save</button>
+                            </div>
+                        </div>
 
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">DESIGN STYLE</label>
-                <div style="display: flex; gap: 10px;">
-                    <select id="theme-selector" style="flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; outline: none; font-size: 13px;">
-                        <option value="classic">Classic (Standard)</option>
-                        <option value="neon">Neon (Cyberpunk)</option>
-                        <option value="minimal">Minimal (Clean)</option>
-                    </select>
-                    <button class="btn" onclick="saveTheme()" style="padding: 0 16px; background: #333; color: white; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-size: 13px;">Save</button>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <p style="color: #666; font-size: 13px; margin: 0;">Add this as a "Browser Source" in OBS.</p>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="overlay-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                            <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
+                            <button onclick="sendTestAlert()" id="test-btn" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                                🔥 Send Test Alert
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
+                        <h4 style="margin: 0; font-size: 16px;">📊 Stats / Leaderboard</h4>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
+                                Shows <b>Top Tipper</b> and <b>Recent Tips</b> permanently on screen.
+                            </p>
+                            <p style="color: #555; font-size: 12px; margin: 0;">*Auto-matches your selected Theme.</p>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">WIDGET LINK (OBS)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
+                        <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
+                                This is your public profile where viewers can send donations. Changes made here update instantly.
+                            </p>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="tip-page-url" readonly value="https://tips.gg/u/username" style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
+                             <button style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                                SHARE THIS WITH YOUR VIEWERS
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <p style="color: #666; font-size: 13px; margin: 0;">Add this as a "Browser Source" in OBS.</p>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="overlay-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                    <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
-                </div>
-            </div>
-
-            <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
-                <button onclick="sendTestAlert()" id="test-btn" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                    🔥 Send Test Alert
-                </button>
-            </div>
-        </div>
-
-        <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-            <h4 style="margin: 0; font-size: 16px;">📊 Stats / Leaderboard</h4>
-
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                    Shows <b>Top Tipper</b> and <b>Recent Tips</b> permanently on screen.
-                </p>
-                <p style="color: #555; font-size: 12px; margin: 0;">*Auto-matches your selected Theme.</p>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-                <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">WIDGET LINK (OBS)</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                    <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
-                </div>
-            </div>
-        </div>
-
-        <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-            <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
-
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                    This is your public profile where viewers can send donations. Changes made here update instantly.
-                </p>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="tip-page-url" readonly value="https://tips.gg/u/username" style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                    <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
-                </div>
-            </div>
-
-            <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
-                 <button style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                    SHARE THIS WITH YOUR VIEWERS
-                </button>
-            </div>
-        </div>
-
-    </div>
 
             <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">PAYOUT HISTORY</h3>
             <div id="payout-container">
@@ -175,12 +171,6 @@
 
     </div>
 
-    <footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-    </footer>
-
-    <script src="/js/dashboard.js"></script>
-
     <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
             <h2 style="margin-top:0;">Withdraw Funds</h2>
@@ -193,6 +183,7 @@
             <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Cancel</button>
         </div>
     </div>
+
     <footer>
         <p>&copy; 2024 xdtip. All rights reserved.</p>
         <div class="footer-links">
@@ -202,30 +193,90 @@
             <a href="/contact/">Contact Us</a>
         </div>
     </footer>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch('https://app.xdfun.in/api/me', {
+                    headers: { 'Authorization': token }
+                });
+                
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Update Text Info
+                    document.getElementById('user-name').innerText = data.user.username;
+                    document.getElementById('balance').innerText = data.user.wallet_balance;
+                    document.getElementById('role-badge').innerText = data.user.role.toUpperCase();
+
+                    // Sections Logic
+                    if (data.user.role === 'creator') {
+                        document.getElementById('creator-section').style.display = 'block';
+                        document.getElementById('withdraw-btn').style.display = 'block';
+
+                        // FILL THE LINKS
+                        const obsToken = data.user.obs_token;
+                        
+                        // 1. Alert Overlay
+                        if(document.getElementById('overlay-url')) {
+                            document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
+                        }
+                        
+                        // 2. Stats Overlay (NEW)
+                        if(document.getElementById('stats-link')) {
+                            document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
+                        }
+
+                        // 3. Tip Page
+                        if(document.getElementById('tip-page-url')) {
+                            document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
+                        }
+
+                        // Theme Selector
+                        if(data.user.overlay_theme) {
+                            document.getElementById('theme-selector').value = data.user.overlay_theme;
+                        }
+
+                        // Load Logo
+                        if(data.user.logo_url) {
+                            document.getElementById('current-logo').src = data.user.logo_url;
+                        }
+
+                    } else {
+                        document.getElementById('viewer-section').style.display = 'block';
+                    }
+
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                }
+            } catch (err) {
+                console.error("Error loading dashboard:", err);
+            }
+        }
+
+        // Copy Function
+        function copyToClipboard(elementId) {
+            var copyText = document.getElementById(elementId);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            document.execCommand("copy");
+            alert("Copied: " + copyText.value);
+        }
+
+        // Run Dashboard Logic
+        loadDashboard();
+
+        // (Assuming you have other functions like saveTheme, uploadLogo, sendTestAlert in your /js/dashboard.js file. 
+        // If not, make sure they are included or imported!)
+    </script>
+    
+    <script src="/js/dashboard.js"></script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
