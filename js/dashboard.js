@@ -1,3 +1,13 @@
+// ----------------------------------------------------
+// 🧹 URL CLEANER: Hides ".html" from the browser bar
+// ----------------------------------------------------
+if (window.location.pathname.endsWith('.html')) {
+    const cleanUrl = window.location.pathname.replace('.html', '');
+    window.history.replaceState(null, '', cleanUrl);
+}
+// ----------------------------------------------------
+
+// ... rest of your existing code ...
 // ⚠️ REPLACE WITH YOUR RENDER URL
 const API_URL = "https://app.xdfun.in"; 
 
@@ -237,6 +247,7 @@ async function loadWithdrawals(token) {
 
 // Run on load
 loadDashboard();
+
 
 
 
