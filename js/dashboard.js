@@ -64,6 +64,15 @@ if (user.logo_url) {
                 const overlayLink = `${API_URL}/overlay/${user.obs_token}`;
                 document.getElementById('overlay-url').value = overlayLink;
 
+                // --- 👇 NEW CODE (For Stats Widget) - PASTE THIS BELOW 👇 ---
+                const statsLink = `${API_URL}/stats-overlay/${user.obs_token}`;
+                
+                // We check if the element exists first to prevent errors
+                const statsInput = document.getElementById('stats-link');
+                if (statsInput) {
+                    statsInput.value = statsLink;
+                }
+
                 const tipLink = `https://tip.xdfun.in/${user.username}`;
                 document.getElementById('tip-page-url').value = tipLink;
 
@@ -281,6 +290,7 @@ async function sendTestAlert() {
 
 // Run on load
 loadDashboard();
+
 
 
 
