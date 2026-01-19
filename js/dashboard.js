@@ -244,9 +244,44 @@ async function loadWithdrawals(token) {
         console.error("Payout History Error", err);
     }
 }
+async function sendTestAlert() {
+    const btn = document.getElementById('test-btn');
+    const token = localStorage.getItem('token');
+
+    if (!token) return alert("Please login first");
+
+    btn.innerText = "Sending...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('https://xdtip-backend.onrender.com/test-alert', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            btn.innerText = "✅ Sent!";
+            setTimeout(() => { btn.innerText = "🔥 Send Test Alert"; btn.disabled = false; }, 2000);
+        } else {
+            alert("Failed: " + data.error);
+            btn.innerText = "❌ Error";
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Server Error");
+        btn.innerText = "🔥 Send Test Alert";
+        btn.disabled = false;
+    }
+}
 
 // Run on load
 loadDashboard();
+
 
 
 
