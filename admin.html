@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <title>Admin Panel | xdtip</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { background-color: #050505; color: white; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+        h1 { margin: 0; font-size: 24px; }
+        
+        /* TABLE STYLES */
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; }
+        th { background: #1a1a1a; color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px; }
+        tr:hover { background: #151515; }
+        
+        /* STATUS BADGES */
+        .badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .pending { background: #ff9800; color: black; }
+        .paid { background: #00ff88; color: black; }
+        .rejected { background: #ff3b3b; color: white; }
+
+        /* ACTION BUTTONS */
+        .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 5px; }
+        .btn-approve { background: #00ff88; color: black; }
+        .btn-reject { background: #333; color: white; border: 1px solid #444; }
+        .btn-reject:hover { background: #ff3b3b; border-color: #ff3b3b; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <img src="/images/logo.png" style="height:40px;">
+                <h1>Admin Panel</h1>
+            </div>
+            <button onclick="logout()" class="btn btn-secondary" style="padding: 8px 16px; font-size:12px;">Logout</button>
+        </div>
+
+        <h3 style="color:#888;">PENDING REQUESTS</h3>
+        <div id="loading" style="color:#666;">Loading data...</div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Amount</th>
+                    <th>UPI ID</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="payout-list">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        async function loadAdmin() {
+            try {
+                const res = await fetch('https://app.xdfun.in/admin/withdrawals', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    alert(data.error || "Access Denied");
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                const list = document.getElementById('payout-list');
+                list.innerHTML = "";
+
+                data.requests.forEach(req => {
+                    const row = document.createElement('tr');
+                    
+                    // Status Badge Logic
+                    let statusClass = req.status === 'pending' ? 'pending' : (req.status === 'paid' ? 'paid' : 'rejected');
+                    
+                    // Buttons (Only show if pending)
+                    let actions = '-';
+                    if(req.status === 'pending') {
+                        actions = `
+                            <button onclick="processPayout(${req.t_id}, 'paid')" class="btn-action btn-approve">Mark Paid</button>
+                            <button onclick="processPayout(${req.t_id}, 'rejected')" class="btn-action btn-reject">Reject</button>
+                        `;
+                    }
+
+                    row.innerHTML = `
+                        <td style="color:#666;">${new Date(req.created_at).toLocaleDateString()}</td>
+                        <td style="font-weight:bold; color:white;">${req.users.username}</td>
+                        <td style="color:#00ff88; font-weight:bold;">₹${req.amount}</td>
+                        <td style="font-family:monospace; color:#ccc;">${req.upi_id}</td>
+                        <td><span class="badge ${statusClass}">${req.status}</span></td>
+                        <td>${actions}</td>
+                    `;
+                    list.appendChild(row);
+                });
+
+            } catch (err) { console.error(err); }
+        }
+
+        async function processPayout(id, status) {
+            if(!confirm(`Mark this request as ${status.toUpperCase()}?`)) return;
+
+            const res = await fetch('https://app.xdfun.in/admin/payout', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ withdrawal_id: id, status: status })
+            });
+
+            if(res.ok) {
+                alert("Updated!");
+                loadAdmin(); // Refresh list
+            } else {
+                alert("Error updating");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+
+        loadAdmin();
+    </script>
+</body>
+</html>
