@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-        if (window.location.pathname.endsWith(".html")) {
-            var clean = window.location.pathname.replace(".html", "");
-            window.history.replaceState(null, "", clean);
-        }
-    </script>
     <meta charset="UTF-8">
-    <title>Admin Panel | xdtip</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | XDTIP</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        body { background-color: #050505; color: white; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
         
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        h1 { margin: 0; font-size: 24px; }
+        h1 { margin: 0; font-size: 24px; color: #00ff88; text-transform: uppercase; letter-spacing: 1px; }
         
         /* TABLE STYLES */
-        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; }
-        th { background: #1a1a1a; color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px; }
+        th { background: #1a1a1a; color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
         tr:hover { background: #151515; }
         
+        /* DATA COLORS */
+        .amount { color: #00ff88; font-weight: bold; font-family: monospace; font-size: 15px; }
+        .upi { color: #ccc; font-family: monospace; background: #222; padding: 2px 6px; border-radius: 4px; }
+        .trans-id { color: #aaa; font-style: italic; font-size: 12px; }
+
         /* STATUS BADGES */
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .pending { background: #ff9800; color: black; }
@@ -31,11 +31,14 @@
         .rejected { background: #ff3b3b; color: white; }
 
         /* ACTION BUTTONS */
-        .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 5px; }
+        .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; margin-right: 5px; transition: 0.2s; }
         .btn-approve { background: #00ff88; color: black; }
-        .btn-reject { background: #333; color: white; border: 1px solid #444; }
-        .btn-reject:hover { background: #ff3b3b; border-color: #ff3b3b; }
+        .btn-approve:hover { background: #00cc6a; }
+        
+        .btn-reject { background: transparent; color: #ff3b3b; border: 1px solid #ff3b3b; }
+        .btn-reject:hover { background: #ff3b3b; color: white; }
 
+        #loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -43,14 +46,13 @@
     <div class="container">
         <div class="header">
             <div style="display:flex; align-items:center; gap:15px;">
-                <img src="/images/logo.png" style="height:40px;">
-                <h1>Admin Panel</h1>
+                <img src="images/logo.png" style="height:40px;">
+                <h1>Admin Command</h1>
             </div>
-            <button onclick="logout()" class="btn btn-secondary" style="padding: 8px 16px; font-size:12px;">Logout</button>
+            <button onclick="logout()" style="background:#333; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Logout</button>
         </div>
 
-        <h3 style="color:#888;">PENDING REQUESTS</h3>
-        <div id="loading" style="color:#666;">Loading data...</div>
+        <h3 style="color:#888; margin-bottom:15px;">WITHDRAWAL REQUESTS</h3>
         
         <table>
             <thead>
@@ -59,19 +61,21 @@
                     <th>User</th>
                     <th>Amount</th>
                     <th>UPI ID</th>
-                    <th>Status</th>
+                    <th>Transaction Ref (t_id)</th> <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="payout-list">
                 </tbody>
         </table>
+        <div id="loading">Loading data...</div>
     </div>
 
     <script>
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'login.html';
 
+        // 1. LOAD DATA
         async function loadAdmin() {
             try {
                 const res = await fetch('https://app.xdfun.in/admin/withdrawals', {
@@ -81,8 +85,8 @@
                 const data = await res.json();
                 
                 if (!res.ok) {
+                    document.getElementById('loading').innerText = "Access Denied or Server Error";
                     alert(data.error || "Access Denied");
-                    window.location.href = 'dashboard.html';
                     return;
                 }
 
@@ -93,49 +97,79 @@
                 data.requests.forEach(req => {
                     const row = document.createElement('tr');
                     
-                    // Status Badge Logic
+                    // Determine Status Color
                     let statusClass = req.status === 'pending' ? 'pending' : (req.status === 'paid' ? 'paid' : 'rejected');
                     
-                    // Buttons (Only show if pending)
+                    // Show Transaction ID if it exists, else show dash
+                    let transDisplay = req.t_id ? `<span class="trans-id">#${req.t_id}</span>` : '<span style="color:#444;">-</span>';
+
+                    // Define Buttons
                     let actions = '-';
                     if(req.status === 'pending') {
+                        // ⚠️ WE PASS 'req.id' (The Row ID) to the function
                         actions = `
-                            <button onclick="processPayout(${req.t_id}, 'paid')" class="btn-action btn-approve">Mark Paid</button>
-                            <button onclick="processPayout(${req.t_id}, 'rejected')" class="btn-action btn-reject">Reject</button>
+                            <button onclick="processPayout(${req.id}, 'paid')" class="btn-action btn-approve">Pay & Close</button>
+                            <button onclick="processPayout(${req.id}, 'rejected')" class="btn-action btn-reject">Reject</button>
                         `;
                     }
 
                     row.innerHTML = `
                         <td style="color:#666;">${new Date(req.created_at).toLocaleDateString()}</td>
-                        <td style="font-weight:bold; color:white;">${req.users.username}</td>
-                        <td style="color:#00ff88; font-weight:bold;">₹${req.amount}</td>
-                        <td style="font-family:monospace; color:#ccc;">${req.upi_id}</td>
+                        <td style="font-weight:bold; color:white;">${req.users ? req.users.username : 'Unknown'}</td>
+                        <td class="amount">₹${req.amount}</td>
+                        <td><span class="upi">${req.upi_id}</span></td>
+                        <td>${transDisplay}</td>
                         <td><span class="badge ${statusClass}">${req.status}</span></td>
                         <td>${actions}</td>
                     `;
                     list.appendChild(row);
                 });
 
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error(err); 
+                document.getElementById('loading').innerText = "Network Error";
+            }
         }
 
-        async function processPayout(id, status) {
-            if(!confirm(`Mark this request as ${status.toUpperCase()}?`)) return;
+        // 2. PROCESS PAYOUT (WITH POPUP INPUT)
+        async function processPayout(rowId, status) {
+            let manualTransactionId = null;
 
-            const res = await fetch('https://app.xdfun.in/admin/payout', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify({ withdrawal_id: id, status: status })
-            });
+            // IF PAYING: Ask for Transaction ID
+            if (status === 'paid') {
+                manualTransactionId = prompt("Enter the Payment Reference / Transaction ID:");
+                if (!manualTransactionId) return; // Cancelled by user
+            } 
+            // IF REJECTING: Confirm first
+            else {
+                if(!confirm("Are you sure you want to REJECT this request? Money will be refunded.")) return;
+            }
 
-            if(res.ok) {
-                alert("Updated!");
-                loadAdmin(); // Refresh list
-            } else {
-                alert("Error updating");
+            try {
+                const res = await fetch('https://app.xdfun.in/admin/payout', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    // Send ROW ID + Manual TXN ID
+                    body: JSON.stringify({ 
+                        withdrawal_id: rowId, 
+                        status: status, 
+                        manual_t_id: manualTransactionId 
+                    })
+                });
+
+                const data = await res.json();
+
+                if(res.ok) {
+                    alert("✅ Updated Successfully!");
+                    loadAdmin(); // Reload list to see changes
+                } else {
+                    alert("❌ Error: " + (data.error || "Unknown Server Error"));
+                }
+            } catch (err) {
+                alert("❌ Network Error: " + err.message);
             }
         }
 
@@ -144,6 +178,7 @@
             window.location.href = 'index.html';
         }
 
+        // Start Loading
         loadAdmin();
     </script>
 </body>
