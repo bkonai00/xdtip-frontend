@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-        if (window.location.pathname.endsWith(".html")) {
-            var clean = window.location.pathname.replace(".html", "");
-            window.history.replaceState(null, "", clean);
-        }
-    </script>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
@@ -14,18 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* Hide sections by default to prevent flickering */
         #creator-section, #viewer-section, #withdraw-btn { display: none; }
-        
-        /* Logout Button Style */
-        .logout-link {
-            color: #888; 
-            text-decoration: none; 
-            font-size: 14px; 
-            margin-left: 20px; 
-            cursor: pointer;
-        }
+        .logout-link { color: #888; text-decoration: none; font-size: 14px; margin-left: 20px; cursor: pointer; }
         .logout-link:hover { color: #ff3b3b; }
+        
+        /* Table Styles for History */
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #111; border-radius: 8px; overflow: hidden; }
+        .history-table th { text-align: left; color: #666; font-size: 12px; padding: 12px; border-bottom: 1px solid #222; background: #0f0f0f; }
+        .history-table td { padding: 12px; border-bottom: 1px solid #222; color: #ddd; font-size: 13px; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .status-pending { background: #ff9800; color: black; }
+        .status-paid { background: #00ff88; color: black; }
+        .status-rejected { background: #ff3b3b; color: white; }
     </style>
     
     <script>
@@ -64,8 +58,7 @@
                 <span id="balance">0.00</span> <span style="font-size: 20px; color: #444;">Tokens</span>
             </h2>
             <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <a href="/buy/" class="btn" style="flex: 1; text-decoration: none; line-height: 45px;">+ Add Money</a>
-                
+                <a href="https://tip.xdfun.in/buy" class="btn" style="flex: 1; text-decoration: none; line-height: 45px;">+ Add Money</a>
                 <button id="withdraw-btn" onclick="document.getElementById('withdraw-modal').style.display='flex'" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
             </div>
         </div>
@@ -77,8 +70,22 @@
                 </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
+                    
                     <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
                         <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box Settings</h4>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">DESIGN STYLE</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="theme-selector" style="flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; outline: none; font-size: 13px;">
+                                    <option value="classic">Classic (Standard)</option>
+                                    <option value="neon">Neon (Cyberpunk)</option>
+                                    <option value="minimal">Minimal (Clean)</option>
+                                </select>
+                                <button class="btn" onclick="saveTheme()" style="padding: 0 16px; background: #333; color: white; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-size: 13px;">Save</button>
+                            </div>
+                        </div>
+
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                              <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">OBS BROWSER SOURCE URL</label>
                             <div style="display: flex; gap: 8px;">
@@ -86,29 +93,53 @@
                                 <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
                         </div>
-                         <div style="border-top: 1px solid #333; padding-top: 20px;">
-                            <button onclick="alert('Test Alert Sent!')" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                        
+                        <div style="border-top: 1px solid #333; padding-top: 20px;">
+                            <button onclick="alert('Sent Test Alert (Simulation)')" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
                                 🔥 Send Test Alert
                             </button>
                         </div>
                     </div>
 
                     <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-                        <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
+                        <h4 style="margin: 0; font-size: 16px;">📊 Stats & Links</h4>
+                        
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">STATS WIDGET (OBS)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC TIPPING PAGE</label>
                             <div style="display: flex; gap: 8px;">
                                 <input type="text" id="tip-page-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
                                 <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
                         </div>
-                         <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
-                             <button onclick="window.open(document.getElementById('tip-page-url').value, '_blank')" style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                                SHARE WITH VIEWERS
-                            </button>
-                        </div>
                     </div>
                 </div>
+
+                <div style="margin-top: 60px;">
+                    <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">PAYOUT HISTORY</h3>
+                    <table class="history-table">
+                        <thead><tr><th>Date</th><th>Amount</th><th>UPI ID</th><th>Status</th></tr></thead>
+                        <tbody id="payout-table-body">
+                            <tr><td colspan="4" style="text-align:center; padding:20px; color:#444;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 40px;">RECENT TIPS</h3>
+                    <table class="history-table">
+                        <thead><tr><th>Date</th><th>Supporter</th><th>Message</th><th>Amount</th></tr></thead>
+                        <tbody id="tips-table-body">
+                            <tr><td colspan="4" style="text-align:center; padding:20px; color:#444;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
 
@@ -117,7 +148,6 @@
             <p style="color: #888;">Find a creator and send your first tip.</p>
             <a href="/tip/" class="btn" style="display: inline-block; margin-top: 10px; text-decoration: none;">Send a Tip</a>
         </div>
-
     </div>
 
     <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
@@ -126,7 +156,6 @@
             <p style="color:#888; font-size:14px;">Min: 100 Tokens</p>
             <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px; width:100%; padding:10px; background:#222; border:1px solid #333; color:white;">
             <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px; width:100%; padding:10px; background:#222; border:1px solid #333; color:white;">
-            
             <button class="btn" style="width:100%;" onclick="submitWithdraw()">Request Payout</button>
             <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px; width:100%;">Cancel</button>
         </div>
@@ -140,143 +169,153 @@
 
     <script>
         // ⚠️ PASTE YOUR KEYS HERE
-        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
-        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+        const mySupabaseUrl = 'YOUR_SUPABASE_URL_HERE';
+        const mySupabaseKey = 'YOUR_SUPABASE_ANON_KEY_HERE';
         
         const dashboardClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+        let currentUser = null; // Global variable to store user
 
-        // --- A. Load Dashboard Data ---
+        // --- MAIN LOAD FUNCTION ---
         async function loadDashboard() {
-            // 1. Check Login
             const { data: { user } } = await dashboardClient.auth.getUser();
+            if (!user) { window.location.href = 'https://tip.xdfun.in/login'; return; }
+            currentUser = user;
 
-            if (!user) {
-                window.location.href = 'https://tip.xdfun.in/login';
-                return;
-            }
-
-            // 2. Fetch User Details
             try {
+                // 1. Load Profile
                 const { data, error } = await dashboardClient
                     .from('users')
-                    .select('username, role, balance, obs_token')
+                    .select('username, role, balance, obs_token, overlay_theme')
                     .eq('id', user.id)
                     .single();
 
                 if (error) throw error;
 
-                // 3. Update UI
                 if (data) {
                     document.getElementById('user-name').innerText = data.username || "User";
                     document.getElementById('role-badge').innerText = (data.role || "viewer").toUpperCase();
                     document.getElementById('balance').innerText = (data.balance || 0).toFixed(2);
 
-                    // Show Sections based on Role
                     if (data.role === 'creator') {
                         document.getElementById('creator-section').style.display = 'block';
-                        document.getElementById('withdraw-btn').style.display = 'block'; // Show button on mobile too
+                        document.getElementById('withdraw-btn').style.display = 'block'; 
                         
-                        // Generate Links
-                        const obsLink = `https://app.xdfun.in/overlay/token=${data.obs_token}`;
-                        const publicLink = `https://tip.xdfun.in/u/${data.username}`;
+                        // Fill Links
+                        document.getElementById('overlay-url').value = `https://tip.xdfun.in/overlay/token=${data.obs_token}`;
+                        document.getElementById('stats-link').value = `https://tip.xdfun.in/stats/token=${data.obs_token}`;
+                        document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.username}`;
                         
-                        document.getElementById('overlay-url').value = obsLink;
-                        document.getElementById('tip-page-url').value = publicLink;
+                        // Set Theme Dropdown
+                        if(data.overlay_theme) {
+                            document.getElementById('theme-selector').value = data.overlay_theme;
+                        }
+
+                        // Load Histories
+                        loadPayouts(user.id);
+                        loadTips(user.id);
+
                     } else {
                         document.getElementById('viewer-section').style.display = 'block';
                     }
                 }
-
             } catch (err) {
                 console.error("Dashboard Error:", err);
-                document.getElementById('user-name').innerText = user.email;
             }
         }
 
-        // --- B. Utility Functions ---
+        // --- SAVE THEME ---
+        async function saveTheme() {
+            const theme = document.getElementById('theme-selector').value;
+            const btn = document.querySelector('button[onclick="saveTheme()"]');
+            btn.innerText = "Saving...";
+            
+            try {
+                await dashboardClient.from('users').update({ overlay_theme: theme }).eq('id', currentUser.id);
+                alert("✅ Theme Updated!");
+            } catch(err) { alert("Error saving theme"); }
+            finally { btn.innerText = "Save"; }
+        }
+
+        // --- LOAD PAYOUT HISTORY ---
+        async function loadPayouts(userId) {
+            const { data } = await dashboardClient.from('withdrawals').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5);
+            const tbody = document.getElementById('payout-table-body');
+            tbody.innerHTML = "";
+            
+            if(!data || data.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#444; padding:15px;'>No withdrawals yet.</td></tr>";
+                return;
+            }
+
+            data.forEach(p => {
+                let statusClass = p.status === 'paid' ? 'status-paid' : (p.status === 'rejected' ? 'status-rejected' : 'status-pending');
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${new Date(p.created_at).toLocaleDateString()}</td>
+                        <td>${p.amount} Tokens</td>
+                        <td style="color:#888;">${p.upi_id}</td>
+                        <td><span class="status-badge ${statusClass}">${p.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- LOAD TIPS HISTORY ---
+        async function loadTips(userId) {
+            // Note: This needs a 'tips' table in database
+            const { data } = await dashboardClient.from('tips').select('*').eq('receiver_id', userId).order('created_at', { ascending: false }).limit(5);
+            const tbody = document.getElementById('tips-table-body');
+            tbody.innerHTML = "";
+
+            if(!data || data.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#444; padding:15px;'>No tips received yet.</td></tr>";
+                return;
+            }
+
+            data.forEach(t => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${new Date(t.created_at).toLocaleDateString()}</td>
+                        <td style="color:#fff; font-weight:bold;">${t.sender_name}</td>
+                        <td style="color:#888;">${t.message || '-'}</td>
+                        <td style="color:#00ff88;">+${t.amount}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- WITHDRAW LOGIC ---
+        async function submitWithdraw() {
+            const amount = document.getElementById('w-amount').value;
+            const upi = document.getElementById('w-upi').value;
+            
+            if (!amount || amount < 100) return alert("Min 100 Tokens.");
+            if (!upi) return alert("Enter UPI ID.");
+            
+            // Note: In a real app, verify balance <= actual wallet balance here
+            
+            const { error } = await dashboardClient.from('withdrawals').insert({
+                user_id: currentUser.id, amount: amount, upi_id: upi, status: 'pending'
+            });
+
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("✅ Request Sent!");
+                document.getElementById('withdraw-modal').style.display = 'none';
+                loadPayouts(currentUser.id); // Refresh table
+            }
+        }
+
         function copyToClipboard(elementId) {
             var copyText = document.getElementById(elementId);
             copyText.select();
             copyText.setSelectionRange(0, 99999); 
-            navigator.clipboard.writeText(copyText.value).then(() => {
-                alert("Copied!");
-            });
+            navigator.clipboard.writeText(copyText.value).then(() => { alert("Copied!"); });
         }
-
-        async function handleLogout() {
-            if(confirm("Log out?")) {
-                await dashboardClient.auth.signOut();
-                window.location.href = 'https://tip.xdfun.in/login';
-            }
-        }
-        // --- C. Handle Withdrawal Request ---
-        async function submitWithdraw() {
-            const amount = document.getElementById('w-amount').value;
-            const upi = document.getElementById('w-upi').value;
-            const btn = document.querySelector('#withdraw-modal .btn');
-
-            // 1. Validation
-            if (!amount || amount < 100) {
-                alert("Minimum withdrawal is 100 Tokens.");
-                return;
-            }
-            if (!upi) {
-                alert("Please enter a valid UPI ID.");
-                return;
-            }
-
-            // 2. Check Balance First
-            const currentBalance = parseFloat(document.getElementById('balance').innerText);
-            if (currentBalance < amount) {
-                alert("❌ Insufficient Balance!");
-                return;
-            }
-
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-
-            try {
-                // 3. Get User ID
-                const { data: { user } } = await dashboardClient.auth.getUser();
-
-                // 4. Send Request to Database
-                const { error } = await dashboardClient
-                    .from('withdrawals')
-                    .insert({
-                        user_id: user.id,
-                        amount: amount,
-                        upi_id: upi,
-                        status: 'pending'
-                    });
-
-                if (error) throw error;
-
-                // 5. Update Local Balance (Optional: You might want to deduct it immediately via trigger, 
-                // but for now we just show success)
-                alert("✅ Withdrawal Requested Successfully!");
-                document.getElementById('withdraw-modal').style.display = 'none';
-
-            } catch (err) {
-                console.error("Withdraw Error:", err);
-                alert("❌ Error: " + err.message);
-            } finally {
-                btn.innerText = "Request Payout";
-                btn.disabled = false;
-            }
-        }
+        async function handleLogout() { if(confirm("Log out?")) { await dashboardClient.auth.signOut(); window.location.href = 'login.html'; } }
 
         loadDashboard();
     </script>
-<footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy/">Privacy Policy</a>
-            <a href="/terms/">Terms of Service</a>
-            <a href="/refund-policy/">Refund Policy</a>
-            <a href="/contact/">Contact Us</a>
-        </div>
-    </footer>
+
 </body>
 </html>
-
-
