@@ -348,7 +348,42 @@
         }
         async function handleLogout() { if(confirm("Log out?")) { await dashboardClient.auth.signOut(); window.location.href = 'https://tip.xdfun.in/login'; } }
 
+        // --- SEND TEST ALERT ---
+async function sendTestAlert() {
+    const btn = document.querySelector('button[onclick="sendTestAlert()"]');
+    
+    // Disable button briefly
+    btn.disabled = true;
+    btn.innerText = "Sending...";
+
+    try {
+        // Create a fake tip in the database
+        const { error } = await dashboardClient
+            .from('tips')
+            .insert({
+                receiver_id: currentUser.id,
+                sender_name: "Test User",
+                message: "This is a test alert! 🔥",
+                amount: 69, // Nice number for testing
+                created_at: new Date().toISOString()
+            });
+
+        if (error) throw error;
+
+        alert("✅ Test Alert Sent! Check your OBS Overlay.");
+
+    } catch (err) {
+        console.error(err);
+        alert("❌ Error sending test: " + err.message);
+    } finally {
+        // Re-enable button
+        btn.innerText = "🔥 Send Test Alert";
+        btn.disabled = false;
+    }
+}
+
         loadDashboard();
     </script>
 </body>
 </html>
+
