@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Command | XDTIP</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* DARK THEME STYLES */
+        /* DARK THEME STYLES (Your Original Design) */
         body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
         .container { max-width: 1300px; margin: 0 auto; padding-bottom: 50px; }
         
@@ -55,7 +61,7 @@
                 <img src="images/logo.png" style="height:40px;">
                 <h1>Admin Command</h1>
             </div>
-            <button onclick="logout()" class="logout-btn">Logout</button>
+            <button onclick="handleLogout()" class="logout-btn">Logout</button>
         </div>
 
         <h3>Withdrawal Requests</h3>
@@ -89,40 +95,63 @@
                 </tr>
             </thead>
             <tbody id="users-list">
-                </tbody>
+            </tbody>
         </table>
         
-        <div id="loading">Loading data...</div>
+        <div id="loading">Loading database...</div>
     </div>
 
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) window.location.href = 'login.html';
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        // 1. LOAD WITHDRAWALS (Existing)
+    <script>
+        // ⚠️ PASTE YOUR KEYS HERE
+        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
+        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+        
+        const adminClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+
+        // --- 1. CHECK ADMIN LOGIN ---
+        async function checkAuth() {
+            const { data: { user } } = await adminClient.auth.getUser();
+            if (!user) {
+                window.location.href = 'https://tip.xdfun.in/login';
+            } else {
+                // (Optional) You can add a check here if user.email === 'your@email.com'
+                // For now, we allow access to see if the data loads
+                initData();
+            }
+        }
+
+        // --- 2. LOAD WITHDRAWALS ---
         async function loadWithdrawals() {
             try {
-                const res = await fetch('https://app.xdfun.in/admin/withdrawals', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                
-                if (!res.ok) {
-                    alert("Access Denied");
-                    return;
-                }
+                // Fetch withdrawals AND join with 'users' table to get name/email
+                const { data, error } = await adminClient
+                    .from('withdrawals')
+                    .select('*, users:user_id (username, email, balance)')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
 
                 const list = document.getElementById('payout-list');
                 list.innerHTML = "";
 
-                data.requests.forEach(req => {
-                    const u = req.users || { username: 'Unknown', email: '-', balance: 0 };
+                if(data.length === 0) {
+                    list.innerHTML = "<tr><td colspan='9' style='text-align:center; color:#444;'>No requests found.</td></tr>";
+                    return;
+                }
+
+                data.forEach(req => {
+                    // Safe access to user data (in case user was deleted)
+                    const u = req.users || { username: 'Deleted User', email: '-', balance: 0 };
                     const row = document.createElement('tr');
                     
                     let statusClass = req.status === 'pending' ? 'pending' : (req.status === 'paid' ? 'paid' : 'rejected');
                     let transDisplay = req.t_id ? `<span style="color:#aaa; font-style:italic;">#${req.t_id}</span>` : '-';
                     
                     let actions = '<span style="color:#444">-</span>';
+                    
+                    // Only show buttons if Pending
                     if(req.status === 'pending') {
                         actions = `
                             <button onclick="processPayout(${req.id}, 'paid')" class="btn-action btn-approve">Pay</button>
@@ -143,70 +172,99 @@
                     `;
                     list.appendChild(row);
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error("Error loading withdrawals:", err); 
+            }
         }
 
-        // 2. LOAD ALL USERS (NEW FUNCTION)
+        // --- 3. LOAD ALL USERS ---
         async function loadUsers() {
             try {
-                const res = await fetch('https://app.xdfun.in/admin/users', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                // Since we disabled RLS, this will return ALL users
+                const { data, error } = await adminClient
+                    .from('users')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const list = document.getElementById('users-list');
+                list.innerHTML = "";
+
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    let roleClass = user.role === 'creator' ? 'role-creator' : 'role-viewer';
+
+                    row.innerHTML = `
+                        <td style="color:#666;">${user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
+                        <td style="font-weight:bold; color:white;">${user.username || 'No Name'}</td>
+                        <td class="email">${user.email}</td>
+                        <td><span class="role-badge ${roleClass}">${user.role || 'viewer'}</span></td>
+                        <td class="balance">₹${user.balance}</td>
+                        <td style="font-size:10px; font-family:monospace; color:#444;">${user.id}</td>
+                    `;
+                    list.appendChild(row);
                 });
-                const data = await res.json();
-
-                if (res.ok) {
-                    const list = document.getElementById('users-list');
-                    list.innerHTML = "";
-
-                    data.users.forEach(user => {
-                        const row = document.createElement('tr');
-                        
-                        // Style based on Role
-                        let roleClass = user.role === 'creator' ? 'role-creator' : 'role-viewer';
-
-                        row.innerHTML = `
-                            <td style="color:#666;">${new Date(user.created_at).toLocaleDateString()}</td>
-                            <td style="font-weight:bold; color:white;">${user.username}</td>
-                            <td class="email">${user.email}</td>
-                            <td><span class="role-badge ${roleClass}">${user.role}</span></td>
-                            <td class="balance">₹${user.balance}</td>
-                            <td style="font-size:10px; font-family:monospace; color:#444;">${user.id}</td>
-                        `;
-                        list.appendChild(row);
-                    });
-                }
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error("Error loading users:", err); 
+            }
         }
 
-        // 3. PAYOUT LOGIC
+        // --- 4. PROCESS PAYOUT ACTIONS ---
         async function processPayout(rowId, status) {
             let manualTransactionId = null;
+            
             if (status === 'paid') {
-                manualTransactionId = prompt("Enter Transaction ID:");
-                if (!manualTransactionId) return;
+                manualTransactionId = prompt("Enter Transaction ID / Reference No:");
+                if (!manualTransactionId) return; // Cancelled
             } else {
-                if(!confirm("Reject and Refund?")) return;
+                if(!confirm("Are you sure you want to REJECT this request?")) return;
             }
 
             try {
-                const res = await fetch('https://app.xdfun.in/admin/payout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ withdrawal_id: rowId, status: status, manual_t_id: manualTransactionId })
-                });
-                if(res.ok) { alert("Updated!"); loadWithdrawals(); loadUsers(); } // Reload both tables
-            } catch (err) { alert("Error: " + err.message); }
+                // Update Supabase Table
+                const updateData = { status: status };
+                if(manualTransactionId) updateData.t_id = manualTransactionId;
+
+                const { error } = await adminClient
+                    .from('withdrawals')
+                    .update(updateData)
+                    .eq('id', rowId);
+
+                if(error) throw error;
+
+                alert("✅ Status Updated!");
+                loadWithdrawals(); // Refresh table
+
+            } catch (err) {
+                alert("❌ Error updating: " + err.message);
+            }
         }
 
-        function logout() { localStorage.removeItem('token'); window.location.href = 'index.html'; }
+        async function handleLogout() {
+            await adminClient.auth.signOut();
+            window.location.href = 'https://tip.xdfun.in/login';
+        }
 
-        // Start Everything
-        async function init() {
-            await loadWithdrawals();
-            await loadUsers();
+        // --- START ---
+        function initData() {
+            loadWithdrawals();
+            loadUsers();
             document.getElementById('loading').style.display = 'none';
         }
-        init();
+
+        // Run check on load
+        checkAuth();
+
     </script>
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy/">Privacy Policy</a>
+            <a href="/terms/">Terms of Service</a>
+            <a href="/refund-policy/">Refund Policy</a>
+            <a href="/contact/">Contact Us</a>
+        </div>
+    </footer>
 </body>
 </html>
