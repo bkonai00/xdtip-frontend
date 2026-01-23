@@ -12,7 +12,7 @@
         .logout-link { color: #888; text-decoration: none; font-size: 14px; margin-left: 20px; cursor: pointer; }
         .logout-link:hover { color: #ff3b3b; }
         
-        /* Table Styles for History */
+        /* Table Styles */
         .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #111; border-radius: 8px; overflow: hidden; }
         .history-table th { text-align: left; color: #666; font-size: 12px; padding: 12px; border-bottom: 1px solid #222; background: #0f0f0f; }
         .history-table td { padding: 12px; border-bottom: 1px solid #222; color: #ddd; font-size: 13px; }
@@ -64,6 +64,23 @@
         </div>
 
         <div id="creator-section" style="margin-top: 60px;">
+            
+            <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
+                <div style="position: relative;">
+                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
+                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                </div>                    
+                <div style="flex: 1;">
+                    <h4 style="margin: 0 0 5px 0; color:white;">Channel Logo</h4>
+                    <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Paste an image URL to update your logo.</p>
+                    
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="logo-url-input" placeholder="https://..." style="background:#222; border:1px solid #333; color:white; padding:8px; border-radius:4px; flex:1;">
+                        <button class="btn btn-secondary" onclick="saveLogo()" style="margin:0; font-size:12px;">Save</button>
+                    </div>
+                </div>
+            </div>
+
             <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
                 <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
                     STREAMER TOOLS
@@ -95,7 +112,7 @@
                         </div>
                         
                         <div style="border-top: 1px solid #333; padding-top: 20px;">
-                            <button onclick="alert('Sent Test Alert (Simulation)')" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            <button onclick="alert('Sent Test Alert!')" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
                                 🔥 Send Test Alert
                             </button>
                         </div>
@@ -169,13 +186,12 @@
 
     <script>
         // ⚠️ PASTE YOUR KEYS HERE
-        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
-        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+        const mySupabaseUrl = 'YOUR_SUPABASE_URL_HERE';
+        const mySupabaseKey = 'YOUR_SUPABASE_ANON_KEY_HERE';
         
         const dashboardClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
-        let currentUser = null; // Global variable to store user
+        let currentUser = null;
 
-        // --- MAIN LOAD FUNCTION ---
         async function loadDashboard() {
             const { data: { user } } = await dashboardClient.auth.getUser();
             if (!user) { window.location.href = 'https://tip.xdfun.in/login'; return; }
@@ -185,7 +201,7 @@
                 // 1. Load Profile
                 const { data, error } = await dashboardClient
                     .from('users')
-                    .select('username, role, balance, obs_token, overlay_theme')
+                    .select('username, role, balance, obs_token, overlay_theme, logo_url')
                     .eq('id', user.id)
                     .single();
 
@@ -200,17 +216,22 @@
                         document.getElementById('creator-section').style.display = 'block';
                         document.getElementById('withdraw-btn').style.display = 'block'; 
                         
-                        // Fill Links
-                        document.getElementById('overlay-url').value = `https://tip.xdfun.in/overlay/token=${data.obs_token}`;
-                        document.getElementById('stats-link').value = `https://tip.xdfun.in/stats/token=${data.obs_token}`;
+                        // ✅ FIX: ASSIGN UNIQUE LINKS TO EACH BOX
+                        document.getElementById('overlay-url').value = `https://tip.xdfun.in/overlay.html?token=${data.obs_token}`;
+                        document.getElementById('stats-link').value = `https://tip.xdfun.in/stats.html?token=${data.obs_token}`;
                         document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.username}`;
                         
-                        // Set Theme Dropdown
+                        // Load Logo
+                        if(data.logo_url) {
+                            document.getElementById('current-logo').src = data.logo_url;
+                            document.getElementById('logo-url-input').value = data.logo_url;
+                        }
+
+                        // Load Theme
                         if(data.overlay_theme) {
                             document.getElementById('theme-selector').value = data.overlay_theme;
                         }
 
-                        // Load Histories
                         loadPayouts(user.id);
                         loadTips(user.id);
 
@@ -223,87 +244,62 @@
             }
         }
 
+        // --- SAVE LOGO (Simple URL version) ---
+        async function saveLogo() {
+            const url = document.getElementById('logo-url-input').value;
+            if(!url) return;
+            
+            try {
+                await dashboardClient.from('users').update({ logo_url: url }).eq('id', currentUser.id);
+                document.getElementById('current-logo').src = url;
+                alert("✅ Logo Updated!");
+            } catch(err) { alert("Error saving logo"); }
+        }
+
         // --- SAVE THEME ---
         async function saveTheme() {
             const theme = document.getElementById('theme-selector').value;
-            const btn = document.querySelector('button[onclick="saveTheme()"]');
-            btn.innerText = "Saving...";
-            
             try {
                 await dashboardClient.from('users').update({ overlay_theme: theme }).eq('id', currentUser.id);
                 alert("✅ Theme Updated!");
             } catch(err) { alert("Error saving theme"); }
-            finally { btn.innerText = "Save"; }
         }
 
-        // --- LOAD PAYOUT HISTORY ---
+        // --- HISTORY LOADERS ---
         async function loadPayouts(userId) {
             const { data } = await dashboardClient.from('withdrawals').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5);
             const tbody = document.getElementById('payout-table-body');
+            if(!data || data.length === 0) { tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:15px; color:#444;'>No withdrawals yet.</td></tr>"; return; }
             tbody.innerHTML = "";
-            
-            if(!data || data.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#444; padding:15px;'>No withdrawals yet.</td></tr>";
-                return;
-            }
-
             data.forEach(p => {
                 let statusClass = p.status === 'paid' ? 'status-paid' : (p.status === 'rejected' ? 'status-rejected' : 'status-pending');
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${new Date(p.created_at).toLocaleDateString()}</td>
-                        <td>${p.amount} Tokens</td>
-                        <td style="color:#888;">${p.upi_id}</td>
-                        <td><span class="status-badge ${statusClass}">${p.status}</span></td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr><td>${new Date(p.created_at).toLocaleDateString()}</td><td>${p.amount}</td><td>${p.upi_id}</td><td><span class="status-badge ${statusClass}">${p.status}</span></td></tr>`;
             });
         }
 
-        // --- LOAD TIPS HISTORY ---
         async function loadTips(userId) {
-            // Note: This needs a 'tips' table in database
             const { data } = await dashboardClient.from('tips').select('*').eq('receiver_id', userId).order('created_at', { ascending: false }).limit(5);
             const tbody = document.getElementById('tips-table-body');
+            if(!data || data.length === 0) { tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:15px; color:#444;'>No tips yet.</td></tr>"; return; }
             tbody.innerHTML = "";
-
-            if(!data || data.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#444; padding:15px;'>No tips received yet.</td></tr>";
-                return;
-            }
-
             data.forEach(t => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${new Date(t.created_at).toLocaleDateString()}</td>
-                        <td style="color:#fff; font-weight:bold;">${t.sender_name}</td>
-                        <td style="color:#888;">${t.message || '-'}</td>
-                        <td style="color:#00ff88;">+${t.amount}</td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td style="color:#fff;">${t.sender_name}</td><td style="color:#888;">${t.message || '-'}</td><td style="color:#00ff88;">+${t.amount}</td></tr>`;
             });
         }
 
-        // --- WITHDRAW LOGIC ---
+        // --- WITHDRAW ---
         async function submitWithdraw() {
             const amount = document.getElementById('w-amount').value;
             const upi = document.getElementById('w-upi').value;
-            
             if (!amount || amount < 100) return alert("Min 100 Tokens.");
             if (!upi) return alert("Enter UPI ID.");
-            
-            // Note: In a real app, verify balance <= actual wallet balance here
             
             const { error } = await dashboardClient.from('withdrawals').insert({
                 user_id: currentUser.id, amount: amount, upi_id: upi, status: 'pending'
             });
 
             if (error) alert("Error: " + error.message);
-            else {
-                alert("✅ Request Sent!");
-                document.getElementById('withdraw-modal').style.display = 'none';
-                loadPayouts(currentUser.id); // Refresh table
-            }
+            else { alert("✅ Request Sent!"); document.getElementById('withdraw-modal').style.display = 'none'; loadPayouts(currentUser.id); }
         }
 
         function copyToClipboard(elementId) {
@@ -312,11 +308,9 @@
             copyText.setSelectionRange(0, 99999); 
             navigator.clipboard.writeText(copyText.value).then(() => { alert("Copied!"); });
         }
-        async function handleLogout() { if(confirm("Log out?")) { await dashboardClient.auth.signOut(); window.location.href = 'login.html'; } }
+        async function handleLogout() { if(confirm("Log out?")) { await dashboardClient.auth.signOut(); window.location.href = 'https://tip.xdfun.in/login'; } }
 
         loadDashboard();
     </script>
-
 </body>
 </html>
-
