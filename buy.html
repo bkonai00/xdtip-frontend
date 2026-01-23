@@ -64,38 +64,44 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ⚠️ PASTE YOUR KEYS HERE
-        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
-        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+        // ⚠️ PASTE YOUR KEYS HERE (Make sure these match your Login Page keys!)
+        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co'; 
+        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV'; 
+        // ^^^ You must paste the long key starting with "eyJ..." here!
         
         const buyClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        // --- CONFIGURATION ---
         const RAZORPAY_LINK = "https://rzp.io/rzp/xd-token"; 
 
         async function buyTokens(amount) {
-            // 1. Check if user is logged in via Supabase
-            const { data: { session } } = await buyClient.auth.getSession();
+            console.log("Checking login status...");
 
-            if (!session) {
+            // 1. Get the current User (More reliable than getSession)
+            const { data: { user }, error } = await buyClient.auth.getUser();
+
+            if (error || !user) {
+                console.log("User not found:", error);
                 alert("Please Login First to buy tokens.");
-                window.location.href = "https://tip.xdfun.in/login";
+                window.location.href = "login.html";
                 return;
             }
 
-            // 2. Get their Username (Optional, but good for reminding them)
-            // We fetch it from the 'users' table to be sure
-            const { data: userProfile } = await buyClient
-                .from('users')
-                .select('username')
-                .eq('id', session.user.id)
-                .single();
+            // 2. User IS logged in - Get their username
+            let username = "User";
+            try {
+                const { data: profile } = await buyClient
+                    .from('users')
+                    .select('username')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (profile) username = profile.username;
+            } catch (err) {
+                console.error("Could not fetch username", err);
+            }
 
-            const username = userProfile ? userProfile.username : "YOUR USERNAME";
-
-            // 3. Open Payment Link
-            // Note: Since this is a static Razorpay link, we just warn them to enter the correct info.
-            alert(`⚠️ IMPORTANT:\n\nYou are logged in as: ${username}\n\nPlease enter this EXACT username on the payment page so we can credit your wallet.`);
+            // 3. Open Payment
+            alert(`✅ You are logged in as: ${username}\n\nIMPORTANT: Enter this EXACT username on the payment page so we can add your tokens.`);
             
             window.open(RAZORPAY_LINK, '_blank');
         }
@@ -103,3 +109,4 @@
 
 </body>
 </html>
+
