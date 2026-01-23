@@ -54,7 +54,7 @@
 
     <nav>
         <div class="logo">xdtip<span class="dot">.</span></div>
-        <a href="/dashboard.html" style="font-size:14px;">Back to Dashboard</a>
+        <a href="https://tip.xdfun.in/dashboard" style="font-size:14px;">Back to Dashboard</a>
     </nav>
 
     <div class="container" style="max-width: 450px; margin-top: 60px;">
@@ -98,7 +98,6 @@
         // ✅ CORRECTED API URL
         const API_URL = "https://app.xdfun.in"; 
 
-        // 1. MAIN LOAD LOGIC
         window.onload = async function() {
             // ---------------------------------------------------------
             // 1. GET THE PATH (e.g. "xdfunYT" or "login")
@@ -111,35 +110,19 @@
                 slug = slug.slice(0, -1);
             }
 
-            // -----------------------------------------------------
-            // 🛑 2. SYSTEM PAGE REDIRECTOR (THE FIX)
-            // -----------------------------------------------------
-            // If the URL is one of these, go to the .html file instead of searching for a user
-            const systemPages = [
-                'login', 'register', 'dashboard', 
-                'about', 'contact', 'terms', 
-                'privacy', 'refund-policy', 'buy', 
-                'forgot', 'reset', 'index', 'learn-more', 'terms'
-            ];
-
-            // Only redirect if it's EXACTLY one of these pages and doesn't end in .html yet
-            if (systemPages.includes(slug.toLowerCase())) {
-                window.location.href = '/' + slug + '.html';
-                return; // STOP HERE
-            }
+            
 
             // ---------------------------------------------------------
             // 👤 3. USERNAME PROFILE LOGIC
             // ---------------------------------------------------------
             
-            // If URL is empty or just "index.html", show the Search Box
-            if (!slug || slug === "https://tip.xdfun.in") {
+            // If URL is empty, "index.html", OR "tip", show the Search Box
+            if (!slug || slug === "https://tip.xdfun.in/" || slug === "tip") {
                 showSearchBox();
                 return;
             }
 
             // If we are here, "slug" is a Username (e.g. xdfunYT)
-            // Set hidden receiver field
             const receiverField = document.getElementById('receiver');
             if(receiverField) receiverField.value = slug;
             
@@ -189,7 +172,6 @@
         function setAmount(val) {
              document.getElementById('amount').value = val;
              document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-             // Check if event exists (for manual calls it might not)
              if(window.event) window.event.target.classList.add('active');
         }
 
@@ -244,4 +226,3 @@
     </script>
 </body>
 </html>
-
