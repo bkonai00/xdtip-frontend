@@ -54,6 +54,23 @@
             50% { opacity: 1; }
             100% { opacity: 0.3; }
         }
+
+// -----------------------------------------------------
+            // 🛑 2. SYSTEM PAGE REDIRECTOR (FIXED LOOP)
+            // -----------------------------------------------------
+            // REMOVED 'tip' from this list to prevent infinite loop
+            const systemPages = [
+                'login', 'register', 'dashboard', 
+                'about', 'contact', 'terms', 
+                'privacy', 'refund-policy', 'buy', 
+                'forgot', 'reset', 'index', 'learn-more', 'tip'
+            ];
+
+            if (systemPages.includes(slug.toLowerCase())) {
+                window.location.href = '/' + slug + '.html';
+                return; // STOP HERE
+            }
+        
     </style>
 </head>
 <body>
