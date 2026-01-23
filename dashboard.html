@@ -63,7 +63,14 @@
             </div>
         </div>
 
-        <div style="flex: 1;">
+        <div id="creator-section" style="margin-top: 60px;">
+            
+            <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
+                <div style="position: relative;">
+                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
+                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                </div>                    
+                <div style="flex: 1;">
                     <h4 style="margin: 0 0 5px 0; color:white;">Channel Logo</h4>
                     <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Max size: 2MB. Formats: PNG, JPG.</p>
                     
@@ -78,6 +85,7 @@
                     </div>
                 </div>
             </div>
+
             <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
                 <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
                     STREAMER TOOLS
@@ -195,7 +203,7 @@
             currentUser = user;
 
             try {
-                // 1. Load Profile
+                // Load Profile
                 const { data, error } = await dashboardClient
                     .from('users')
                     .select('username, role, balance, obs_token, overlay_theme, logo_url')
@@ -213,20 +221,13 @@
                         document.getElementById('creator-section').style.display = 'block';
                         document.getElementById('withdraw-btn').style.display = 'block'; 
                         
-                        // ✅ FIX 1: OBS Links use "app.xdfun.in" with PATH
                         document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${data.obs_token}`;
                         document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${data.obs_token}`;
-                        
-                        // ✅ FIX 2: Tipping Page Link is EXACTLY "tip.xdfun.in/username"
                         document.getElementById('tip-page-url').value = `https://tip.xdfun.in/${data.username}`;
                         
-                        // Load Logo
                         if(data.logo_url) {
                             document.getElementById('current-logo').src = data.logo_url;
-                            document.getElementById('logo-url-input').value = data.logo_url;
                         }
-
-                        // Load Theme
                         if(data.overlay_theme) {
                             document.getElementById('theme-selector').value = data.overlay_theme;
                         }
@@ -243,14 +244,57 @@
             }
         }
 
-        async function saveLogo() {
-            const url = document.getElementById('logo-url-input').value;
-            if(!url) return;
+        // ✅ NEW: UPLOAD FUNCTION
+        async function uploadLogoFile() {
+            const fileInput = document.getElementById('logo-upload');
+            const file = fileInput.files[0];
+            const status = document.getElementById('upload-status');
+
+            if (!file) return;
+
+            // 1. Check Size (2MB Limit)
+            if (file.size > 2 * 1024 * 1024) {
+                alert("❌ File too big! Max size is 2MB.");
+                return;
+            }
+
+            status.innerText = "Uploading...";
+
             try {
-                await dashboardClient.from('users').update({ logo_url: url }).eq('id', currentUser.id);
-                document.getElementById('current-logo').src = url;
-                alert("✅ Logo Updated!");
-            } catch(err) { alert("Error saving logo"); }
+                // 2. Generate path: user_id/timestamp.ext
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
+
+                // 3. Upload to 'logos' bucket
+                const { error: uploadError } = await dashboardClient
+                    .storage
+                    .from('logos')
+                    .upload(fileName, file, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                // 4. Get Public URL
+                const { data: { publicUrl } } = dashboardClient
+                    .storage
+                    .from('logos')
+                    .getPublicUrl(fileName);
+
+                // 5. Update Database
+                await dashboardClient
+                    .from('users')
+                    .update({ logo_url: publicUrl })
+                    .eq('id', currentUser.id);
+
+                // 6. Update UI
+                document.getElementById('current-logo').src = publicUrl;
+                status.innerText = "✅ Saved!";
+                setTimeout(() => status.innerText = "", 3000);
+
+            } catch (err) {
+                console.error(err);
+                status.innerText = "❌ Error";
+                alert("Upload failed: " + err.message);
+            }
         }
 
         async function saveTheme() {
@@ -308,4 +352,3 @@
     </script>
 </body>
 </html>
-
