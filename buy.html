@@ -4,11 +4,48 @@
     <meta charset="UTF-8">
     <title>Buy Tokens | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
+    <script>
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
 </head>
 <body>
+    <nav>
+        <a href="https://tip.xdfun.in/" style="text-decoration:none; color:white;">
+            <div class="logo">
+                <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
+            </div>
+        </a>
+    </nav>
+
     <div style="padding: 100px 20px; text-align: center;">
-        <h1>Top Up Wallet</h1>
-        <button onclick="buyTokens()">Pay Now</button>
+        <h1 style="font-size: 48px;">Top Up Wallet</h1>
+        <p style="color: #888; margin-bottom: 60px;">Select a token pack. 1 INR = 1 Token.</p>
+
+        <div class="pricing-grid">
+            <div class="price-card" onclick="buyTokens(10)">
+                <h2 style="font-size: 42px; margin: 10px 0;">10</h2>
+                <p style="color: #888;">Tokens</p>
+                <div style="background: #222; padding: 10px; margin-top: 20px; border-radius: 6px;">₹10</div>
+            </div>
+
+            <div class="price-card popular" onclick="buyTokens(100)">
+                <div class="badge">BEST VALUE</div>
+                <h2 style="font-size: 42px; margin: 10px 0; color: #ff3b3b;">100</h2>
+                <p style="color: #888;">Tokens</p>
+                <div style="background: #ff3b3b; color: white; padding: 10px; margin-top: 20px; border-radius: 6px;">₹100</div>
+            </div>
+
+            <div class="price-card" onclick="buyTokens(500)">
+                <h2 style="font-size: 42px; margin: 10px 0;">500</h2>
+                <p style="color: #888;">Tokens</p>
+                <div style="background: #222; padding: 10px; margin-top: 20px; border-radius: 6px;">₹500</div>
+            </div>
+        </div>
+
+        <p style="margin-top: 50px; font-size: 12px; color: #444;">Secure payments via Razorpay</p>
     </div>
 
     <script>
@@ -21,8 +58,8 @@
                 window.location.href = "/login.html";
                 return;
             }
-            // Optional: You could fetch API to get username for the alert
-            alert("⚠️ Enter your USERNAME on the payment page!");
+            
+            alert("⚠️ IMPORTANT: Enter your USERNAME on the payment page to receive tokens.");
             window.open(RAZORPAY_LINK, '_blank');
         }
     </script>
