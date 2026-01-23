@@ -186,8 +186,8 @@
 
     <script>
         // ⚠️ PASTE YOUR KEYS HERE
-        const mySupabaseUrl = 'YOUR_SUPABASE_URL_HERE';
-        const mySupabaseKey = 'YOUR_SUPABASE_ANON_KEY_HERE';
+        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
+        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
         
         const dashboardClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
         let currentUser = null;
@@ -216,10 +216,12 @@
                         document.getElementById('creator-section').style.display = 'block';
                         document.getElementById('withdraw-btn').style.display = 'block'; 
                         
-                        // ✅ FIX: ASSIGN UNIQUE LINKS TO EACH BOX
-                        document.getElementById('overlay-url').value = `https://tip.xdfun.in/overlay.html?token=${data.obs_token}`;
-                        document.getElementById('stats-link').value = `https://tip.xdfun.in/stats.html?token=${data.obs_token}`;
-                        document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.username}`;
+                        // ✅ FIX 1: OBS Links use "app.xdfun.in" with PATH
+                        document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${data.obs_token}`;
+                        document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${data.obs_token}`;
+                        
+                        // ✅ FIX 2: Tipping Page Link is EXACTLY "tip.xdfun.in/username"
+                        document.getElementById('tip-page-url').value = `https://tip.xdfun.in/${data.username}`;
                         
                         // Load Logo
                         if(data.logo_url) {
@@ -244,11 +246,9 @@
             }
         }
 
-        // --- SAVE LOGO (Simple URL version) ---
         async function saveLogo() {
             const url = document.getElementById('logo-url-input').value;
             if(!url) return;
-            
             try {
                 await dashboardClient.from('users').update({ logo_url: url }).eq('id', currentUser.id);
                 document.getElementById('current-logo').src = url;
@@ -256,7 +256,6 @@
             } catch(err) { alert("Error saving logo"); }
         }
 
-        // --- SAVE THEME ---
         async function saveTheme() {
             const theme = document.getElementById('theme-selector').value;
             try {
@@ -265,7 +264,6 @@
             } catch(err) { alert("Error saving theme"); }
         }
 
-        // --- HISTORY LOADERS ---
         async function loadPayouts(userId) {
             const { data } = await dashboardClient.from('withdrawals').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5);
             const tbody = document.getElementById('payout-table-body');
@@ -287,7 +285,6 @@
             });
         }
 
-        // --- WITHDRAW ---
         async function submitWithdraw() {
             const amount = document.getElementById('w-amount').value;
             const upi = document.getElementById('w-upi').value;
