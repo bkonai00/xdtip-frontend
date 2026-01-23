@@ -75,8 +75,7 @@
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'login.html';
 
-        // 1. LOAD DATA
-        async function loadAdmin() {
+        /async function loadAdmin() {
             try {
                 const res = await fetch('https://app.xdfun.in/admin/withdrawals', {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -85,45 +84,58 @@
                 const data = await res.json();
                 
                 if (!res.ok) {
-                    document.getElementById('loading').innerText = "Access Denied or Server Error";
-                    alert(data.error || "Access Denied");
+                    document.getElementById('loading').innerText = "Access Denied";
                     return;
                 }
 
                 document.getElementById('loading').style.display = 'none';
                 const list = document.getElementById('payout-list');
+                const thead = document.querySelector('thead tr');
+                
+                // 1. Update Table Headers (Run once)
+                if(!thead.innerHTML.includes('Email')) {
+                    thead.innerHTML = `
+                        <th>Date</th>
+                        <th>User</th>
+                        <th>Email</th> <th>Balance</th> <th>Amount</th>
+                        <th>UPI ID</th>
+                        <th>Ref ID</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    `;
+                }
+
                 list.innerHTML = "";
 
                 data.requests.forEach(req => {
                     const row = document.createElement('tr');
                     
-                    // Determine Status Color
-                    let statusClass = req.status === 'pending' ? 'pending' : (req.status === 'paid' ? 'paid' : 'rejected');
-                    
-                    // Show Transaction ID if it exists, else show dash
-                    let transDisplay = req.t_id ? `<span class="trans-id">#${req.t_id}</span>` : '<span style="color:#444;">-</span>';
-
-                    // Define Buttons
+                    // Button Logic
                     let actions = '-';
                     if(req.status === 'pending') {
-                        // ⚠️ WE PASS 'req.id' (The Row ID) to the function
                         actions = `
-                            <button onclick="processPayout(${req.id}, 'paid')" class="btn-action btn-approve">Pay & Close</button>
+                            <button onclick="processPayout(${req.id}, 'paid')" class="btn-action btn-approve">Pay</button>
                             <button onclick="processPayout(${req.id}, 'rejected')" class="btn-action btn-reject">Reject</button>
                         `;
                     }
 
+                    // Safe check for user data
+                    const u = req.users || { username: 'Unknown', email: '-', balance: 0 };
+
                     row.innerHTML = `
                         <td style="color:#666;">${new Date(req.created_at).toLocaleDateString()}</td>
-                        <td style="font-weight:bold; color:white;">${req.users ? req.users.username : 'Unknown'}</td>
-                        <td class="amount">₹${req.amount}</td>
-                        <td><span class="upi">${req.upi_id}</span></td>
-                        <td>${transDisplay}</td>
-                        <td><span class="badge ${statusClass}">${req.status}</span></td>
+                        <td style="font-weight:bold; color:white;">${u.username}</td>
+                        <td style="font-size:12px; color:#aaa;">${u.email}</td> <td style="font-weight:bold; color:#00ff88;">₹${u.balance}</td> <td style="font-size:15px; font-weight:bold;">₹${req.amount}</td>
+                        <td style="font-family:monospace; color:#ccc;">${req.upi_id}</td>
+                        <td style="font-size:12px; color:#aaa;">${req.t_id || '-'}</td>
+                        <td><span class="badge ${req.status}">${req.status}</span></td>
                         <td>${actions}</td>
                     `;
                     list.appendChild(row);
                 });
+
+            } catch (err) { console.error(err); }
+        }
 
             } catch (err) { 
                 console.error(err); 
