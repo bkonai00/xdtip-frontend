@@ -1,6 +1,6 @@
 // Initialize Supabase (Ensure your keys are correct here)
 const supabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
-const supabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiYXR2cW9ka3dqZGVmaHd3eW5qIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODY0OTYwNSwiZXhwIjoyMDg0MjI1NjA1fQ.JAvWPoWjL7GWpewP2Bq2dakBGPs2l-lulIu7tiJYVz0';
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Toggle Password Function
@@ -75,3 +75,4 @@ document.getElementById('register-form').addEventListener('submit', async functi
         btn.disabled = false;
     }
 });
+
