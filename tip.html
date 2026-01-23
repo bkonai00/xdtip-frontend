@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script>
+        // URL Cleaner: Hides .html extension from the address bar
         if (window.location.pathname.endsWith(".html")) {
             var clean = window.location.pathname.replace(".html", "");
             window.history.replaceState(null, "", clean);
@@ -48,14 +49,12 @@
 </head>
 <body>
     <nav>
-    
-        <div class="nav-links">
-            </div>
+        <div class="nav-links"></div>
     </nav>
 
     <nav>
         <div class="logo">xdtip<span class="dot">.</span></div>
-        <a href="/dashboard" style="font-size:14px;">Back to Dashboard</a>
+        <a href="/dashboard.html" style="font-size:14px;">Back to Dashboard</a>
     </nav>
 
     <div class="container" style="max-width: 450px; margin-top: 60px;">
@@ -87,11 +86,17 @@
 
     <footer>
         <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/refund-policy">Refund Policy</a>
+            <a href="/contact">Contact Us</a>
+        </div>
     </footer>
 
     <script>
-        // ⚠️ UPDATED TO YOUR BACKEND URL (Use the one that works)
-        const API_URL = "https://xdtip-backend.onrender.com"; 
+        // ✅ CORRECTED API URL
+        const API_URL = "https://app.xdfun.in"; 
 
         // 1. MAIN LOAD LOGIC
         window.onload = async function() {
@@ -114,9 +119,10 @@
                 'login', 'register', 'dashboard', 
                 'about', 'contact', 'terms', 
                 'privacy', 'refund-policy', 'buy', 
-                'forgot', 'reset', 'index', 'learn-more.html', 'terms', 'tip'
+                'forgot', 'reset', 'index', 'learn-more', 'terms', 'tip'
             ];
 
+            // Only redirect if it's EXACTLY one of these pages and doesn't end in .html yet
             if (systemPages.includes(slug.toLowerCase())) {
                 window.location.href = '/' + slug + '.html';
                 return; // STOP HERE
@@ -127,7 +133,7 @@
             // ---------------------------------------------------------
             
             // If URL is empty or just "index.html", show the Search Box
-            if (!slug || slug === "https://tip.xdfun.in/" || slug === "tip") {
+            if (!slug || slug === "https://tip.xdfun.in") {
                 showSearchBox();
                 return;
             }
@@ -183,7 +189,8 @@
         function setAmount(val) {
              document.getElementById('amount').value = val;
              document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-             event.target.classList.add('active');
+             // Check if event exists (for manual calls it might not)
+             if(window.event) window.event.target.classList.add('active');
         }
 
         // ---------------------------------------------------------
@@ -195,7 +202,7 @@
             
             if(!token) {
                 alert("Please Login to send a tip!");
-                return window.location.href = "https://tip.xdfun.in/login"; // Ensure .html is here
+                return window.location.href = "https://tip.xdfun.in/login"; 
             }
 
             const receiverUsername = document.getElementById('receiver').value;
@@ -207,6 +214,8 @@
 
             try {
                 btn.innerText = "Sending...";
+                btn.disabled = true;
+
                 const res = await fetch(`${API_URL}/tip`, {
                     method: 'POST',
                     headers: { 
@@ -220,29 +229,18 @@
                 
                 if (data.success) {
                     alert("Tip Sent Successfully! 🎉");
-                    window.location.href = "https://tip.xdfun.in/dashboard"; // Ensure .html is here
+                    window.location.href = "https://tip.xdfun.in/dashboard";
                 } else {
                     alert("Failed: " + data.error);
                 }
             } catch (err) {
+                console.error(err);
                 alert("Server Error");
             } finally {
                 btn.innerText = "Send Support";
+                btn.disabled = false;
             }
         });
     </script>
-    <footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-            <a href="/refund-policy">Refund Policy</a>
-            <a href="/contact">Contact Us</a>
-        </div>
-    </footer>
 </body>
 </html>
-
-
-
-
