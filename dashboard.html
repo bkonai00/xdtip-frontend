@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-        if (window.location.pathname.endsWith(".html")) {
-            var clean = window.location.pathname.replace(".html", "");
-            window.history.replaceState(null, "", clean);
-        }
-    </script>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
@@ -25,16 +19,18 @@
 <body>
 
     <nav>
-        <a href="https://tip.xdfun.in/" style="text-decoration:none; color:white;">
+        <a href="/" style="text-decoration:none; color:white;">
             <div class="logo">xdtip<span class="dot">.</span></div>
         </a>
-        <div class="nav-links">
-            </div>
+        <div class="nav-links"></div>
     </nav>
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
         <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="position:static; vertical-align:middle; font-size:12px; margin-left:10px;">...</span></h1>
+        <h1 style="font-size: 42px; margin: 0;">
+            <span id="user-name">Loading...</span> 
+            <span id="role-badge" class="badge" style="position:static; vertical-align:middle; font-size:12px; margin-left:10px;">...</span>
+        </h1>
     </div>
 
     <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
@@ -45,7 +41,7 @@
                 <span id="balance">0</span> <span style="font-size: 20px; color: #444;">Tokens</span>
             </h2>
             <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <a href="/buy/" class="btn" style="flex: 1;">+ Add Money</a>
+                <a href="/buy" class="btn" style="flex: 1;">+ Add Money</a>
                 <button id="withdraw-btn" onclick="document.getElementById('withdraw-modal').style.display='flex'" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
             </div>
         </div>
@@ -107,55 +103,18 @@
                     </div>
 
                     <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-                        <h4 style="margin: 0; font-size: 16px;">📊 Stats / Leaderboard</h4>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                                Shows <b>Top Tipper</b> and <b>Recent Tips</b> permanently on screen.
-                            </p>
-                            <p style="color: #555; font-size: 12px; margin: 0;">*Auto-matches your selected Theme.</p>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">WIDGET LINK (OBS)</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
                         <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                                This is your public profile where viewers can send donations. Changes made here update instantly.
-                            </p>
-                        </div>
-
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
                             <div style="display: flex; gap: 8px;">
-                                <input type="text" id="tip-page-url" readonly value="https://tips.gg/u/username" style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <input type="text" id="tip-page-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
                                 <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
-                        </div>
-
-                        <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
-                             <button style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                                SHARE THIS WITH YOUR VIEWERS
-                            </button>
                         </div>
                     </div>
 
                 </div>
             </div>
-
-            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">PAYOUT HISTORY</h3>
-            <div id="payout-container">
-                <p style="color: #666; font-style: italic;">Loading payouts...</p>
-            </div> 
 
             <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">RECENT TIPS</h3>
             <div id="history-container">
@@ -166,7 +125,7 @@
         <div id="viewer-section" style="margin-top: 60px; text-align: center;">
             <h3 style="color: #fff;">Ready to support?</h3>
             <p style="color: #888;">Find a creator and send your first tip.</p>
-            <a href="/tip/" class="btn" style="display: inline-block; margin-top: 10px;">Send a Tip</a>
+            <a href="/tip" class="btn" style="display: inline-block; margin-top: 10px;">Send a Tip</a>
         </div>
 
     </div>
@@ -175,10 +134,8 @@
         <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
             <h2 style="margin-top:0;">Withdraw Funds</h2>
             <p style="color:#888; font-size:14px;">Min: 100 Tokens</p>
-            
             <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px;">
             <input type="text" id="w-upi" placeholder="UPI ID (e.g. name@okhdfc)" style="margin-bottom:20px;">
-            
             <button class="btn" onclick="submitWithdraw()">Request Payout</button>
             <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Cancel</button>
         </div>
@@ -189,91 +146,111 @@
         <div class="footer-links">
             <a href="/privacy/">Privacy Policy</a>
             <a href="/terms/">Terms of Service</a>
-            <a href="/refund-policy/">Refund Policy</a>
             <a href="/contact/">Contact Us</a>
         </div>
     </footer>
 
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = 'index.html';
-        }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/auth.js"></script>
 
+    <script>
+        // 2. DASHBOARD LOGIC (Using Supabase Direct)
         async function loadDashboard() {
             try {
-                const res = await fetch('https://app.xdfun.in/api/me', {
-                    headers: { 'Authorization': token }
-                });
-                
-                const data = await res.json();
+                // A. Get User Session
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    window.location.href = '/login'; 
+                    return;
+                }
 
-                if (res.ok) {
-                    // Update Text Info
-                    document.getElementById('user-name').innerText = data.user.username;
-                    document.getElementById('balance').innerText = data.user.wallet_balance;
-                    document.getElementById('role-badge').innerText = data.user.role.toUpperCase();
+                // B. Fetch User Data from Table
+                const { data: user, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
 
-                    // Sections Logic
-                    if (data.user.role === 'creator') {
-                        document.getElementById('creator-section').style.display = 'block';
-                        document.getElementById('withdraw-btn').style.display = 'block';
+                if (error || !user) throw error || new Error("User not found");
 
-                        // FILL THE LINKS
-                        const obsToken = data.user.obs_token;
-                        
-                        // 1. Alert Overlay
-                        if(document.getElementById('overlay-url')) {
-                            document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
-                        }
-                        
-                        // 2. Stats Overlay (NEW)
-                        if(document.getElementById('stats-link')) {
-                            document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
-                        }
+                // C. Update UI
+                document.getElementById('user-name').innerText = user.username || "User";
+                document.getElementById('balance').innerText = user.balance || 0;
+                document.getElementById('role-badge').innerText = (user.role || "").toUpperCase();
 
-                        // 3. Tip Page
-                        if(document.getElementById('tip-page-url')) {
-                            document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
-                        }
-
-                        // Theme Selector
-                        if(data.user.overlay_theme) {
-                            document.getElementById('theme-selector').value = data.user.overlay_theme;
-                        }
-
-                        // Load Logo
-                        if(data.user.logo_url) {
-                            document.getElementById('current-logo').src = data.user.logo_url;
-                        }
-
-                    } else {
-                        document.getElementById('viewer-section').style.display = 'block';
+                // D. Creator vs Viewer Logic
+                if (user.role === 'creator') {
+                    document.getElementById('creator-section').style.display = 'block';
+                    document.getElementById('withdraw-btn').style.display = 'block';
+                    
+                    // Fill Links
+                    if(user.obs_token) {
+                        document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${user.obs_token}`;
+                        document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${user.username}`;
                     }
 
+                    // Theme
+                    if(user.overlay_theme) {
+                        document.getElementById('theme-selector').value = user.overlay_theme;
+                    }
+                    
+                    // Logo
+                    if(user.logo_url) {
+                        document.getElementById('current-logo').src = user.logo_url;
+                    }
+
+                    // Load History
+                    loadHistory(user.id);
+                    
                 } else {
-                    localStorage.removeItem('token');
-                    window.location.href = 'index.html';
+                    document.getElementById('viewer-section').style.display = 'block';
                 }
+
             } catch (err) {
-                console.error("Error loading dashboard:", err);
+                console.error("Dashboard Error:", err);
+                alert("Error loading data. Please re-login.");
+                // window.location.href = '/login';
             }
         }
 
-        // Copy Function
-        function copyToClipboard(elementId) {
-            var copyText = document.getElementById(elementId);
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); 
-            document.execCommand("copy");
-            alert("Copied: " + copyText.value);
+        async function loadHistory(userId) {
+            const container = document.getElementById('history-container');
+            const { data: tips } = await supabase
+                .from('tips')
+                .select('*')
+                .eq('receiver_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            if (!tips || tips.length === 0) {
+                container.innerHTML = '<p style="color:#666; font-style:italic;">No tips yet.</p>';
+                return;
+            }
+
+            let html = '<table class="history-table"><tr><th>SENDER</th><th>AMOUNT</th><th>MESSAGE</th><th>DATE</th></tr>';
+            tips.forEach(tip => {
+                html += `
+                    <tr>
+                        <td>${tip.sender_name || 'Guest'}</td>
+                        <td class="history-amount">₹${tip.amount}</td>
+                        <td style="color:#aaa;">${tip.message || '-'}</td>
+                        <td style="color:#666;">${new Date(tip.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `;
+            });
+            html += '</table>';
+            container.innerHTML = html;
         }
 
-        // Run Dashboard Logic
-        loadDashboard();
+        function copyToClipboard(id) {
+            const el = document.getElementById(id);
+            el.select();
+            document.execCommand("copy");
+            alert("Copied!");
+        }
 
-        // (Assuming you have other functions like saveTheme, uploadLogo, sendTestAlert in your /js/dashboard.js file. 
-        // If not, make sure they are included or imported!)
+        // Run Logic
+        loadDashboard();
     </script>
     
     <script src="/js/dashboard.js"></script>
