@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | XDTIP</title>
+    <title>Admin Command | XDTIP</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* DARK THEME STYLES */
         body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1300px; margin: 0 auto; } /* Wider container */
         
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        h1 { margin: 0; font-size: 24px; color: #00ff88; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { margin: 0; font-size: 24px; color: #00ff88; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
         
         /* TABLE STYLES */
         table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; vertical-align: middle; }
         th { background: #1a1a1a; color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
         tr:hover { background: #151515; }
         
         /* DATA COLORS */
         .amount { color: #00ff88; font-weight: bold; font-family: monospace; font-size: 15px; }
+        .balance { color: #2196F3; font-weight: bold; font-family: monospace; }
+        .email { color: #888; font-size: 12px; font-style: italic; }
         .upi { color: #ccc; font-family: monospace; background: #222; padding: 2px 6px; border-radius: 4px; }
         .trans-id { color: #aaa; font-style: italic; font-size: 12px; }
 
@@ -30,15 +33,17 @@
         .paid { background: #00ff88; color: black; }
         .rejected { background: #ff3b3b; color: white; }
 
-        /* ACTION BUTTONS */
+        /* BUTTONS */
+        .logout-btn { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .logout-btn:hover { background: #444; }
+
         .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; margin-right: 5px; transition: 0.2s; }
         .btn-approve { background: #00ff88; color: black; }
         .btn-approve:hover { background: #00cc6a; }
-        
         .btn-reject { background: transparent; color: #ff3b3b; border: 1px solid #ff3b3b; }
         .btn-reject:hover { background: #ff3b3b; color: white; }
 
-        #loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
+        #loading { text-align: center; padding: 40px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -46,22 +51,23 @@
     <div class="container">
         <div class="header">
             <div style="display:flex; align-items:center; gap:15px;">
-                <img src="images/logo.png" style="height:40px;">
+                <img src="images/logo.png" style="height:40px;"> 
                 <h1>Admin Command</h1>
             </div>
-            <button onclick="logout()" style="background:#333; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Logout</button>
+            <button onclick="logout()" class="logout-btn">Logout</button>
         </div>
 
-        <h3 style="color:#888; margin-bottom:15px;">WITHDRAWAL REQUESTS</h3>
+        <h3 style="color:#666; margin-bottom:15px; text-transform: uppercase; font-size: 14px;">Withdrawal Requests</h3>
         
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>User</th>
-                    <th>Amount</th>
+                    <th>Email</th>    <th>Balance</th>  <th>Amount</th>
                     <th>UPI ID</th>
-                    <th>Transaction Ref (t_id)</th> <th>Status</th>
+                    <th>Ref ID (T_ID)</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -75,7 +81,8 @@
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'login.html';
 
-        /async function loadAdmin() {
+        // 1. LOAD DATA
+        async function loadAdmin() {
             try {
                 const res = await fetch('https://app.xdfun.in/admin/withdrawals', {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -84,34 +91,29 @@
                 const data = await res.json();
                 
                 if (!res.ok) {
-                    document.getElementById('loading').innerText = "Access Denied";
+                    document.getElementById('loading').innerText = "Access Denied or Server Error";
+                    alert(data.error || "Access Denied");
                     return;
                 }
 
                 document.getElementById('loading').style.display = 'none';
                 const list = document.getElementById('payout-list');
-                const thead = document.querySelector('thead tr');
-                
-                // 1. Update Table Headers (Run once)
-                if(!thead.innerHTML.includes('Email')) {
-                    thead.innerHTML = `
-                        <th>Date</th>
-                        <th>User</th>
-                        <th>Email</th> <th>Balance</th> <th>Amount</th>
-                        <th>UPI ID</th>
-                        <th>Ref ID</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    `;
-                }
-
                 list.innerHTML = "";
 
                 data.requests.forEach(req => {
                     const row = document.createElement('tr');
                     
-                    // Button Logic
-                    let actions = '-';
+                    // User Data Check (Prevents crash if user deleted)
+                    const u = req.users || { username: 'Unknown', email: '-', balance: 0 };
+
+                    // Status Colors
+                    let statusClass = req.status === 'pending' ? 'pending' : (req.status === 'paid' ? 'paid' : 'rejected');
+                    
+                    // Transaction ID Display
+                    let transDisplay = req.t_id ? `<span class="trans-id">#${req.t_id}</span>` : '<span style="color:#444;">-</span>';
+
+                    // Action Buttons Logic
+                    let actions = '<span style="color:#444">-</span>';
                     if(req.status === 'pending') {
                         actions = `
                             <button onclick="processPayout(${req.id}, 'paid')" class="btn-action btn-approve">Pay</button>
@@ -119,23 +121,19 @@
                         `;
                     }
 
-                    // Safe check for user data
-                    const u = req.users || { username: 'Unknown', email: '-', balance: 0 };
-
                     row.innerHTML = `
                         <td style="color:#666;">${new Date(req.created_at).toLocaleDateString()}</td>
                         <td style="font-weight:bold; color:white;">${u.username}</td>
-                        <td style="font-size:12px; color:#aaa;">${u.email}</td> <td style="font-weight:bold; color:#00ff88;">₹${u.balance}</td> <td style="font-size:15px; font-weight:bold;">₹${req.amount}</td>
-                        <td style="font-family:monospace; color:#ccc;">${req.upi_id}</td>
-                        <td style="font-size:12px; color:#aaa;">${req.t_id || '-'}</td>
-                        <td><span class="badge ${req.status}">${req.status}</span></td>
+                        <td class="email">${u.email}</td>
+                        <td class="balance">₹${u.balance}</td>
+                        <td class="amount">₹${req.amount}</td>
+                        <td><span class="upi">${req.upi_id}</span></td>
+                        <td>${transDisplay}</td>
+                        <td><span class="badge ${statusClass}">${req.status}</span></td>
                         <td>${actions}</td>
                     `;
                     list.appendChild(row);
                 });
-
-            } catch (err) { console.error(err); }
-        }
 
             } catch (err) { 
                 console.error(err); 
@@ -143,16 +141,16 @@
             }
         }
 
-        // 2. PROCESS PAYOUT (WITH POPUP INPUT)
+        // 2. PROCESS PAYOUT
         async function processPayout(rowId, status) {
             let manualTransactionId = null;
 
-            // IF PAYING: Ask for Transaction ID
+            // If Paying, ask for Reference ID
             if (status === 'paid') {
                 manualTransactionId = prompt("Enter the Payment Reference / Transaction ID:");
-                if (!manualTransactionId) return; // Cancelled by user
+                if (!manualTransactionId) return; 
             } 
-            // IF REJECTING: Confirm first
+            // If Rejecting, ask for Confirmation
             else {
                 if(!confirm("Are you sure you want to REJECT this request? Money will be refunded.")) return;
             }
@@ -164,7 +162,6 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}` 
                     },
-                    // Send ROW ID + Manual TXN ID
                     body: JSON.stringify({ 
                         withdrawal_id: rowId, 
                         status: status, 
@@ -173,12 +170,11 @@
                 });
 
                 const data = await res.json();
-
                 if(res.ok) {
                     alert("✅ Updated Successfully!");
-                    loadAdmin(); // Reload list to see changes
+                    loadAdmin(); // Reload list
                 } else {
-                    alert("❌ Error: " + (data.error || "Unknown Server Error"));
+                    alert("❌ Error: " + (data.error || "Server Error"));
                 }
             } catch (err) {
                 alert("❌ Network Error: " + err.message);
@@ -190,7 +186,7 @@
             window.location.href = 'index.html';
         }
 
-        // Start Loading
+        // Start
         loadAdmin();
     </script>
 </body>
