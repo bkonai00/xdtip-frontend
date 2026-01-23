@@ -63,51 +63,73 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // ⚠️ PASTE YOUR KEYS HERE (Make sure these match your Login Page keys!)
+        // ⬇️⬇️⬇️ CHECK THIS PART CAREFULLY ⬇️⬇️⬇️
         const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co'; 
         const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV'; 
-        // ^^^ You must paste the long key starting with "eyJ..." here!
+        // ⬆️⬆️⬆️ DID YOU PASTE THE LONG KEY HERE? ⬆️⬆️⬆️
         
-        const buyClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+        // Check if key was pasted
+        if (mySupabaseKey === 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV') {
+            alert("CRITICAL ERROR: You forgot to paste your Supabase Key in the buy.html file!");
+        }
 
+        const buyClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
         const RAZORPAY_LINK = "https://rzp.io/rzp/xd-token"; 
 
         async function buyTokens(amount) {
-            console.log("Checking login status...");
+            // 1. Debug: Check if Supabase can access local storage
+            console.log("Attempting to get session...");
+            
+            const { data, error } = await buyClient.auth.getSession();
 
-            // 1. Get the current User (More reliable than getSession)
-            const { data: { user }, error } = await buyClient.auth.getUser();
-
-            if (error || !user) {
-                console.log("User not found:", error);
-                alert("Please Login First to buy tokens.");
-                window.location.href = "https://tip.xdfun.in/login";
+            // 2. ERROR HANDLER
+            if (error) {
+                alert("❌ Database Error: " + error.message);
                 return;
             }
 
-            // 2. User IS logged in - Get their username
+            if (!data.session) {
+                // Try to see if ANY session exists in local storage
+                const localData = localStorage.getItem('sb-' + mySupabaseUrl.split('//')[1].split('.')[0] + '-auth-token');
+                
+                if (!localData) {
+                    alert("❌ YOU ARE NOT LOGGED IN.\n\nReason: No session found in this browser.\n\nFix: Go to Login page, log in again, then come back here.");
+                } else {
+                    alert("⚠️ Session found but Supabase can't read it.\n\nTry refreshing the page.");
+                }
+                
+                // Redirect after alert
+                window.location.href = "login.html";
+                return;
+            }
+
+            // 3. SUCCESS - Get Username
             let username = "User";
             try {
                 const { data: profile } = await buyClient
                     .from('users')
                     .select('username')
-                    .eq('id', user.id)
+                    .eq('id', data.session.user.id)
                     .single();
                 
                 if (profile) username = profile.username;
             } catch (err) {
-                console.error("Could not fetch username", err);
+                console.error(err);
             }
 
-            // 3. Open Payment
-            alert(`✅ You are logged in as: ${username}\n\nIMPORTANT: Enter this EXACT username on the payment page so we can add your tokens.`);
-            
-            window.open(RAZORPAY_LINK, '_blank');
+            // 4. Open Payment
+            const confirm = window.confirm(`✅ Verified: ${username}\n\nClick OK to open the payment page.`);
+            if (confirm) {
+                window.open(RAZORPAY_LINK, '_blank');
+            }
         }
     </script>
 
 </body>
 </html>
+
 
 
