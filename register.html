@@ -8,68 +8,83 @@
         }
     </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | XDTIP</title>
+    <title>Sign Up | xdtip</title>
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    
     <style>
-        /* Custom Styles for Password Toggle */
-        .password-wrapper {
+        /* CSS for the Password Toggle Eye */
+        .password-container {
             position: relative;
             width: 100%;
+            margin-bottom: 15px;
         }
-        .password-wrapper input {
+        .password-container input {
             width: 100%;
-            padding-right: 40px; /* Make space for the eye */
-            box-sizing: border-box;
+            padding-right: 40px; /* Make space for the icon */
+            box-sizing: border-box; /* Ensures padding doesn't break width */
+            margin-bottom: 0 !important; /* Remove default margin inside wrapper */
         }
-        .toggle-btn {
+        .toggle-eye {
             position: absolute;
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
+            color: #666;
             cursor: pointer;
-            color: #888;
-            font-size: 16px;
+            z-index: 10;
         }
-        .toggle-btn:hover { color: var(--primary); }
+        .toggle-eye:hover {
+            color: #ff3b3b; /* Hover color matches your theme */
+        }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="logo-area" style="text-align:center; margin-bottom:20px;">
-             <img src="/images/logo.png" alt="XDTIP" style="height: 50px;">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <a href="https://tip.xdfun.in/" style="text-decoration:none; color:inherit;">
+                <div class="logo">
+                    <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
+                </div>
+            </a>
+            <p style="color: #888; font-size: 14px;">Welcome back.</p>
         </div>
 
-        <h2>Create Account</h2>
-        
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="email" id="email" placeholder="Email" required>
-
-        <div class="password-wrapper">
-            <input type="password" id="password" placeholder="Password" required>
-            <i class="fas fa-eye toggle-btn" onclick="togglePassword('password', this)"></i>
-        </div>
-
-        <div class="password-wrapper" style="margin-top: 10px;">
-            <input type="password" id="confirm-password" placeholder="Confirm Password" required>
-            <i class="fas fa-eye toggle-btn" onclick="togglePassword('confirm-password', this)"></i>
-        </div>
-
-        <div class="role-selector" style="margin: 15px 0;">
-            <label style="color:#888; font-size:14px;">I am a:</label>
-            <select id="role" style="background:#222; color:white; border:1px solid #444; padding:5px; border-radius:4px;">
-                <option value="creator">Creator (Streamer)</option>
-                <option value="viewer">Viewer (Tipper)</option>
+        <form id="register-form">
+            <label style="font-size: 12px; color: #666; font-weight: bold;">I AM A...</label>
+            <select id="role" style="width: 100%; padding: 15px; margin-bottom: 15px; background: #0a0a0a; border: 1px solid #222; color: white; border-radius: 8px;">
+                <option value="viewer">Viewer (I want to support)</option>
+                <option value="creator">Creator (I want to receive tips)</option>
             </select>
-        </div>
 
-        <button onclick="register()" class="btn-primary">Sign Up</button>
-        <p class="link-text">Already have an account? <a href="login.html">Login</a></p>
+            <label style="font-size: 12px; color: #666; font-weight: bold;">CHOOSE USERNAME</label>
+            <input type="text" id="username" required autocomplete="username" placeholder="e.g. NinjaStreamer">
+
+            <label style="font-size: 12px; color: #666; font-weight: bold;">EMAIL ADDRESS</label>
+            <input type="email" id="email" required autocomplete="email">
+            
+            <label style="font-size: 12px; color: #666; font-weight: bold;">PASSWORD</label>
+            <div class="password-container">
+                <input type="password" id="password" required autocomplete="new-password">
+                <i class="fas fa-eye toggle-eye" onclick="togglePassword('password', this)"></i>
+            </div>
+
+            <label style="font-size: 12px; color: #666; font-weight: bold;">CONFIRM PASSWORD</label>
+            <div class="password-container">
+                <input type="password" id="confirm-password" required autocomplete="new-password">
+                <i class="fas fa-eye toggle-eye" onclick="togglePassword('confirm-password', this)"></i>
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Create Account</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
+            Already have an account? <a href="/login/" style="color: #ff3b3b;">Log In</a>
+        </p>
     </div>
 
     <script>
-        // 1. SHOW/HIDE PASSWORD LOGIC
+        // 1. Toggle Password Visibility
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -83,38 +98,28 @@
             }
         }
 
-        // 2. REGISTER LOGIC
-        async function register() {
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value; // New Field
-            const role = document.getElementById('role').value;
+        // 2. Validate Passwords Match
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm-password').value;
 
-            // CHECK: Do Passwords Match?
-            if (password !== confirmPassword) {
+            if (pass !== confirm) {
+                e.preventDefault(); // Stop auth.js from running
+                e.stopPropagation();
                 alert("❌ Passwords do not match!");
-                return;
             }
-
-            try {
-                const res = await fetch('https://app.xdfun.in/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password, role })
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    alert("✅ Registration Successful! Please Login.");
-                    window.location.href = 'login.html';
-                } else {
-                    alert("Error: " + data.error);
-                }
-            } catch (err) {
-                alert("Network Error");
-            }
-        }
+        });
     </script>
+
+    <script src="/js/auth.js"></script>
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy/">Privacy Policy</a>
+            <a href="/terms/">Terms of Service</a>
+            <a href="/refund-policy/">Refund Policy</a>
+            <a href="/contact/">Contact Us</a>
+        </div>
+    </footer>
 </body>
 </html>
