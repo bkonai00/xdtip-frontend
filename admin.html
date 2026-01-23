@@ -110,16 +110,31 @@
         
         const adminClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        // --- 1. CHECK ADMIN LOGIN ---
+        // --- 1. SECURE ADMIN CHECK ---
         async function checkAuth() {
+            // 1. Get the logged in user
             const { data: { user } } = await adminClient.auth.getUser();
+
+            // 2. Define who is the Admin
+            // ⚠️ REPLACE THIS WITH YOUR EXACT EMAIL
+            const ADMIN_EMAIL = "growdigital22@gmail.com"; 
+
+            // 3. The Guard Logic
             if (!user) {
+                // Not logged in -> Kick out
                 window.location.href = 'https://tip.xdfun.in/login';
-            } else {
-                // (Optional) You can add a check here if user.email === 'your@email.com'
-                // For now, we allow access to see if the data loads
-                initData();
+                return;
             }
+
+            if (user.email !== ADMIN_EMAIL) {
+                // Logged in, but NOT the admin -> Kick out
+                alert("⛔ ACCESS DENIED: You are not an Admin.");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // 4. If we passed both checks, Load Data
+            initData();
         }
 
         // --- 2. LOAD WITHDRAWALS ---
