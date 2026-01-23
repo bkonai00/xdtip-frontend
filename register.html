@@ -8,6 +8,7 @@
         }
     </script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -21,9 +22,9 @@
         }
         .password-container input {
             width: 100%;
-            padding-right: 40px; /* Make space for the icon */
-            box-sizing: border-box; /* Ensures padding doesn't break width */
-            margin-bottom: 0 !important; /* Remove default margin inside wrapper */
+            padding-right: 40px; 
+            box-sizing: border-box; 
+            margin-bottom: 0 !important; 
         }
         .toggle-eye {
             position: absolute;
@@ -35,7 +36,7 @@
             z-index: 10;
         }
         .toggle-eye:hover {
-            color: #ff3b3b; /* Hover color matches your theme */
+            color: #ff3b3b;
         }
     </style>
 </head>
@@ -79,12 +80,30 @@
         </form>
 
         <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
-            Already have an account? <a href="/login/" style="color: #ff3b3b;">Log In</a>
+            Already have an account? <a href="https://tip.xdfun.in/login" style="color: #ff3b3b;">Log In</a>
         </p>
     </div>
 
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // 1. Toggle Password Visibility
+        // --- A. Configuration ---
+        // ⚠️ PASTE YOUR KEYS HERE!
+        const supabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
+        const supabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+
+        // Initialize Supabase Client
+        // We check if "window.supabase" exists first to prevent that error
+        if (typeof window.supabase === 'undefined') {
+            alert("CRITICAL ERROR: Supabase library failed to load. Please check your internet connection.");
+        }
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // --- B. Password Toggle Function ---
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -98,32 +117,58 @@
             }
         }
 
-        // 2. Validate Passwords Match
-        document.getElementById('register-form').addEventListener('submit', function(e) {
-            const pass = document.getElementById('password').value;
-            const confirm = document.getElementById('confirm-password').value;
+        // --- C. Registration Logic ---
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Stop page refresh
 
-            if (pass !== confirm) {
-                e.preventDefault(); // Stop auth.js from running
-                e.stopPropagation();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            const username = document.getElementById('username').value;
+            const role = document.getElementById('role').value;
+            const btn = document.querySelector('button[type="submit"]');
+
+            // 1. Validation
+            if (password !== confirmPass) {
                 alert("❌ Passwords do not match!");
+                return;
+            }
+            if (password.length < 6) {
+                alert("❌ Password must be at least 6 characters.");
+                return;
+            }
+
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                // 2. Sign Up
+                // We send username/role as "meta data" so the SQL Trigger can pick it up
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            username: username,
+                            role: role
+                        },
+                        emailRedirectTo: window.location.origin + 'https://tip.xdfun.in/login'
+                    }
+                });
+
+                if (error) throw error;
+
+                // 3. Success
+                alert("✅ Success! Please check your email inbox to verify your account.");
+                window.location.href = 'https://tip.xdfun.in/login';
+
+            } catch (err) {
+                console.error("Signup Error:", err);
+                alert("❌ Error: " + err.message);
+                btn.innerText = "Create Account";
+                btn.disabled = false;
             }
         });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="/js/auth.js"></script>
-    <footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy/">Privacy Policy</a>
-            <a href="/terms/">Terms of Service</a>
-            <a href="/refund-policy/">Refund Policy</a>
-            <a href="/contact/">Contact Us</a>
-        </div>
-    </footer>
 </body>
 </html>
-
-
