@@ -63,24 +63,21 @@
             </div>
         </div>
 
-        <div id="creator-section" style="margin-top: 60px;">
-            
-            <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
-                <div style="position: relative;">
-                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
-                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
-                </div>                    
-                <div style="flex: 1;">
+        <div style="flex: 1;">
                     <h4 style="margin: 0 0 5px 0; color:white;">Channel Logo</h4>
-                    <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Paste an image URL to update your logo.</p>
+                    <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Max size: 2MB. Formats: PNG, JPG.</p>
                     
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="logo-url-input" placeholder="https://..." style="background:#222; border:1px solid #333; color:white; padding:8px; border-radius:4px; flex:1;">
-                        <button class="btn btn-secondary" onclick="saveLogo()" style="margin:0; font-size:12px;">Save</button>
+                    <div style="display:flex; gap:10px; align-items: center;">
+                        <input type="file" id="logo-upload" accept="image/*" style="display: none;" onchange="uploadLogoFile()">
+                        
+                        <button class="btn btn-secondary" onclick="document.getElementById('logo-upload').click()" style="margin:0; font-size:12px;">
+                            <i class="fas fa-upload"></i> Choose File
+                        </button>
+                        
+                        <span id="upload-status" style="font-size: 12px; color: #888;"></span>
                     </div>
                 </div>
             </div>
-
             <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
                 <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
                     STREAMER TOOLS
@@ -311,3 +308,4 @@
     </script>
 </body>
 </html>
+
