@@ -8,7 +8,9 @@
         }
     </script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | xdtip</title>
+    
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -21,9 +23,9 @@
         }
         .password-container input {
             width: 100%;
-            padding-right: 40px; /* Make space for the icon */
+            padding-right: 40px; 
             box-sizing: border-box; 
-            margin-bottom: 0 !important; /* Remove default margin inside wrapper */
+            margin-bottom: 0 !important; 
         }
         .toggle-eye {
             position: absolute;
@@ -35,9 +37,16 @@
             z-index: 10;
         }
         .toggle-eye:hover {
-            color: #ff3b3b; /* Hover color matches your theme */
+            color: #ff3b3b;
         }
     </style>
+    
+    <script>
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -59,22 +68,42 @@
                 <input type="password" id="password" required autocomplete="current-password">
                 <i class="fas fa-eye toggle-eye" onclick="togglePassword('password', this)"></i>
             </div>
+            
             <div style="text-align: center; margin-top: 15px;">
-    <a href="forgot-password.html" style="color: #ff3b3b; font-size: 12px; text-decoration: none; font-weight: bold;">
-        FORGOT PASSWORD?
-    </a>
-</div>
+                <a href="https://tip.xdfun.in/forgot-password" style="color: #ff3b3b; font-size: 12px; text-decoration: none; font-weight: bold;">
+                    FORGOT PASSWORD?
+                </a>
+            </div>
             
             <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Log In</button>
         </form>
 
         <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
-            No account? <a href="/register/" style="color: #ff3b3b;">Create one</a>
+            No account? <a href="https://tip.xdfun.in/register" style="color: #ff3b3b;">Create one</a>
         </p>
-        <p><span style="color: #ff0000;"><strong>FORGOT YOU PASSWORD ? CONTACT&nbsp;US ✌️</strong></span></p>
     </div>
 
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy/">Privacy Policy</a>
+            <a href="/terms/">Terms of Service</a>
+            <a href="/refund-policy/">Refund Policy</a>
+            <a href="/contact/">Contact Us</a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
+        // ⚠️ PASTE YOUR KEYS HERE
+        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
+        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+        
+        // Use a unique variable name to prevent conflicts
+        const loginClient = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+
+        // A. Toggle Password
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -87,21 +116,45 @@
                 icon.classList.add("fa-eye");
             }
         }
+
+        // B. Handle Login
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.querySelector('button[type="submit"]');
+
+            btn.innerText = "Logging in...";
+            btn.disabled = true;
+
+            try {
+                // 1. Sign In
+                const { data, error } = await loginClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // 2. Success
+                // alert("✅ Login Successful!");
+                window.location.href = 'https://tip.xdfun.in/dashboard'; // Change this to your main page
+
+            } catch (err) {
+                console.error("Login Error:", err);
+                
+                // Specific error for unverified emails
+                if (err.message.includes("Email not confirmed")) {
+                    alert("⚠️ Email not verified!\n\nPlease check your inbox and click the confirmation link before logging in.");
+                } else {
+                    alert("❌ Login Failed: " + err.message);
+                }
+                
+                btn.innerText = "Log In";
+                btn.disabled = false;
+            }
+        });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="/js/auth.js"></script>
-    <footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy/">Privacy Policy</a>
-            <a href="/terms/">Terms of Service</a>
-            <a href="/refund-policy/">Refund Policy</a>
-            <a href="/contact/">Contact Us</a>
-        </div>
-    </footer>
 </body>
 </html>
-
-
