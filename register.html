@@ -1,22 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        .password-container { position: relative; width: 100%; margin-bottom: 15px; }
-        .password-container input { width: 100%; padding-right: 40px; margin-bottom: 0 !important; }
-        .toggle-eye { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; cursor: pointer; z-index: 10; }
+        /* CSS for the Password Toggle Eye */
+        .password-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .password-container input {
+            width: 100%;
+            padding-right: 40px; /* Make space for the icon */
+            box-sizing: border-box; /* Ensures padding doesn't break width */
+            margin-bottom: 0 !important; /* Remove default margin inside wrapper */
+        }
+        .toggle-eye {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .toggle-eye:hover {
+            color: #ff3b3b; /* Hover color matches your theme */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div style="text-align: center; margin-bottom: 30px;">
-            <img src="images/logo.png" alt="XDTIP" style="height: 40px;">
-            <p style="color: #888; font-size: 14px;">Create your account.</p>
+            <a href="https://tip.xdfun.in/" style="text-decoration:none; color:inherit;">
+                <div class="logo">
+                    <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
+                </div>
+            </a>
+            <p style="color: #888; font-size: 14px;">Welcome back.</p>
         </div>
 
         <form id="register-form">
@@ -27,20 +58,20 @@
             </select>
 
             <label style="font-size: 12px; color: #666; font-weight: bold;">CHOOSE USERNAME</label>
-            <input type="text" id="username" required placeholder="e.g. NinjaStreamer">
+            <input type="text" id="username" required autocomplete="username" placeholder="e.g. NinjaStreamer">
 
             <label style="font-size: 12px; color: #666; font-weight: bold;">EMAIL ADDRESS</label>
-            <input type="email" id="email" required>
+            <input type="email" id="email" required autocomplete="email">
             
             <label style="font-size: 12px; color: #666; font-weight: bold;">PASSWORD</label>
             <div class="password-container">
-                <input type="password" id="password" required>
+                <input type="password" id="password" required autocomplete="new-password">
                 <i class="fas fa-eye toggle-eye" onclick="togglePassword('password', this)"></i>
             </div>
 
             <label style="font-size: 12px; color: #666; font-weight: bold;">CONFIRM PASSWORD</label>
             <div class="password-container">
-                <input type="password" id="confirm-password" required>
+                <input type="password" id="confirm-password" required autocomplete="new-password">
                 <i class="fas fa-eye toggle-eye" onclick="togglePassword('confirm-password', this)"></i>
             </div>
             
@@ -48,56 +79,47 @@
         </form>
 
         <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
-            Already have an account? <a href="/login.html" style="color: #ff3b3b;">Log In</a>
+            Already have an account? <a href="/login/" style="color: #ff3b3b;">Log In</a>
         </p>
     </div>
 
     <script>
-        const API_URL = 'https://app.xdfun.in/register'; 
-
+        // 1. Toggle Password Visibility
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
-            if (input.type === "password") { input.type = "text"; icon.classList.remove("fa-eye"); icon.classList.add("fa-eye-slash"); } 
-            else { input.type = "password"; icon.classList.remove("fa-eye-slash"); icon.classList.add("fa-eye"); }
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
         }
 
-        document.getElementById('register-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.querySelector('button[type="submit"]');
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPass = document.getElementById('confirm-password').value;
-            const username = document.getElementById('username').value;
-            const role = document.getElementById('role').value;
+        // 2. Validate Passwords Match
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm-password').value;
 
-            if (password !== confirmPass) { alert("❌ Passwords do not match!"); return; }
-
-            btn.innerText = "Creating...";
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`${API_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, username, role })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert("✅ Account Created! Please Log In.");
-                    window.location.href = 'login.html';
-                } else {
-                    throw new Error(data.message || "Registration failed");
-                }
-            } catch (err) {
-                alert("❌ Error: " + err.message);
-                btn.innerText = "Create Account";
-                btn.disabled = false;
+            if (pass !== confirm) {
+                e.preventDefault(); // Stop auth.js from running
+                e.stopPropagation();
+                alert("❌ Passwords do not match!");
             }
         });
     </script>
+
+    <script src="/js/auth.js"></script>
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy/">Privacy Policy</a>
+            <a href="/terms/">Terms of Service</a>
+            <a href="/refund-policy/">Refund Policy</a>
+            <a href="/contact/">Contact Us</a>
+        </div>
+    </footer>
 </body>
 </html>
-
