@@ -189,17 +189,17 @@
     <footer>
         <p>&copy; 2024 xdtip. All rights reserved.</p>
         <div class="footer-links">
-            <a href="/privacy/">Privacy Policy</a>
-            <a href="/terms/">Terms of Service</a>
-            <a href="/refund-policy/">Refund Policy</a>
-            <a href="/contact/">Contact Us</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/refund-policy">Refund Policy</a>
+            <a href="/contact">Contact Us</a>
         </div>
     </footer>
 
     <script>
         const token = localStorage.getItem('token');
         if (!token) {
-            window.location.href = 'index.html';
+            window.location.href = 'https://tip.xdfun.in/';
         }
 
         async function loadDashboard() {
@@ -255,7 +255,7 @@
 
                 } else {
                     localStorage.removeItem('token');
-                    window.location.href = 'index.html';
+                    window.location.href = 'https://tip.xdfun.in/';
                 }
             } catch (err) {
                 console.error("Error loading dashboard:", err);
@@ -282,4 +282,5 @@
 
 </body>
 </html>
+
 
