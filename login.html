@@ -1,57 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | XDTIP</title>
+    <title>Login | xdtip</title>
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+
     <style>
-        /* Custom Styles for Password Toggle */
-        .password-wrapper {
+        /* CSS for the Password Toggle Eye */
+        .password-container {
             position: relative;
             width: 100%;
-            margin-bottom: 15px; /* Spacing */
+            margin-bottom: 15px;
         }
-        .password-wrapper input {
+        .password-container input {
             width: 100%;
-            padding-right: 40px; /* Space for icon */
-            box-sizing: border-box;
-            margin-bottom: 0; /* Removing default margin to handle it via wrapper */
+            padding-right: 40px; /* Make space for the icon */
+            box-sizing: border-box; 
+            margin-bottom: 0 !important; /* Remove default margin inside wrapper */
         }
-        .toggle-btn {
+        .toggle-eye {
             position: absolute;
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
+            color: #666;
             cursor: pointer;
-            color: #888;
-            font-size: 16px;
+            z-index: 10;
         }
-        .toggle-btn:hover { color: var(--primary); }
+        .toggle-eye:hover {
+            color: #ff3b3b; /* Hover color matches your theme */
+        }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="logo-area" style="text-align:center; margin-bottom:20px;">
-             <img src="/images/logo.png" alt="XDTIP" style="height: 50px;">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <a href="https://tip.xdfun.in/" style="text-decoration:none; color:inherit;">
+                <div class="logo">
+                    <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
+                </div>
+            </a>
+            <p style="color: #888; font-size: 14px;">Welcome back.</p>
         </div>
 
-        <h2>Welcome Back</h2>
-        
-        <input type="email" id="email" placeholder="Email" required style="margin-bottom:15px;">
-        
-        <div class="password-wrapper">
-            <input type="password" id="password" placeholder="Password" required>
-            <i class="fas fa-eye toggle-btn" onclick="togglePassword('password', this)"></i>
-        </div>
+        <form id="login-form">
+            <label style="font-size: 12px; color: #666; font-weight: bold;">EMAIL ADDRESS</label>
+            <input type="email" id="email" required autocomplete="email">
+            
+            <label style="font-size: 12px; color: #666; font-weight: bold;">PASSWORD</label>
+            <div class="password-container">
+                <input type="password" id="password" required autocomplete="current-password">
+                <i class="fas fa-eye toggle-eye" onclick="togglePassword('password', this)"></i>
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Log In</button>
+        </form>
 
-        <button onclick="login()" class="btn-primary">Login</button>
-        <p class="link-text">New here? <a href="register.html">Create Account</a></p>
+        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
+            No account? <a href="/register/" style="color: #ff3b3b;">Create one</a>
+        </p>
+        <p><span style="color: #ff0000;"><strong>FORGOT YOU PASSWORD ? CONTACT&nbsp;US ✌️</strong></span></p>
     </div>
 
     <script>
-        // 1. SHOW/HIDE PASSWORD LOGIC
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -64,34 +82,17 @@
                 icon.classList.add("fa-eye");
             }
         }
-
-        // 2. LOGIN LOGIC
-        async function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const res = await fetch('https://app.xdfun.in/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    localStorage.setItem('token', data.token);
-                    // Check Role to decide where to go
-                    if (data.user.id === 'YOUR_ADMIN_UUID_HERE' || email === 'YOUR_ADMIN_EMAIL') { 
-                        // Optional: You can add auto-redirect to admin if you want
-                    }
-                    window.location.href = 'dashboard.html';
-                } else {
-                    alert("Login Failed: " + data.error);
-                }
-            } catch (err) {
-                alert("Network Error");
-            }
-        }
     </script>
+
+    <script src="/js/auth.js"></script>
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy/">Privacy Policy</a>
+            <a href="/terms/">Terms of Service</a>
+            <a href="/refund-policy/">Refund Policy</a>
+            <a href="/contact/">Contact Us</a>
+        </div>
+    </footer>
 </body>
 </html>
