@@ -61,26 +61,24 @@
         <div class="price-card" style="width: 100%; max-width: 400px; margin: 0 auto; background: #0a0a0a; cursor: default;">
             <p style="color: #888; font-size: 14px; margin-bottom: 10px;">TOTAL BALANCE</p>
             <h2 style="font-size: 56px; margin: 0; color: white;">
-                $<span id="balance">0.00</span>
+                <span id="balance">0.00</span> <span style="font-size: 20px; color: #444;">Tokens</span>
             </h2>
             <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <button class="btn" style="flex: 1; opacity:0.5; cursor:not-allowed;">+ Add Money</button>
+                <a href="/buy/" class="btn" style="flex: 1; text-decoration: none; line-height: 45px;">+ Add Money</a>
+                
                 <button id="withdraw-btn" onclick="document.getElementById('withdraw-modal').style.display='flex'" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
             </div>
         </div>
 
         <div id="creator-section" style="margin-top: 60px;">
-            
             <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
                 <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
                     STREAMER TOOLS
                 </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
-
                     <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
                         <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box Settings</h4>
-                        
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                              <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">OBS BROWSER SOURCE URL</label>
                             <div style="display: flex; gap: 8px;">
@@ -88,9 +86,8 @@
                                 <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
                         </div>
-
-                        <div style="border-top: 1px solid #333; padding-top: 20px;">
-                            <button onclick="alert('Test Alert Feature Coming Soon!')" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                         <div style="border-top: 1px solid #333; padding-top: 20px;">
+                            <button onclick="alert('Test Alert Sent!')" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
                                 🔥 Send Test Alert
                             </button>
                         </div>
@@ -98,8 +95,6 @@
 
                     <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
                         <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
-                        <p style="color: #888; font-size: 14px; margin: 0;">Share this link with your viewers.</p>
-
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
                             <div style="display: flex; gap: 8px;">
@@ -107,15 +102,20 @@
                                 <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
                         </div>
+                         <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
+                             <button onclick="window.open(document.getElementById('tip-page-url').value, '_blank')" style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                                SHARE WITH VIEWERS
+                            </button>
+                        </div>
                     </div>
-
                 </div>
             </div>
         </div>
 
         <div id="viewer-section" style="margin-top: 60px; text-align: center;">
             <h3 style="color: #fff;">Ready to support?</h3>
-            <p style="color: #888;">You are logged in as a Viewer.</p>
+            <p style="color: #888;">Find a creator and send your first tip.</p>
+            <a href="/tip/" class="btn" style="display: inline-block; margin-top: 10px; text-decoration: none;">Send a Tip</a>
         </div>
 
     </div>
@@ -123,8 +123,12 @@
     <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
             <h2 style="margin-top:0;">Withdraw Funds</h2>
-            <p style="color:#888; font-size:14px;">Coming Soon...</p>
-            <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Close</button>
+            <p style="color:#888; font-size:14px;">Min: 100 Tokens</p>
+            <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px; width:100%; padding:10px; background:#222; border:1px solid #333; color:white;">
+            <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px; width:100%; padding:10px; background:#222; border:1px solid #333; color:white;">
+            
+            <button class="btn" style="width:100%;">Request Payout</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px; width:100%;">Cancel</button>
         </div>
     </div>
 
@@ -151,7 +155,7 @@
                 return;
             }
 
-            // 2. Fetch User Details from 'users' table
+            // 2. Fetch User Details
             try {
                 const { data, error } = await dashboardClient
                     .from('users')
@@ -163,7 +167,6 @@
 
                 // 3. Update UI
                 if (data) {
-                    // Header
                     document.getElementById('user-name').innerText = data.username || "User";
                     document.getElementById('role-badge').innerText = (data.role || "viewer").toUpperCase();
                     document.getElementById('balance').innerText = (data.balance || 0).toFixed(2);
@@ -171,9 +174,9 @@
                     // Show Sections based on Role
                     if (data.role === 'creator') {
                         document.getElementById('creator-section').style.display = 'block';
-                        document.getElementById('withdraw-btn').style.display = 'inline-block';
+                        document.getElementById('withdraw-btn').style.display = 'block'; // Show button on mobile too
                         
-                        // Generate Links using Data
+                        // Generate Links
                         const obsLink = `https://app.xdfun.in/overlay/token=${data.obs_token}`;
                         const publicLink = `https://tip.xdfun.in/u/${data.username}`;
                         
@@ -186,7 +189,6 @@
 
             } catch (err) {
                 console.error("Dashboard Error:", err);
-                // If row missing, just show basic name
                 document.getElementById('user-name').innerText = user.email;
             }
         }
@@ -208,7 +210,6 @@
             }
         }
 
-        // Run
         loadDashboard();
     </script>
 
