@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <script>
-        if (window.location.pathname.endsWith("")) {
-            var clean = window.location.pathname.replace("", "");
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
             window.history.replaceState(null, "", clean);
         }
     </script>
@@ -63,12 +63,13 @@
 
     <script>
         // ⚠️ PASTE YOUR KEYS HERE
-        const supabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
-        const supabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
+        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
         
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // --- CRITICAL FIX: UNIQUE NAME ---
+        // We use "FINAL_CLIENT" so it NEVER conflicts with "supabase"
+        const FINAL_CLIENT = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        // Toggle Password
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -82,7 +83,6 @@
             }
         }
 
-        // Register Logic
         document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -102,19 +102,20 @@
             btn.disabled = true;
 
             try {
-                const { data, error } = await supabase.auth.signUp({
+                // Use FINAL_CLIENT here
+                const { data, error } = await FINAL_CLIENT.auth.signUp({
                     email: email,
                     password: password,
                     options: {
                         data: { username: username, role: role },
-                        emailRedirectTo: window.location.origin + '/login'
+                        emailRedirectTo: window.location.origin + 'https://tip.xdfun.in/login'
                     }
                 });
 
                 if (error) throw error;
 
                 alert("✅ Success! Please check your email to verify your account.");
-                window.location.href = 'login';
+                window.location.href = 'https://tip.xdfun.in/login';
 
             } catch (err) {
                 alert("❌ Error: " + err.message);
