@@ -1,6 +1,3 @@
----
----
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +43,9 @@
 <body>
     <nav>
         <a href="/index/" style="text-decoration:none; color:white;">
-            <div class="logo">xdtip<span class="dot">.</span></div>
+            <div class="logo">
+    <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
+</div>
         </a>
         <div class="nav-links">
             </div>
@@ -89,70 +88,85 @@
     </footer>
 
     <script>
-        // ⚠️ REPLACE WITH YOUR RENDER URL
-        const API_URL = "https://app.xdfun.in"; 
+        // ⚠️ UPDATED TO YOUR BACKEND URL (Use the one that works)
+        const API_URL = "https://xdtip-backend.onrender.com"; 
 
-        // 1. Load Creator Profile on Start
+        // 1. MAIN LOAD LOGIC
         window.onload = async function() {
             // ---------------------------------------------------------
-            // ✅ NEW: EXTRACT USERNAME FROM URL PATH (e.g. /xdfunYT)
+            // 1. GET THE PATH (e.g. "xdfunYT" or "login")
             // ---------------------------------------------------------
             const path = window.location.pathname;
-            let username = path.substring(1); // Remove the leading slash "/"
+            let slug = path.substring(1); // Remove leading slash "/"
 
-            // Clean up: Remove trailing slash if present (e.g. /xdfunYT/)
-            if (username.endsWith('/')) {
-                username = username.slice(0, -1);
+            // Clean up: Remove trailing slash
+            if (slug.endsWith('/')) {
+                slug = slug.slice(0, -1);
             }
 
-            // Clean up: Ignore system files if mistakenly loaded
-            if (username === "index.html" || username === "" || username === "tip") {
-                username = null;
+            // -----------------------------------------------------
+            // 🛑 2. SYSTEM PAGE REDIRECTOR (THE FIX)
+            // -----------------------------------------------------
+            // If the URL is one of these, go to the .html file instead of searching for a user
+            const systemPages = [
+                'login', 'register', 'dashboard', 
+                'about', 'contact', 'terms', 
+                'privacy', 'refund-policy', 'buy', 
+                'forgot', 'reset', 'index', 'learn-more.html', 'terms', 'tip'
+            ];
+
+            if (systemPages.includes(slug.toLowerCase())) {
+                window.location.href = '/' + slug + '.html';
+                return; // STOP HERE
             }
 
             // ---------------------------------------------------------
-            // MAIN LOGIC
+            // 👤 3. USERNAME PROFILE LOGIC
             // ---------------------------------------------------------
-            if (username) {
-                // Set hidden receiver field
-                const receiverField = document.getElementById('receiver');
-                if(receiverField) receiverField.value = username;
-                
-                try {
-                    // Fetch Creator Details (Logo)
-                    const res = await fetch(`${API_URL}/profile/${username}`);
-                    const data = await res.json();
+            
+            // If URL is empty or just "index.html", show the Search Box
+            if (!slug || slug === "index.html" || slug === "tip") {
+                showSearchBox();
+                return;
+            }
 
-                    if (data.success) {
-                        document.getElementById('creator-name').innerText = data.user.username;
-                        
-                        // IF LOGO EXISTS, SHOW IT. ELSE SHOW PLACEHOLDER.
-                        if (data.user.logo_url) {
-                            const avatarBox = document.getElementById('avatar-placeholder');
-                            // We use innerHTML to insert the image
-                            avatarBox.innerHTML = `<img src="${data.user.logo_url}" alt="Logo">`;
-                            avatarBox.style.border = "2px solid #00ff88"; // Changed to Green (Brand Color)
-                        } else {
-                            // UI Avatars Fallback (Better than text)
-                            const avatarBox = document.getElementById('avatar-placeholder');
-                            avatarBox.innerHTML = `<img src="https://ui-avatars.com/api/?name=${data.user.username}&background=00ff88&color=000&size=128" alt="Logo">`;
-                        }
+            // If we are here, "slug" is a Username (e.g. xdfunYT)
+            // Set hidden receiver field
+            const receiverField = document.getElementById('receiver');
+            if(receiverField) receiverField.value = slug;
+            
+            try {
+                // Fetch Creator Details (Logo)
+                const res = await fetch(`${API_URL}/profile/${slug}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('creator-name').innerText = data.user.username;
+                    
+                    // Show Logo or Avatar
+                    const avatarBox = document.getElementById('avatar-placeholder');
+                    if (data.user.logo_url) {
+                        avatarBox.innerHTML = `<img src="${data.user.logo_url}" alt="Logo">`;
+                        avatarBox.style.border = "2px solid #00ff88"; 
                     } else {
-                        // User not found in backend
-                        console.error("User not found");
-                        showSearchBox();
+                        // UI Avatars Fallback
+                        avatarBox.innerHTML = `<img src="https://ui-avatars.com/api/?name=${data.user.username}&background=00ff88&color=000&size=128" alt="Logo">`;
                     }
-                } catch (err) {
-                    console.error("Could not load profile", err);
+                } else {
+                    // User not found in backend
+                    console.error("User not found");
                     showSearchBox();
                 }
-            } else {
-                // No username in URL -> Show Search Box
+            } catch (err) {
+                console.error("Could not load profile", err);
                 showSearchBox();
             }
         };
 
-        // Helper function to show manual input if no user found
+        // ---------------------------------------------------------
+        // HELPER FUNCTIONS
+        // ---------------------------------------------------------
+
         function showSearchBox() {
              document.querySelector('.profile-header').innerHTML = `
                 <h1 style="text-align:center;">Send a Tip</h1>
@@ -163,21 +177,23 @@
             `;
         }
 
-        // 2. Chip Selection Helper
+        // Chip Selection Helper
         function setAmount(val) {
              document.getElementById('amount').value = val;
              document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
              event.target.classList.add('active');
         }
 
-        // 3. Submit Tip Logic
+        // ---------------------------------------------------------
+        // 💸 SUBMIT TIP LOGIC
+        // ---------------------------------------------------------
         document.getElementById('tip-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const token = localStorage.getItem('token');
             
             if(!token) {
                 alert("Please Login to send a tip!");
-                return window.location.href = "/login/";
+                return window.location.href = "/login.html"; // Ensure .html is here
             }
 
             const receiverUsername = document.getElementById('receiver').value;
@@ -202,7 +218,7 @@
                 
                 if (data.success) {
                     alert("Tip Sent Successfully! 🎉");
-                    window.location.href = "/dashboard/";
+                    window.location.href = "/dashboard.html"; // Ensure .html is here
                 } else {
                     alert("Failed: " + data.error);
                 }
