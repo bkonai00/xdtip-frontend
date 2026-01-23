@@ -1,91 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // URL Cleaner: Hides .html extension from the address bar
+        if (window.location.pathname.endsWith(".html")) {
+            var clean = window.location.pathname.replace(".html", "");
+            window.history.replaceState(null, "", clean);
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading...</title>
+    <title>Support Me | xdtip</title>
+    <link rel="stylesheet" href="/css/style.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
-
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #0d0d0d; /* Dark Background */
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-        }
-
-        .loader-container {
+        /* Special Styles just for Tipping Page */
+        .profile-header {
             text-align: center;
+            margin-bottom: 30px;
         }
-
-        /* The Spinner Ring */
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            border-top: 5px solid #FFD700; /* Gold Color */
+        .avatar-circle {
+            width: 80px; height: 80px;
+            background: #222;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 15px auto;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; border: 2px solid #ff3b3b;
+            color: #fff;
+            overflow: hidden; /* Ensures image stays inside circle */
         }
-
-        /* Text Styling */
-        .loading-text {
-            font-size: 18px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #888;
-            animation: pulse 1.5s infinite ease-in-out;
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-
-        /* Animations */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .chip-grid {
+            display: flex; gap: 10px; margin-bottom: 15px;
         }
-
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
+        .chip {
+            flex: 1; padding: 10px;
+            background: #111; border: 1px solid #333;
+            color: white; border-radius: 8px; cursor: pointer;
+            text-align: center; transition: 0.2s;
         }
-
-// -----------------------------------------------------
-            // 🛑 2. SYSTEM PAGE REDIRECTOR (FIXED LOOP)
-            // -----------------------------------------------------
-            // REMOVED 'tip' from this list to prevent infinite loop
-            const systemPages = [
-                'login', 'register', 'dashboard', 
-                'about', 'contact', 'terms', 
-                'privacy', 'refund-policy', 'buy', 
-                'forgot', 'reset', 'index', 'learn-more', 'tip'
-            ];
-
-            if (systemPages.includes(slug.toLowerCase())) {
-                window.location.href = '/' + slug + '.html';
-                return; // STOP HERE
-            }
-        
+        .chip:hover, .chip.active {
+            background: #ff3b3b; border-color: #ff3b3b;
+        }
     </style>
 </head>
 <body>
+    <nav>
+        <div class="nav-links"></div>
+    </nav>
 
-    <div class="loader-container">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading</div>
+    <nav>
+        <div class="logo">xdtip<span class="dot">.</span></div>
+        <a href="https://tip.xdfun.in/dashboard" style="font-size:14px;">Back to Dashboard</a>
+    </nav>
+
+    <div class="container" style="max-width: 450px; margin-top: 60px;">
+        
+        <div class="profile-header">
+            <div class="avatar-circle" id="avatar-placeholder">?</div>
+            <h1 style="font-size: 24px; margin: 0;">Support <span id="creator-name" style="color: #ff3b3b;">Creator</span></h1>
+            <p style="color: #888; font-size: 14px; margin-top: 5px;">Thank you for supporting my stream!</p>
+        </div>
+
+        <form id="tip-form">
+            <input type="hidden" id="receiver">
+
+            <label style="font-size: 12px; color: #666; font-weight: bold;">SELECT AMOUNT</label>
+            <div class="chip-grid">
+                <div class="chip" onclick="setAmount(10)">10</div>
+                <div class="chip" onclick="setAmount(100)">100</div>
+                <div class="chip" onclick="setAmount(500)">500</div>
+            </div>
+            <input type="number" id="amount" placeholder="Or enter custom amount..." min="10" required>
+            
+            <label style="font-size: 12px; color: #666; font-weight: bold; margin-top: 10px; display:block;">YOUR MESSAGE</label>
+            <textarea id="message" rows="3" placeholder="Say something nice for the alert..." required 
+                style="width: 100%; padding: 12px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; box-sizing: border-box; resize: none;"></textarea>
+            
+            <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">Send Support</button>
+        </form>
     </div>
 
-    <script>
-        // Optional: Redirect after 3 seconds (Remove if not needed)
-        // setTimeout(() => {
-        //     window.location.href = "/dashboard.html"; 
-        // }, 3000);
-    </script>
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/refund-policy">Refund Policy</a>
+            <a href="/contact">Contact Us</a>
+        </div>
+    </footer>
 
+    <script>
+        // ✅ CORRECTED API URL
+        const API_URL = "https://app.xdfun.in"; 
+
+        window.onload = async function() {
+            // ---------------------------------------------------------
+            // 1. GET THE PATH (e.g. "xdfunYT" or "login")
+            // ---------------------------------------------------------
+            const path = window.location.pathname;
+            let slug = path.substring(1); // Remove leading slash "/"
+
+            // Clean up: Remove trailing slash
+            if (slug.endsWith('/')) {
+                slug = slug.slice(0, -1);
+            }
+
+            
+
+            // ---------------------------------------------------------
+            // 👤 3. USERNAME PROFILE LOGIC
+            // ---------------------------------------------------------
+            
+            // If URL is empty, "index.html", OR "tip", show the Search Box
+            if (!slug || slug === "https://tip.xdfun.in/" || slug === "tip") {
+                showSearchBox();
+                return;
+            }
+
+            // If we are here, "slug" is a Username (e.g. xdfunYT)
+            const receiverField = document.getElementById('receiver');
+            if(receiverField) receiverField.value = slug;
+            
+            try {
+                // Fetch Creator Details (Logo)
+                const res = await fetch(`${API_URL}/profile/${slug}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('creator-name').innerText = data.user.username;
+                    
+                    // Show Logo or Avatar
+                    const avatarBox = document.getElementById('avatar-placeholder');
+                    if (data.user.logo_url) {
+                        avatarBox.innerHTML = `<img src="${data.user.logo_url}" alt="Logo">`;
+                        avatarBox.style.border = "2px solid #00ff88"; 
+                    } else {
+                        // UI Avatars Fallback
+                        avatarBox.innerHTML = `<img src="https://ui-avatars.com/api/?name=${data.user.username}&background=00ff88&color=000&size=128" alt="Logo">`;
+                    }
+                } else {
+                    // User not found in backend
+                    console.error("User not found");
+                    showSearchBox();
+                }
+            } catch (err) {
+                console.error("Could not load profile", err);
+                showSearchBox();
+            }
+        };
+
+        // ---------------------------------------------------------
+        // HELPER FUNCTIONS
+        // ---------------------------------------------------------
+
+        function showSearchBox() {
+             document.querySelector('.profile-header').innerHTML = `
+                <h1 style="text-align:center;">Send a Tip</h1>
+                <p style="color:#888; font-size:14px; text-align:center;">Enter a username to support them.</p>
+                <input type="text" placeholder="Enter Creator Username" 
+                style="margin-top:20px; text-align:center; width:100%; padding:15px; background:#111; border:1px solid #333; color:white; border-radius:8px;" 
+                onchange="window.location.href = '/' + this.value">
+            `;
+        }
+
+        // Chip Selection Helper
+        function setAmount(val) {
+             document.getElementById('amount').value = val;
+             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+             if(window.event) window.event.target.classList.add('active');
+        }
+
+        // ---------------------------------------------------------
+        // 💸 SUBMIT TIP LOGIC
+        // ---------------------------------------------------------
+        document.getElementById('tip-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            
+            if(!token) {
+                alert("Please Login to send a tip!");
+                return window.location.href = "https://tip.xdfun.in/login"; 
+            }
+
+            const receiverUsername = document.getElementById('receiver').value;
+            const amount = document.getElementById('amount').value;
+            const message = document.getElementById('message').value;
+            const btn = e.target.querySelector('button');
+
+            if(!receiverUsername) return alert("Please enter a creator username");
+
+            try {
+                btn.innerText = "Sending...";
+                btn.disabled = true;
+
+                const res = await fetch(`${API_URL}/tip`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ receiverUsername, amount, message })
+                });
+
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert("Tip Sent Successfully! 🎉");
+                    window.location.href = "https://tip.xdfun.in/dashboard";
+                } else {
+                    alert("Failed: " + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server Error");
+            } finally {
+                btn.innerText = "Send Support";
+                btn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
