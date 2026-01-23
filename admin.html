@@ -8,14 +8,17 @@
     <style>
         /* DARK THEME STYLES */
         body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        .container { max-width: 1300px; margin: 0 auto; } /* Wider container */
+        .container { max-width: 1300px; margin: 0 auto; padding-bottom: 50px; }
         
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
         h1 { margin: 0; font-size: 24px; color: #00ff88; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
         
+        /* SECTION TITLES */
+        h3 { color: #888; margin-top: 40px; margin-bottom: 15px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; border-left: 3px solid #00ff88; padding-left: 10px; }
+
         /* TABLE STYLES */
-        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 20px; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; vertical-align: middle; }
         th { background: #1a1a1a; color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
         tr:hover { background: #151515; }
@@ -23,27 +26,25 @@
         /* DATA COLORS */
         .amount { color: #00ff88; font-weight: bold; font-family: monospace; font-size: 15px; }
         .balance { color: #2196F3; font-weight: bold; font-family: monospace; }
-        .email { color: #888; font-size: 12px; font-style: italic; }
-        .upi { color: #ccc; font-family: monospace; background: #222; padding: 2px 6px; border-radius: 4px; }
-        .trans-id { color: #aaa; font-style: italic; font-size: 12px; }
+        .email { color: #888; font-size: 13px; }
+        .role-badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase; font-weight: bold; }
+        .role-creator { background: #9c27b0; color: white; } /* Purple for Creators */
+        .role-viewer { background: #333; color: #ccc; }       /* Grey for Viewers */
 
-        /* STATUS BADGES */
+        /* BADGES & BUTTONS */
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .pending { background: #ff9800; color: black; }
         .paid { background: #00ff88; color: black; }
         .rejected { background: #ff3b3b; color: white; }
-
-        /* BUTTONS */
-        .logout-btn { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        .logout-btn:hover { background: #444; }
 
         .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; margin-right: 5px; transition: 0.2s; }
         .btn-approve { background: #00ff88; color: black; }
         .btn-approve:hover { background: #00cc6a; }
         .btn-reject { background: transparent; color: #ff3b3b; border: 1px solid #ff3b3b; }
         .btn-reject:hover { background: #ff3b3b; color: white; }
+        .logout-btn { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
 
-        #loading { text-align: center; padding: 40px; color: #666; font-style: italic; }
+        #loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -51,29 +52,46 @@
     <div class="container">
         <div class="header">
             <div style="display:flex; align-items:center; gap:15px;">
-                <img src="images/logo.png" style="height:40px;"> 
+                <img src="images/logo.png" style="height:40px;">
                 <h1>Admin Command</h1>
             </div>
             <button onclick="logout()" class="logout-btn">Logout</button>
         </div>
 
-        <h3 style="color:#666; margin-bottom:15px; text-transform: uppercase; font-size: 14px;">Withdrawal Requests</h3>
-        
+        <h3>Withdrawal Requests</h3>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>User</th>
-                    <th>Email</th>    <th>Balance</th>  <th>Amount</th>
+                    <th>Email</th>
+                    <th>Balance</th>
+                    <th>Amount</th>
                     <th>UPI ID</th>
-                    <th>Ref ID (T_ID)</th>
+                    <th>Ref ID</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="payout-list">
+            <tbody id="payout-list"></tbody>
+        </table>
+
+        <h3>All Users Database</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Joined Date</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Wallet Balance</th>
+                    <th>User ID</th>
+                </tr>
+            </thead>
+            <tbody id="users-list">
                 </tbody>
         </table>
+        
         <div id="loading">Loading data...</div>
     </div>
 
@@ -81,38 +99,29 @@
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'login.html';
 
-        // 1. LOAD DATA
-        async function loadAdmin() {
+        // 1. LOAD WITHDRAWALS (Existing)
+        async function loadWithdrawals() {
             try {
                 const res = await fetch('https://app.xdfun.in/admin/withdrawals', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
                 const data = await res.json();
                 
                 if (!res.ok) {
-                    document.getElementById('loading').innerText = "Access Denied or Server Error";
-                    alert(data.error || "Access Denied");
+                    alert("Access Denied");
                     return;
                 }
 
-                document.getElementById('loading').style.display = 'none';
                 const list = document.getElementById('payout-list');
                 list.innerHTML = "";
 
                 data.requests.forEach(req => {
+                    const u = req.users || { username: 'Unknown', email: '-', balance: 0 };
                     const row = document.createElement('tr');
                     
-                    // User Data Check (Prevents crash if user deleted)
-                    const u = req.users || { username: 'Unknown', email: '-', balance: 0 };
-
-                    // Status Colors
                     let statusClass = req.status === 'pending' ? 'pending' : (req.status === 'paid' ? 'paid' : 'rejected');
+                    let transDisplay = req.t_id ? `<span style="color:#aaa; font-style:italic;">#${req.t_id}</span>` : '-';
                     
-                    // Transaction ID Display
-                    let transDisplay = req.t_id ? `<span class="trans-id">#${req.t_id}</span>` : '<span style="color:#444;">-</span>';
-
-                    // Action Buttons Logic
                     let actions = '<span style="color:#444">-</span>';
                     if(req.status === 'pending') {
                         actions = `
@@ -123,71 +132,81 @@
 
                     row.innerHTML = `
                         <td style="color:#666;">${new Date(req.created_at).toLocaleDateString()}</td>
-                        <td style="font-weight:bold; color:white;">${u.username}</td>
+                        <td style="font-weight:bold;">${u.username}</td>
                         <td class="email">${u.email}</td>
                         <td class="balance">₹${u.balance}</td>
                         <td class="amount">₹${req.amount}</td>
-                        <td><span class="upi">${req.upi_id}</span></td>
+                        <td style="font-family:monospace; color:#ccc;">${req.upi_id}</td>
                         <td>${transDisplay}</td>
                         <td><span class="badge ${statusClass}">${req.status}</span></td>
                         <td>${actions}</td>
                     `;
                     list.appendChild(row);
                 });
-
-            } catch (err) { 
-                console.error(err); 
-                document.getElementById('loading').innerText = "Network Error";
-            }
+            } catch (err) { console.error(err); }
         }
 
-        // 2. PROCESS PAYOUT
+        // 2. LOAD ALL USERS (NEW FUNCTION)
+        async function loadUsers() {
+            try {
+                const res = await fetch('https://app.xdfun.in/admin/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    const list = document.getElementById('users-list');
+                    list.innerHTML = "";
+
+                    data.users.forEach(user => {
+                        const row = document.createElement('tr');
+                        
+                        // Style based on Role
+                        let roleClass = user.role === 'creator' ? 'role-creator' : 'role-viewer';
+
+                        row.innerHTML = `
+                            <td style="color:#666;">${new Date(user.created_at).toLocaleDateString()}</td>
+                            <td style="font-weight:bold; color:white;">${user.username}</td>
+                            <td class="email">${user.email}</td>
+                            <td><span class="role-badge ${roleClass}">${user.role}</span></td>
+                            <td class="balance">₹${user.balance}</td>
+                            <td style="font-size:10px; font-family:monospace; color:#444;">${user.id}</td>
+                        `;
+                        list.appendChild(row);
+                    });
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        // 3. PAYOUT LOGIC
         async function processPayout(rowId, status) {
             let manualTransactionId = null;
-
-            // If Paying, ask for Reference ID
             if (status === 'paid') {
-                manualTransactionId = prompt("Enter the Payment Reference / Transaction ID:");
-                if (!manualTransactionId) return; 
-            } 
-            // If Rejecting, ask for Confirmation
-            else {
-                if(!confirm("Are you sure you want to REJECT this request? Money will be refunded.")) return;
+                manualTransactionId = prompt("Enter Transaction ID:");
+                if (!manualTransactionId) return;
+            } else {
+                if(!confirm("Reject and Refund?")) return;
             }
 
             try {
                 const res = await fetch('https://app.xdfun.in/admin/payout', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` 
-                    },
-                    body: JSON.stringify({ 
-                        withdrawal_id: rowId, 
-                        status: status, 
-                        manual_t_id: manualTransactionId 
-                    })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ withdrawal_id: rowId, status: status, manual_t_id: manualTransactionId })
                 });
-
-                const data = await res.json();
-                if(res.ok) {
-                    alert("✅ Updated Successfully!");
-                    loadAdmin(); // Reload list
-                } else {
-                    alert("❌ Error: " + (data.error || "Server Error"));
-                }
-            } catch (err) {
-                alert("❌ Network Error: " + err.message);
-            }
+                if(res.ok) { alert("Updated!"); loadWithdrawals(); loadUsers(); } // Reload both tables
+            } catch (err) { alert("Error: " + err.message); }
         }
 
-        function logout() {
-            localStorage.removeItem('token');
-            window.location.href = 'index.html';
-        }
+        function logout() { localStorage.removeItem('token'); window.location.href = 'index.html'; }
 
-        // Start
-        loadAdmin();
+        // Start Everything
+        async function init() {
+            await loadWithdrawals();
+            await loadUsers();
+            document.getElementById('loading').style.display = 'none';
+        }
+        init();
     </script>
 </body>
 </html>
