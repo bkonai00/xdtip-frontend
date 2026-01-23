@@ -110,7 +110,21 @@
                 slug = slug.slice(0, -1);
             }
 
-            
+            // -----------------------------------------------------
+            // 🛑 2. SYSTEM PAGE REDIRECTOR (FIXED LOOP)
+            // -----------------------------------------------------
+            // REMOVED 'tip' from this list to prevent infinite loop
+            const systemPages = [
+                'login', 'register', 'dashboard', 
+                'about', 'contact', 'terms', 
+                'privacy', 'refund-policy', 'buy', 
+                'forgot', 'reset', 'index', 'learn-more'
+            ];
+
+            if (systemPages.includes(slug.toLowerCase())) {
+                window.location.href = '/' + slug + '.html';
+                return; // STOP HERE
+            }
 
             // ---------------------------------------------------------
             // 👤 3. USERNAME PROFILE LOGIC
@@ -226,3 +240,4 @@
     </script>
 </body>
 </html>
+
