@@ -1,18 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-        if (window.location.pathname.endsWith(".html")) {
-            var clean = window.location.pathname.replace(".html", "");
-            window.history.replaceState(null, "", clean);
-        }
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
         .password-container { position: relative; width: 100%; margin-bottom: 15px; }
         .password-container input { width: 100%; padding-right: 40px; margin-bottom: 0 !important; }
@@ -23,7 +16,7 @@
     <div class="container">
         <div style="text-align: center; margin-bottom: 30px;">
             <img src="images/logo.png" alt="XDTIP" style="height: 40px;">
-            <p style="color: #888; font-size: 14px;">Welcome back.</p>
+            <p style="color: #888; font-size: 14px;">Create your account.</p>
         </div>
 
         <form id="register-form">
@@ -34,20 +27,20 @@
             </select>
 
             <label style="font-size: 12px; color: #666; font-weight: bold;">CHOOSE USERNAME</label>
-            <input type="text" id="username" required autocomplete="username" placeholder="e.g. NinjaStreamer">
+            <input type="text" id="username" required placeholder="e.g. NinjaStreamer">
 
             <label style="font-size: 12px; color: #666; font-weight: bold;">EMAIL ADDRESS</label>
-            <input type="email" id="email" required autocomplete="email">
+            <input type="email" id="email" required>
             
             <label style="font-size: 12px; color: #666; font-weight: bold;">PASSWORD</label>
             <div class="password-container">
-                <input type="password" id="password" required autocomplete="new-password">
+                <input type="password" id="password" required>
                 <i class="fas fa-eye toggle-eye" onclick="togglePassword('password', this)"></i>
             </div>
 
             <label style="font-size: 12px; color: #666; font-weight: bold;">CONFIRM PASSWORD</label>
             <div class="password-container">
-                <input type="password" id="confirm-password" required autocomplete="new-password">
+                <input type="password" id="confirm-password" required>
                 <i class="fas fa-eye toggle-eye" onclick="togglePassword('confirm-password', this)"></i>
             </div>
             
@@ -55,68 +48,49 @@
         </form>
 
         <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
-            Already have an account? <a href="https://tip.xdfun.in/login" style="color: #ff3b3b;">Log In</a>
+            Already have an account? <a href="/login.html" style="color: #ff3b3b;">Log In</a>
         </p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script>
-        // ⚠️ PASTE YOUR KEYS HERE
-        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
-        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
-        
-        // --- CRITICAL FIX: UNIQUE NAME ---
-        // We use "FINAL_CLIENT" so it NEVER conflicts with "supabase"
-        const FINAL_CLIENT = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+        const API_URL = 'https://app.xdfun.in/auth'; 
 
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.remove("fa-eye");
-                icon.classList.add("fa-eye-slash");
-            } else {
-                input.type = "password";
-                icon.classList.remove("fa-eye-slash");
-                icon.classList.add("fa-eye");
-            }
+            if (input.type === "password") { input.type = "text"; icon.classList.remove("fa-eye"); icon.classList.add("fa-eye-slash"); } 
+            else { input.type = "password"; icon.classList.remove("fa-eye-slash"); icon.classList.add("fa-eye"); }
         }
 
         document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const btn = document.querySelector('button[type="submit"]');
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPass = document.getElementById('confirm-password').value;
             const username = document.getElementById('username').value;
             const role = document.getElementById('role').value;
 
-            if (password !== confirmPass) {
-                alert("❌ Passwords do not match!");
-                return;
-            }
+            if (password !== confirmPass) { alert("❌ Passwords do not match!"); return; }
 
             btn.innerText = "Creating...";
             btn.disabled = true;
 
             try {
-                // Use FINAL_CLIENT here
-                const { data, error } = await FINAL_CLIENT.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: { username: username, role: role },
-                        emailRedirectTo: 'https://tip.xdfun.in/login.html'
-                    }
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, username, role })
                 });
 
-                if (error) throw error;
+                const data = await response.json();
 
-                alert("✅ Success! Please check your email to verify your account.");
-                window.location.href = 'https://tip.xdfun.in/login';
-
+                if (response.ok) {
+                    alert("✅ Account Created! Please Log In.");
+                    window.location.href = 'login.html';
+                } else {
+                    throw new Error(data.message || "Registration failed");
+                }
             } catch (err) {
                 alert("❌ Error: " + err.message);
                 btn.innerText = "Create Account";
@@ -126,4 +100,3 @@
     </script>
 </body>
 </html>
-
