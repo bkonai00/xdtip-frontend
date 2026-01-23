@@ -8,280 +8,120 @@
         }
     </script>
     <meta charset="UTF-8">
-    <title>Dashboard | xdtip</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | xdtip</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        /* Hide sections by default to prevent flickering */
-        #creator-section, #viewer-section, #withdraw-btn { display: none; }
-        
-        /* History Table Styles */
-        .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
-        .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
-        .history-amount { color: #ff3b3b; font-weight: bold; }
+        .password-container { position: relative; width: 100%; margin-bottom: 15px; }
+        .password-container input { width: 100%; padding-right: 40px; margin-bottom: 0 !important; }
+        .toggle-eye { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; cursor: pointer; z-index: 10; }
     </style>
 </head>
 <body>
-
-    <nav>
-        <a href="https://tip.xdfun.in/" style="text-decoration:none; color:white;">
-            <div class="logo">
-    <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
-</div>
-        </a>
-        <div class="nav-links">
-            </div>
-    </nav>
-
-    <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
-        <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="position:static; vertical-align:middle; font-size:12px; margin-left:10px;">...</span></h1>
-    </div>
-
-    <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
-        
-        <div class="price-card" style="width: 100%; max-width: 400px; margin: 0 auto; background: #0a0a0a; cursor: default;">
-            <p style="color: #888; font-size: 14px; margin-bottom: 10px;">TOTAL BALANCE</p>
-            <h2 style="font-size: 56px; margin: 0; color: white;">
-                <span id="balance">0</span> <span style="font-size: 20px; color: #444;">Tokens</span>
-            </h2>
-            <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <a href="/buy/" class="btn" style="flex: 1;">+ Add Money</a>
-                <button id="withdraw-btn" onclick="document.getElementById('withdraw-modal').style.display='flex'" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
-            </div>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <img src="images/logo.png" alt="XDTIP" style="height: 40px;">
+            <p style="color: #888; font-size: 14px;">Welcome back.</p>
         </div>
 
-        <div id="creator-section" style="margin-top: 60px;">
-            <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
-                <div style="position: relative;">
-                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
-                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
-                </div>            
-                <div style="flex: 1;">
-                    <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
-                    <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Upload a square image (PNG/JPG).</p>
-                    
-                    <input type="file" id="logo-file" accept="image/*" style="display: none;" onchange="uploadLogo()">
-                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">
-                        📸 Upload New Logo
-                    </button>
-                    <span id="upload-status" style="font-size: 12px; margin-left: 10px; color: #888;"></span>
-                </div>
-            </div>
+        <form id="register-form">
+            <label style="font-size: 12px; color: #666; font-weight: bold;">I AM A...</label>
+            <select id="role" style="width: 100%; padding: 15px; margin-bottom: 15px; background: #0a0a0a; border: 1px solid #222; color: white; border-radius: 8px;">
+                <option value="viewer">Viewer (I want to support)</option>
+                <option value="creator">Creator (I want to receive tips)</option>
+            </select>
 
-            <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
-                <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
-                    STREAMER TOOLS
-                </h3>
+            <label style="font-size: 12px; color: #666; font-weight: bold;">CHOOSE USERNAME</label>
+            <input type="text" id="username" required autocomplete="username" placeholder="e.g. NinjaStreamer">
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
-
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-                        <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box Settings</h4>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">DESIGN STYLE</label>
-                            <div style="display: flex; gap: 10px;">
-                                <select id="theme-selector" style="flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; outline: none; font-size: 13px;">
-                                    <option value="classic">Classic (Standard)</option>
-                                    <option value="neon">Neon (Cyberpunk)</option>
-                                    <option value="minimal">Minimal (Clean)</option>
-                                </select>
-                                <button class="btn" onclick="saveTheme()" style="padding: 0 16px; background: #333; color: white; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-size: 13px;">Save</button>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #666; font-size: 13px; margin: 0;">Add this as a "Browser Source" in OBS.</p>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="overlay-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
-                            </div>
-                        </div>
-
-                        <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                            <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
-                            <button onclick="sendTestAlert()" id="test-btn" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                                🔥 Send Test Alert
-                            </button>
-                        </div>
-                    </div>
-
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-                        <h4 style="margin: 0; font-size: 16px;">📊 Stats / Leaderboard</h4>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                                Shows <b>Top Tipper</b> and <b>Recent Tips</b> permanently on screen.
-                            </p>
-                            <p style="color: #555; font-size: 12px; margin: 0;">*Auto-matches your selected Theme.</p>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">WIDGET LINK (OBS)</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-                        <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                                This is your public profile where viewers can send donations. Changes made here update instantly.
-                            </p>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="tip-page-url" readonly value="https://tips.gg/u/username" style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
-                            </div>
-                        </div>
-
-                        <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
-                             <button style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                                SHARE THIS WITH YOUR VIEWERS
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">PAYOUT HISTORY</h3>
-            <div id="payout-container">
-                <p style="color: #666; font-style: italic;">Loading payouts...</p>
-            </div> 
-
-            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">RECENT TIPS</h3>
-            <div id="history-container">
-                <p style="color: #666; font-style: italic;">Loading history...</p>
-            </div>
-        </div>
-
-        <div id="viewer-section" style="margin-top: 60px; text-align: center;">
-            <h3 style="color: #fff;">Ready to support?</h3>
-            <p style="color: #888;">Find a creator and send your first tip.</p>
-            <a href="/tip/" class="btn" style="display: inline-block; margin-top: 10px;">Send a Tip</a>
-        </div>
-
-    </div>
-
-    <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
-        <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
-            <h2 style="margin-top:0;">Withdraw Funds</h2>
-            <p style="color:#888; font-size:14px;">ONLY UPI ID </p>
+            <label style="font-size: 12px; color: #666; font-weight: bold;">EMAIL ADDRESS</label>
+            <input type="email" id="email" required autocomplete="email">
             
-            <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px;">
-            <input type="text" id="w-upi" placeholder="UPI ID (e.g. name@okhdfc)" style="margin-bottom:20px;">
+            <label style="font-size: 12px; color: #666; font-weight: bold;">PASSWORD</label>
+            <div class="password-container">
+                <input type="password" id="password" required autocomplete="new-password">
+                <i class="fas fa-eye toggle-eye" onclick="togglePassword('password', this)"></i>
+            </div>
+
+            <label style="font-size: 12px; color: #666; font-weight: bold;">CONFIRM PASSWORD</label>
+            <div class="password-container">
+                <input type="password" id="confirm-password" required autocomplete="new-password">
+                <i class="fas fa-eye toggle-eye" onclick="togglePassword('confirm-password', this)"></i>
+            </div>
             
-            <button class="btn" onclick="submitWithdraw()">Request Payout</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Cancel</button>
-        </div>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Create Account</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
+            Already have an account? <a href="/login.html" style="color: #ff3b3b;">Log In</a>
+        </p>
     </div>
 
-    <footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy/">Privacy Policy</a>
-            <a href="/terms/">Terms of Service</a>
-            <a href="/refund-policy/">Refund Policy</a>
-            <a href="/contact/">Contact Us</a>
-        </div>
-    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = 'index.html';
-        }
+        // ⚠️ PASTE YOUR KEYS HERE
+        const mySupabaseUrl = 'https://abatvqodkwjdefhwwynj.supabase.co';
+        const mySupabaseKey = 'sb_publishable_TePONQyxqJL1A-zaO-iUeQ_h8lAllWV';
+        
+        // FIX: We name this "supabaseApp" to avoid conflicts
+        const supabaseApp = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        async function loadDashboard() {
-            try {
-                const res = await fetch('https://app.xdfun.in/api/me', {
-                    headers: { 'Authorization': token }
-                });
-                
-                const data = await res.json();
-
-                if (res.ok) {
-                    // Update Text Info
-                    document.getElementById('user-name').innerText = data.user.username;
-                    document.getElementById('balance').innerText = data.user.wallet_balance;
-                    document.getElementById('role-badge').innerText = data.user.role.toUpperCase();
-
-                    // Sections Logic
-                    if (data.user.role === 'creator') {
-                        document.getElementById('creator-section').style.display = 'block';
-                        document.getElementById('withdraw-btn').style.display = 'block';
-
-                        // FILL THE LINKS
-                        const obsToken = data.user.obs_token;
-                        
-                        // 1. Alert Overlay
-                        if(document.getElementById('overlay-url')) {
-                            document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
-                        }
-                        
-                        // 2. Stats Overlay (NEW)
-                        if(document.getElementById('stats-link')) {
-                            document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
-                        }
-
-                        // 3. Tip Page
-                        if(document.getElementById('tip-page-url')) {
-                            document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
-                        }
-
-                        // Theme Selector
-                        if(data.user.overlay_theme) {
-                            document.getElementById('theme-selector').value = data.user.overlay_theme;
-                        }
-
-                        // Load Logo
-                        if(data.user.logo_url) {
-                            document.getElementById('current-logo').src = data.user.logo_url;
-                        }
-
-                    } else {
-                        document.getElementById('viewer-section').style.display = 'block';
-                    }
-
-                } else {
-                    localStorage.removeItem('token');
-                    window.location.href = 'index.html';
-                }
-            } catch (err) {
-                console.error("Error loading dashboard:", err);
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
             }
         }
 
-        // Copy Function
-        function copyToClipboard(elementId) {
-            var copyText = document.getElementById(elementId);
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); 
-            document.execCommand("copy");
-            alert("Copied: " + copyText.value);
-        }
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.querySelector('button[type="submit"]');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            const username = document.getElementById('username').value;
+            const role = document.getElementById('role').value;
 
-        // Run Dashboard Logic
-        loadDashboard();
+            if (password !== confirmPass) {
+                alert("❌ Passwords do not match!");
+                return;
+            }
 
-        // (Assuming you have other functions like saveTheme, uploadLogo, sendTestAlert in your /js/dashboard.js file. 
-        // If not, make sure they are included or imported!)
+            btn.innerText = "Creating...";
+            btn.disabled = true;
+
+            try {
+                // Use "supabaseApp" here
+                const { data, error } = await supabaseApp.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: { username: username, role: role },
+                        emailRedirectTo: window.location.origin + '/login.html'
+                    }
+                });
+
+                if (error) throw error;
+
+                alert("✅ Success! Please check your email to verify your account.");
+                window.location.href = 'login.html';
+
+            } catch (err) {
+                alert("❌ Error: " + err.message);
+                btn.innerText = "Create Account";
+                btn.disabled = false;
+            }
+        });
     </script>
-    
-    <script src="/js/dashboard.js"></script>
-
 </body>
 </html>
-
-
-
