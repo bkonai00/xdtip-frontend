@@ -1,93 +1,81 @@
 // ==========================================
-// ⚠️ CONFIGURATION
+// 🔐 AUTHENTICATION SYSTEM (auth.js)
 // ==========================================
-// Use your Render Backend URL
-const API_URL = "https://xdtip-backend.onrender.com"; 
 
-// ==========================================
-// 1. LOGIN LOGIC
-// ==========================================
+const API_URL = "https://app.xdfun.in"; // Your Backend URL
+
+// 1. GLOBAL PAGE PROTECTION (Runs on every page load)
+(function checkAuth() {
+    const token = localStorage.getItem('token');
+    const path = window.location.pathname;
+
+    // List of public pages (No login required)
+    const publicPages = ['/login', '/login.html', '/register', '/register.html', '/index.html', '/'];
+
+    // A. If User is NOT logged in...
+    if (!token) {
+        // ...and tries to access a protected page (like dashboard)
+        if (!publicPages.some(page => path.endsWith(page))) {
+            window.location.href = '/login.html'; // Kick them to login
+        }
+    } 
+    // B. If User IS logged in...
+    else {
+        // ...and tries to go to Login or Register page
+        if (path.includes('login') || path.includes('register')) {
+            window.location.href = '/dashboard.html'; // Send them to Dashboard
+        }
+    }
+})();
+
+// 2. LOGIN FORM LOGIC
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const btn = e.target.querySelector('button');
+        const btn = loginForm.querySelector('button');
 
         try {
-            btn.innerText = "Loading...";
-            
-            // Send Login Request
+            // Disable button to prevent double-clicks
+            btn.disabled = true;
+            btn.innerText = "Logging in...";
+
             const res = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            
+
             const data = await res.json();
-            
-            if (data.success) {
-                // Save Token
+
+            if (res.ok) {
+                // ✅ SUCCESS: Save Token & Redirect
                 localStorage.setItem('token', data.token);
-                // Redirect to Dashboard (HTML script will hide .html)
-                window.location.href = "/dashboard.html";
+                localStorage.setItem('user', JSON.stringify(data.user)); // Save user info
+                window.location.href = '/dashboard.html';
             } else {
-                alert(data.error || "Login Failed");
+                // ❌ FAIL
+                alert("Login Failed: " + (data.error || "Unknown error"));
+                btn.disabled = false;
+                btn.innerText = "Log In";
             }
         } catch (err) {
             console.error(err);
-            alert("Cannot connect to server. Check your internet.");
-        } finally {
+            alert("Network Error: Could not connect to server.");
+            btn.disabled = false;
             btn.innerText = "Log In";
         }
     });
 }
 
-// ==========================================
-// 2. REGISTER LOGIC
-// ==========================================
-const registerForm = document.getElementById('register-form');
-if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Get Form Values
-        const role = document.getElementById('role').value; 
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const btn = e.target.querySelector('button');
-
-        try {
-            btn.innerText = "Creating...";
-            
-            // Send Register Request
-            const res = await fetch(`${API_URL}/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    username, 
-                    email, 
-                    password, 
-                    role 
-                })
-            });
-
-            const data = await res.json();
-            
-            if (data.success) {
-                alert("Account Created! Please Login.");
-                // Redirect to Login (HTML script will hide .html)
-                window.location.href = "/login.html";
-            } else {
-                alert(data.error);
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Error connecting to server.");
-        } finally {
-            btn.innerText = "Create Account";
-        }
-    });
+// 3. LOGOUT FUNCTION (Call this from your Dashboard button)
+function logout() {
+    if(confirm("Are you sure you want to logout?")) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login.html';
+    }
 }
