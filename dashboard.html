@@ -3,50 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
+        /* Hide sections by default to prevent flickering */
         #creator-section, #viewer-section, #withdraw-btn { display: none; }
-        .logout-link { color: #888; text-decoration: none; font-size: 14px; margin-left: 20px; cursor: pointer; }
-        .logout-link:hover { color: #ff3b3b; }
         
-        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #111; border-radius: 8px; overflow: hidden; }
-        .history-table th { text-align: left; color: #666; font-size: 12px; padding: 12px; border-bottom: 1px solid #222; background: #0f0f0f; }
-        .history-table td { padding: 12px; border-bottom: 1px solid #222; color: #ddd; font-size: 13px; }
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .status-pending { background: #ff9800; color: black; }
-        .status-paid { background: #00ff88; color: black; }
-        .status-rejected { background: #ff3b3b; color: white; }
+        /* History Table Styles */
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
+        .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
+        .history-amount { color: #ff3b3b; font-weight: bold; }
     </style>
-    
-    <script>
-        if (window.location.pathname.endsWith(".html")) {
-            var clean = window.location.pathname.replace(".html", "");
-            window.history.replaceState(null, "", clean);
-        }
-    </script>
 </head>
 <body>
 
     <nav>
-        <div style="display:flex; justify-content:space-between; align-items:center; max-width:900px; margin:0 auto; padding:0 20px;">
-            <a href="https://tip.xdfun.in/" style="text-decoration:none; color:white;">
-                <div class="logo">xdtip<span class="dot">.</span></div>
-            </a>
-            <div>
-                <a onclick="handleLogout()" class="logout-link">Log Out</a>
-            </div>
+        <div class="logo">xdtip<span class="dot">.</span></div>
+        <div class="nav-links">
+            <button onclick="logout()" class="btn btn-secondary" style="padding: 8px 20px; font-size: 14px;">Logout</button>
         </div>
     </nav>
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
         <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0;">
-            <span id="user-name">Loading...</span> 
-            <span id="role-badge" class="badge" style="position:static; vertical-align:middle; font-size:12px; margin-left:10px;">...</span>
-        </h1>
+        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="position:static; vertical-align:middle; font-size:12px; margin-left:10px;">...</span></h1>
     </div>
 
     <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
@@ -54,186 +35,52 @@
         <div class="price-card" style="width: 100%; max-width: 400px; margin: 0 auto; background: #0a0a0a; cursor: default;">
             <p style="color: #888; font-size: 14px; margin-bottom: 10px;">TOTAL BALANCE</p>
             <h2 style="font-size: 56px; margin: 0; color: white;">
-                <span id="balance">0.00</span> <span style="font-size: 20px; color: #444;">Tokens</span>
+                <span id="balance">0</span> <span style="font-size: 20px; color: #444;">Tokens</span>
             </h2>
             <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <a href="/buy.html" class="btn" style="flex: 1; text-decoration: none; line-height: 45px;">+ Add Money</a>
-                <button id="withdraw-btn" onclick="document.getElementById('withdraw-modal').style.display='flex'" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
+                <a href="buy.html" class="btn" style="flex: 1;">+ Add Money</a>
+                <button id="withdraw-btn" onclick="alert('Withdrawals coming soon!')" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
             </div>
         </div>
 
         <div id="creator-section" style="margin-top: 60px;">
+            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">STREAMER TOOLS</h3>
             
-            <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
-                <img id="current-logo" src="https://via.placeholder.com/80" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
-                <div style="flex: 1;">
-                    <h4 style="margin: 0 0 5px 0; color:white;">Channel Logo</h4>
-                    <p style="color: #666; font-size: 13px;">Upload via your Settings or Paste URL</p>
-                     <div style="display:flex; gap:10px;">
-                        <input type="text" id="logo-url-input" placeholder="https://..." style="background:#222; border:1px solid #333; color:white; padding:8px; border-radius:4px; flex:1;">
-                        <button class="btn btn-secondary" onclick="saveLogo()" style="margin:0; font-size:12px;">Save URL</button>
-                    </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                
+                <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
+                    <h4 style="margin: 0 0 10px 0;">🔴 Alert Box URL</h4>
+                    <p style="color: #666; font-size: 13px;">Add this as a "Browser Source" in OBS.</p>
+                    <input type="text" id="overlay-url" readonly style="font-size: 12px; color: #888; margin-bottom: 10px;">
+                    <button class="btn btn-secondary" style="width: 100%; margin:0;" onclick="copyToClipboard('overlay-url')">Copy URL</button>
+                </div>
+
+                <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222;">
+                    <h4 style="margin: 0 0 10px 0;">🔗 Your Tipping Page</h4>
+                    <p style="color: #666; font-size: 13px;">Share this link with your viewers.</p>
+                    <input type="text" id="tip-page-url" readonly style="font-size: 12px; color: #888; margin-bottom: 10px;">
+                    <button class="btn btn-secondary" style="width: 100%; margin:0;" onclick="copyToClipboard('tip-page-url')">Copy URL</button>
                 </div>
             </div>
 
-            <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
-                <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">STREAMER TOOLS</h3>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
-                    
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-                        <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box</h4>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600;">OBS BROWSER SOURCE URL</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="overlay-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px;">Copy</button>
-                            </div>
-                        </div>
-                        <div style="border-top: 1px solid #333; padding-top: 20px;">
-                            <button onclick="sendTestAlert()" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">🔥 Send Test Alert</button>
-                        </div>
-                    </div>
-
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
-                        <h4 style="margin: 0; font-size: 16px;">📊 Stats & Links</h4>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600;">STATS WIDGET</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Copy</button>
-                            </div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600;">PUBLIC TIPPING PAGE</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="tip-page-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px;">Copy</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 60px;">
-                    <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px;">PAYOUT HISTORY</h3>
-                    <div id="payout-container"><p style="color: #666;">Loading...</p></div>
-
-                    <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 40px;">RECENT TIPS</h3>
-                    <div id="history-container"><p style="color: #666;">Loading...</p></div>
-                </div>
+            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">RECENT TIPS</h3>
+            <div id="history-container">
+                <p style="color: #666; font-style: italic;">Loading history...</p>
             </div>
         </div>
 
         <div id="viewer-section" style="margin-top: 60px; text-align: center;">
             <h3 style="color: #fff;">Ready to support?</h3>
             <p style="color: #888;">Find a creator and send your first tip.</p>
-            <a href="/tip/" class="btn" style="display: inline-block; margin-top: 10px; text-decoration: none;">Send a Tip</a>
+            <a href="tip.html" class="btn" style="display: inline-block; margin-top: 10px;">Send a Tip</a>
         </div>
+
     </div>
 
-    <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
-        <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
-            <h2 style="margin-top:0;">Withdraw Funds</h2>
-            <p style="color:#888; font-size:14px;">Min: 100 Tokens</p>
-            <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px; width:100%; padding:10px; background:#222; border:1px solid #333; color:white;">
-            <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px; width:100%; padding:10px; background:#222; border:1px solid #333; color:white;">
-            <button class="btn" style="width:100%;" onclick="submitWithdraw()">Request Payout</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px; width:100%;">Cancel</button>
-        </div>
-    </div>
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+    </footer>
 
-    <footer><p>&copy; 2024 xdtip. All rights reserved.</p></footer>
-
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) { window.location.href = 'login.html'; }
-
-        const API_URL = 'https://app.xdfun.in/dashboard'; 
-
-        async function loadDashboard() {
-            try {
-                // Fetch User Data from Render API
-                const res = await fetch(`${API_URL}/me`, { headers: { 'Authorization': token } });
-                const data = await res.json();
-
-                if (!res.ok) throw new Error(data.message || 'Failed');
-
-                // Update Profile Info
-                document.getElementById('user-name').innerText = data.user.username;
-                document.getElementById('balance').innerText = data.user.wallet_balance;
-                document.getElementById('role-badge').innerText = data.user.role.toUpperCase();
-
-                if (data.user.role === 'creator') {
-                    document.getElementById('creator-section').style.display = 'block';
-                    document.getElementById('withdraw-btn').style.display = 'block';
-
-                    // Update Links correctly
-                    const obsToken = data.user.obs_token;
-                    document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
-                    document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
-                    document.getElementById('tip-page-url').value = `https://tip.xdfun.in/${data.user.username}`;
-                    
-                    if(data.user.logo_url) {
-                        document.getElementById('current-logo').src = data.user.logo_url;
-                        document.getElementById('logo-url-input').value = data.user.logo_url;
-                    }
-
-                } else {
-                    document.getElementById('viewer-section').style.display = 'block';
-                }
-            } catch (err) {
-                console.error(err);
-                localStorage.removeItem('token');
-                window.location.href = 'login.html';
-            }
-        }
-
-        async function submitWithdraw() {
-            const amount = document.getElementById('w-amount').value;
-            const upi = document.getElementById('w-upi').value;
-            
-            try {
-                const res = await fetch(`${API_URL}/withdraw`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                    body: JSON.stringify({ amount, upi_id: upi })
-                });
-                const data = await res.json();
-                if(res.ok) { 
-                    alert("✅ Request Sent!"); 
-                    document.getElementById('withdraw-modal').style.display='none'; 
-                } else { 
-                    alert("❌ " + data.message); 
-                }
-            } catch(e) { alert("Error connecting to server"); }
-        }
-        
-        async function saveLogo() {
-            const url = document.getElementById('logo-url-input').value;
-            // Assumes /api/update-logo exists on backend
-            try {
-                await fetch(`${API_URL}/update-logo`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                    body: JSON.stringify({ logo_url: url })
-                });
-                alert("Saved!");
-                document.getElementById('current-logo').src = url;
-            } catch(e) { alert("Feature requires backend API update."); }
-        }
-
-        async function sendTestAlert() {
-            try {
-                await fetch(`${API_URL}/test-alert`, { headers: { 'Authorization': token } });
-                alert("✅ Alert sent via Server!");
-            } catch(e) { alert("Test Alert API not found on server."); }
-        }
-
-        function handleLogout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
-        function copyToClipboard(id) { navigator.clipboard.writeText(document.getElementById(id).value); alert("Copied!"); }
-
-        loadDashboard();
-    </script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
-
