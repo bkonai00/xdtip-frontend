@@ -6,14 +6,14 @@
     <title>Admin Panel | XDTIP</title>
     <style>
         body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 0 auto; padding-bottom: 50px; }
         
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
         h1 { margin: 0; font-size: 24px; color: #00ff88; text-transform: uppercase; letter-spacing: 1px; }
         
         /* TABLE STYLES */
-        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 40px; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; }
         th { background: #1a1a1a; color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
         tr:hover { background: #151515; }
@@ -25,7 +25,7 @@
         .btn-approve { background: #00ff88; color: black; }
         .btn-reject { background: transparent; color: #ff3b3b; border: 1px solid #ff3b3b; }
 
-        /* MODAL STYLES (User Details) */
+        /* MODAL STYLES */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
         .modal-content { background-color: #111; margin: 10% auto; padding: 30px; border: 1px solid #333; width: 400px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,255,136,0.1); }
         .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
@@ -33,6 +33,9 @@
         .detail-value { font-weight: bold; color: white; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close-btn:hover { color: white; }
+
+        /* SECTION HEADERS */
+        .section-title { color:#888; margin-bottom:15px; border-left: 4px solid #00ff88; padding-left: 10px; }
     </style>
 </head>
 <body>
@@ -46,8 +49,7 @@
             <button onclick="logout()" style="background:#333; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Logout</button>
         </div>
 
-        <h3 style="color:#888; margin-bottom:15px;">WITHDRAWAL REQUESTS</h3>
-        
+        <h3 class="section-title">WITHDRAWAL REQUESTS</h3>
         <table>
             <thead>
                 <tr>
@@ -62,6 +64,22 @@
             </thead>
             <tbody id="payout-list"></tbody>
         </table>
+
+        <h3 class="section-title" style="margin-top: 50px;">ALL REGISTERED USERS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Balance</th>
+                    <th>Joined Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="all-users-list"></tbody>
+        </table>
+        
         <div id="loading" style="text-align:center; padding:20px; color:#666;">Loading data...</div>
     </div>
 
@@ -79,7 +97,7 @@
         const API_URL = "https://app.xdfun.in"; 
 
         const token = localStorage.getItem('token');
-        if (!token) window.location.href = 'login.html';
+        if (!token) window.location.href = 'https://tip.xdfun.in/login';
 
         // 1. LOAD WITHDRAWALS
         async function loadAdmin() {
@@ -100,16 +118,11 @@
 
                 data.requests.forEach(req => {
                     const row = document.createElement('tr');
-                    
-                    // Safety check: Ensure user object exists
                     const userName = req.users ? req.users.username : 'Deleted User';
                     const userId = req.users ? req.users.id : null;
 
-                    // Buttons Logic
                     let actions = '';
-                    if (userId) {
-                        actions += `<button onclick="viewUser('${userId}')" class="btn-action btn-view">View User</button> `;
-                    }
+                    if (userId) actions += `<button onclick="viewUser('${userId}')" class="btn-action btn-view">View</button> `;
                     
                     if(req.status === 'pending') {
                         actions += `
@@ -133,6 +146,43 @@
             } catch (err) { console.error(err); }
         }
 
+        // ---------------------------------------------------------
+        // 🆕 NEW FUNCTION: LOAD ALL USERS
+        // ---------------------------------------------------------
+        async function loadAllUsers() {
+            try {
+                // Assuming your backend has an endpoint '/admin/users'
+                const res = await fetch(`${API_URL}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if(!res.ok) return console.log("Failed to load users list");
+
+                const data = await res.json();
+                const list = document.getElementById('all-users-list');
+                list.innerHTML = "";
+
+                // data.users should be the array name from your backend
+                const users = data.users || []; 
+
+                users.forEach(u => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="color:#666; font-size:12px;">${u.id}</td>
+                        <td style="font-weight:bold;">${u.username}</td>
+                        <td style="color:#aaa;">${u.email}</td>
+                        <td style="color:#00ff88; font-weight:bold;">₹${u.balance}</td>
+                        <td style="color:#666;">${new Date(u.created_at).toLocaleDateString()}</td>
+                        <td><button onclick="viewUser('${u.id}')" class="btn-action btn-view">Details</button></td>
+                    `;
+                    list.appendChild(row);
+                });
+
+            } catch (err) {
+                console.error("Error fetching users:", err);
+            }
+        }
+
         // 2. VIEW USER DETAILS
         async function viewUser(userId) {
             const modal = document.getElementById('userModal');
@@ -151,12 +201,10 @@
                     body.innerHTML = `
                         <div class="detail-row"><span class="detail-label">Username</span> <span class="detail-value">${u.username}</span></div>
                         <div class="detail-row"><span class="detail-label">Email</span> <span class="detail-value">${u.email}</span></div>
-                        <div class="detail-row"><span class="detail-label">Current Balance</span> <span class="detail-value" style="color:#00ff88;">₹${u.balance}</span></div>
+                        <div class="detail-row"><span class="detail-label">Balance</span> <span class="detail-value" style="color:#00ff88;">₹${u.balance}</span></div>
                         <div class="detail-row"><span class="detail-label">Role</span> <span class="detail-value">${u.role}</span></div>
-                        <div class="detail-row"><span class="detail-label">Total Tips Count</span> <span class="detail-value">${u.total_tips_received}</span></div>
                         <div class="detail-row"><span class="detail-label">Joined On</span> <span class="detail-value">${new Date(u.created_at).toLocaleDateString()}</span></div>
-                        <div class="detail-row"><span class="detail-label">Overlay Theme</span> <span class="detail-value">${u.overlay_theme || 'Default'}</span></div>
-                        <div class="detail-row"><span class="detail-label">User ID</span> <span class="detail-value" style="font-size:10px; font-family:monospace;">${u.id}</span></div>
+                        <div class="detail-row"><span class="detail-label">ID</span> <span class="detail-value" style="font-size:10px;">${u.id}</span></div>
                     `;
                 } else {
                     body.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
@@ -169,12 +217,11 @@
         // 3. PROCESS PAYOUT
         async function processPayout(rowId, status) {
             let manualTransactionId = null;
-            
             if (status === 'paid') {
                 manualTransactionId = prompt("Enter Transaction ID (e.g. UPI Ref No):");
-                if (!manualTransactionId) return; // Cancelled
+                if (!manualTransactionId) return; 
             } else {
-                if(!confirm("Are you sure you want to REJECT this payout? Money will be refunded to user wallet.")) return;
+                if(!confirm("Reject and Refund?")) return;
             }
 
             try {
@@ -186,8 +233,9 @@
 
                 const data = await res.json();
                 if(res.ok) { 
-                    alert("Status Updated Successfully!"); 
+                    alert("Updated!"); 
                     loadAdmin(); 
+                    loadAllUsers(); // Refresh users list too in case balance changed
                 } else {
                     alert("Error: " + data.error);
                 }
@@ -199,13 +247,13 @@
         function closeModal() { document.getElementById('userModal').style.display = "none"; }
         function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
 
-        // Close modal if clicking outside
         window.onclick = function(event) {
             if (event.target == document.getElementById('userModal')) closeModal();
         }
 
-        // Initialize
+        // Initialize Both Lists
         loadAdmin();
+        loadAllUsers();
     </script>
 </body>
 </html>
