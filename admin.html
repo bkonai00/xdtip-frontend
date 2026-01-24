@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel | XDTIP</title>
-    <link rel="stylesheet" href="css/style.css">
     <style>
-        body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
         .container { max-width: 1200px; margin: 0 auto; }
         
         /* HEADER */
@@ -41,7 +40,7 @@
     <div class="container">
         <div class="header">
             <div style="display:flex; align-items:center; gap:15px;">
-                <img src="images/logo.png" style="height:40px;">
+                <h1 style="color:white; font-size:20px;">⚡ XDTIP</h1>
                 <h1>Admin Command</h1>
             </div>
             <button onclick="logout()" style="background:#333; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Logout</button>
@@ -71,24 +70,27 @@
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2 style="margin-top:0; color:#00ff88;">User Details</h2>
             <div id="modal-body">Loading...</div>
-            <button onclick="closeModal()" class="btn" style="width:100%; margin-top:20px; background:#333;">Close</button>
+            <button onclick="closeModal()" class="btn-action" style="width:100%; margin-top:20px; background:#333; padding:10px; color:white;">Close</button>
         </div>
     </div>
 
     <script>
+        // ⚠️ BACKEND URL CONFIGURATION
+        const API_URL = "https://app.xdfun.in"; 
+
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'login.html';
 
         // 1. LOAD WITHDRAWALS
         async function loadAdmin() {
             try {
-                const res = await fetch('https://app.xdfun.in/admin/withdrawals', {
+                const res = await fetch(`${API_URL}/admin/withdrawals`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
                 
                 if (!res.ok) {
-                    document.getElementById('loading').innerText = "Access Denied";
+                    document.getElementById('loading').innerText = "Access Denied or Failed to Load";
                     return;
                 }
 
@@ -99,10 +101,15 @@
                 data.requests.forEach(req => {
                     const row = document.createElement('tr');
                     
+                    // Safety check: Ensure user object exists
+                    const userName = req.users ? req.users.username : 'Deleted User';
+                    const userId = req.users ? req.users.id : null;
+
                     // Buttons Logic
-                    let actions = `
-                        <button onclick="viewUser('${req.users.id}')" class="btn-action btn-view">View User</button>
-                    `;
+                    let actions = '';
+                    if (userId) {
+                        actions += `<button onclick="viewUser('${userId}')" class="btn-action btn-view">View User</button> `;
+                    }
                     
                     if(req.status === 'pending') {
                         actions += `
@@ -113,7 +120,7 @@
 
                     row.innerHTML = `
                         <td style="color:#666;">${new Date(req.created_at).toLocaleDateString()}</td>
-                        <td style="font-weight:bold;">${req.users ? req.users.username : 'Unknown'}</td>
+                        <td style="font-weight:bold;">${userName}</td>
                         <td style="color:#00ff88;">₹${req.amount}</td>
                         <td style="font-family:monospace; color:#ccc;">${req.upi_id}</td>
                         <td style="font-size:12px; color:#aaa;">${req.t_id || '-'}</td>
@@ -126,7 +133,7 @@
             } catch (err) { console.error(err); }
         }
 
-        // 2. VIEW USER DETAILS (NEW FUNCTION)
+        // 2. VIEW USER DETAILS
         async function viewUser(userId) {
             const modal = document.getElementById('userModal');
             const body = document.getElementById('modal-body');
@@ -134,7 +141,7 @@
             body.innerHTML = '<p style="color:#888;">Fetching data...</p>';
 
             try {
-                const res = await fetch(`https://app.xdfun.in/admin/user/${userId}`, {
+                const res = await fetch(`${API_URL}/admin/user/${userId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -159,33 +166,45 @@
             }
         }
 
-        // 3. Process Payout Logic (Existing)
+        // 3. PROCESS PAYOUT
         async function processPayout(rowId, status) {
             let manualTransactionId = null;
+            
             if (status === 'paid') {
-                manualTransactionId = prompt("Enter Transaction ID:");
-                if (!manualTransactionId) return;
+                manualTransactionId = prompt("Enter Transaction ID (e.g. UPI Ref No):");
+                if (!manualTransactionId) return; // Cancelled
             } else {
-                if(!confirm("Reject and Refund?")) return;
+                if(!confirm("Are you sure you want to REJECT this payout? Money will be refunded to user wallet.")) return;
             }
 
-            const res = await fetch('https://app.xdfun.in/admin/payout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ withdrawal_id: rowId, status: status, manual_t_id: manualTransactionId })
-            });
+            try {
+                const res = await fetch(`${API_URL}/admin/payout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ withdrawal_id: rowId, status: status, manual_t_id: manualTransactionId })
+                });
 
-            if(res.ok) { alert("Updated!"); loadAdmin(); }
+                const data = await res.json();
+                if(res.ok) { 
+                    alert("Status Updated Successfully!"); 
+                    loadAdmin(); 
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch(err) {
+                alert("Server Error");
+            }
         }
 
         function closeModal() { document.getElementById('userModal').style.display = "none"; }
-        function logout() { localStorage.removeItem('token'); window.location.href = 'index.html'; }
+        function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
 
         // Close modal if clicking outside
         window.onclick = function(event) {
             if (event.target == document.getElementById('userModal')) closeModal();
         }
 
+        // Initialize
         loadAdmin();
     </script>
 </body>
