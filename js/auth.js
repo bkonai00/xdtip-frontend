@@ -39,17 +39,24 @@ const registerForm = document.getElementById('register-form');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // 1. GET THE VALUES
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        const role = document.getElementById('role').value; // <--- NEW LINE ADDED HERE
+        
         const btn = e.target.querySelector('button');
 
         try {
             btn.innerText = "Creating...";
+            
+            // 2. SEND TO SERVER
             const res = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password })
+                // 3. INCLUDE ROLE IN THE DATA
+                body: JSON.stringify({ username, email, password, role }) // <--- UPDATED HERE
             });
 
             const data = await res.json();
@@ -61,8 +68,9 @@ if (registerForm) {
             }
         } catch (err) {
             alert("Error connecting to server.");
+            console.error(err);
         } finally {
-            btn.innerText = "Sign Up";
+            btn.innerText = "Create Account";
         }
     });
 }
