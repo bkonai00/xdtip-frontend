@@ -9,42 +9,52 @@
     </script>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
+    
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+        /* BASE STYLES */
+        body { background-color: #050505; color: white; font-family: 'Inter', sans-serif; margin: 0; }
+        
         #creator-section, #viewer-section, #withdraw-btn { display: none; }
-        .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        
+        /* TABLE STYLES */
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
         .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
         .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
-        .history-amount { color: #ff3b3b; font-weight: bold; }
-        /* Add this to your existing CSS */
-.badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    vertical-align: middle;
-    margin-left: 10px;
-    background: #222; /* Default Dark Background */
-    border: 1px solid #333;
-    color: #888;
-}
+        .history-amount { color: #00ff88; font-weight: bold; }
 
-/* Specific Style for CREATOR role */
-.badge.creator {
-    background: rgba(255, 152, 0, 0.15); /* Orange Tint */
-    border: 1px solid rgba(255, 152, 0, 0.4);
-    color: #ff9800; /* Orange Text */
-    box-shadow: 0 0 10px rgba(255, 152, 0, 0.2);
-}
+        /* --- ROLE BADGE STYLES (NEW) --- */
+        .badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 50px;
+            background: #222;
+            color: #888;
+            border: 1px solid #333;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            vertical-align: middle;
+            margin-left: 15px; /* Space between name and badge */
+            display: inline-block;
+        }
+
+        /* Creator Orange Glow Style */
+        .badge.creator {
+            background: rgba(255, 165, 0, 0.15);
+            color: #ff9800;
+            border-color: #ff9800;
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.2);
+        }
     </style>
 </head>
 <body>
 
-    <nav>
+    <nav style="padding: 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center;">
         <a href="https://tip.xdfun.in/" style="text-decoration:none; color:inherit;">
             <div class="logo">
                 <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
@@ -55,22 +65,23 @@
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
         <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0; display: flex; align-items: center; justify-content: center; gap: 10px;">
-    <span id="user-name">Loading...</span> 
-    <span id="role-badge" class="badge">...</span>
-</h1>
+        
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <h1 style="font-size: 42px; margin: 0;" id="user-name">Loading...</h1>
+            <span id="role-badge" class="badge">...</span>
+        </div>
     </div>
 
     <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
         
-        <div class="price-card" style="width: 100%; max-width: 400px; margin: 0 auto; background: #0a0a0a; cursor: default;">
+        <div class="price-card" style="width: 100%; max-width: 400px; margin: 0 auto; background: #0a0a0a; padding:30px; border-radius:12px; border:1px solid #222; text-align:center;">
             <p style="color: #888; font-size: 14px; margin-bottom: 10px;">TOTAL BALANCE</p>
             <h2 style="font-size: 56px; margin: 0; color: white;">
                 <span id="balance">0</span> <span style="font-size: 20px; color: #444;">Tokens</span>
             </h2>
             <div style="margin-top: 30px; display: flex; gap: 10px;">
-                <a href="/buy" class="btn" style="flex: 1;">+ Add Money</a>
-                <button id="withdraw-btn" onclick="document.getElementById('withdraw-modal').style.display='flex'" class="btn btn-secondary" style="flex: 1;">Withdraw</button>
+                <a href="/buy" class="btn" style="flex: 1; background:#fff; color:#000; padding:10px; border-radius:6px; text-decoration:none; font-weight:bold;">+ Add Money</a>
+                <button id="withdraw-btn" onclick="document.getElementById('withdraw-modal').style.display='flex'" class="btn btn-secondary" style="flex: 1; background:#222; color:#fff; border:1px solid #333; padding:10px; border-radius:6px; cursor:pointer;">Withdraw</button>
             </div>
         </div>
 
@@ -84,7 +95,7 @@
                     <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
                     <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Upload a square image (PNG/JPG).</p>
                     <input type="file" id="logo-file" accept="image/*" style="display: none;" onchange="uploadLogo()">
-                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">📸 Upload New Logo</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0; padding:8px 15px; background:#333; color:#fff; border:none; border-radius:5px; cursor:pointer;">📸 Upload New Logo</button>
                     <span id="upload-status" style="font-size: 12px; margin-left: 10px; color: #888;"></span>
                 </div>
             </div>
@@ -132,14 +143,14 @@
                             <label style="color: #666; font-size: 11px; font-weight: bold;">STATS WIDGET</label>
                             <div style="display: flex; gap: 8px; margin-top: 5px;">
                                 <input type="text" id="stats-link" readonly value="Loading..." style="flex:1; padding:10px; background:#1a1a1a; border:1px solid #333; color:#888; border-radius:6px;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')">Copy</button>
+                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333;">Copy</button>
                             </div>
                         </div>
                         <div style="margin-top: 20px;">
                             <label style="color: #666; font-size: 11px; font-weight: bold;">TIP PAGE</label>
                             <div style="display: flex; gap: 8px; margin-top: 5px;">
                                 <input type="text" id="tip-page-url" readonly value="Loading..." style="flex:1; padding:10px; background:#1a1a1a; border:1px solid #333; color:#888; border-radius:6px;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')">Copy</button>
+                                <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333;">Copy</button>
                             </div>
                         </div>
                     </div>
@@ -165,23 +176,27 @@
     <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
             <h2 style="margin-top:0;">Withdraw Funds</h2>
-            <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px;">
-            <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px;">
-            <button class="btn" onclick="submitWithdraw()">Request Payout</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Cancel</button>
+            <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px; width:100%; padding:10px; background:#222; border:1px solid #333; color:#fff; border-radius:5px;">
+            <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px; width:100%; padding:10px; background:#222; border:1px solid #333; color:#fff; border-radius:5px;">
+            <button class="btn" onclick="submitWithdraw()" style="width:100%; padding:10px; background:#fff; border:none; cursor:pointer;">Request Payout</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px; width:100%; padding:10px; background:#333; color:#fff; border:none; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
     <footer>
         <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-            <a href="/contact">Contact Us</a>
-        </div>
     </footer>
 
     <script src="/js/dashboard.js"></script>
+    <script>
+        // THIS SCRIPT RUNS AFTER dashboard.js TO APPLY BADGE STYLES
+        setTimeout(() => {
+            const roleBadge = document.getElementById('role-badge');
+            // If the text inside badge says "CREATOR", add the class 'creator'
+            if (roleBadge && roleBadge.innerText.toUpperCase().includes("CREATOR")) {
+                roleBadge.classList.add('creator');
+            }
+        }, 2000); // Wait for API data to load
+    </script>
 </body>
 </html>
-
