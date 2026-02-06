@@ -102,9 +102,15 @@
 
                         <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                             <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
-                            <button onclick="sendTestAlert()" id="test-btn" style="width: 100%; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                                🔥 Send Test Alert
-                            </button>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="sendTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">
+                                    🔥 Test Alert
+                                </button>
+                                <button onclick="replayLastTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">
+                                    🔄 Latest Tip
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -271,18 +277,56 @@
             alert("Copied: " + copyText.value);
         }
 
+        // --- NEW FUNCTION: Replay Latest Tip ---
+        async function replayLastTip() {
+            const btn = document.getElementById('replay-btn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Replaying...";
+
+            try {
+                // 1. Fetch History to get the latest tip
+                const res = await fetch('https://app.xdfun.in/api/tips/history?limit=1', {
+                    headers: { 'Authorization': token }
+                });
+                const data = await res.json();
+
+                if (res.ok && data.length > 0) {
+                    const lastTip = data[0]; // Get the first item (Latest)
+                    
+                    // 2. Send it as a "Test Alert" (Replay)
+                    // Note: We use the existing test-alert endpoint but with real data
+                    await fetch('https://app.xdfun.in/api/overlay/test-alert', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': token 
+                        },
+                        body: JSON.stringify({
+                            tipper: lastTip.tipper || "Anonymous",
+                            amount: lastTip.amount,
+                            message: lastTip.message
+                        })
+                    });
+                    
+                    alert(`Replaying tip from ${lastTip.tipper || "Anonymous"}!`);
+                } else {
+                    alert("No tip history found to replay.");
+                }
+            } catch (e) {
+                console.error("Replay Error:", e);
+                alert("Failed to replay tip. Check console.");
+            }
+
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+
         // Run Dashboard Logic
         loadDashboard();
-
-        // (Assuming you have other functions like saveTheme, uploadLogo, sendTestAlert in your /js/dashboard.js file. 
-        // If not, make sure they are included or imported!)
     </script>
     
     <script src="/js/dashboard.js"></script>
 
 </body>
 </html>
-
-
-
-
