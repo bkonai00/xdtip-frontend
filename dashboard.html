@@ -17,7 +17,6 @@
     
     <style>
         #creator-section, #viewer-section, #withdraw-btn { display: none; }
-        /* Table Styles */
         .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
         .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
@@ -98,10 +97,10 @@
                         <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                             <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
                             <div style="display: flex; gap: 10px;">
-                                <button onclick="sendTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                <button onclick="manualTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
                                     🔥 Test Alert
                                 </button>
-                                <button onclick="replayLastTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                <button onclick="manualReplayTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
                                     🔄 Latest Tip
                                 </button>
                             </div>
@@ -157,13 +156,10 @@
     </div>
 
     <script>
-        const token = localStorage.getItem('token');
-        if (!token) window.location.href = 'https://tip.xdfun.in/';
-
-        // 2. CONNECT SOCKET TO APP SERVER (FIXED URL)
+        // 2. CONNECT SOCKET
         var socket = io('https://app.xdfun.in'); 
 
-        // Helper to grab token safely
+        // Helper to grab token
         function getObsTokenFromInput() {
             const urlInput = document.getElementById('overlay-url');
             if (urlInput && urlInput.value.includes('/overlay/')) {
@@ -172,42 +168,11 @@
             return null;
         }
 
-        // --- DASHBOARD LOADER ---
-        async function loadDashboard() {
-            try {
-                // We use your existing dashboard.js logic to fill the data
-                // This function basically acts as a backup or initial loader
-                const res = await fetch('https://app.xdfun.in/api/me', { headers: { 'Authorization': token } });
-                if (res.status === 404) return; // Let dashboard.js handle errors
-                const data = await res.json();
-                
-                if(data.user) {
-                    // Update main UI elements
-                    document.getElementById('user-name').innerText = data.user.username;
-                    document.getElementById('balance').innerText = data.user.wallet_balance || "0";
-                    
-                    if(data.user.role === 'creator') {
-                        document.getElementById('creator-section').style.display = 'block';
-                        document.getElementById('withdraw-btn').style.display = 'block';
-                        
-                        // Fill Links
-                        const obsToken = data.user.obs_token;
-                        document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
-                        document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
-                        document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
-                        if(data.user.overlay_theme) document.getElementById('theme-selector').value = data.user.overlay_theme;
-                    } else {
-                        document.getElementById('viewer-section').style.display = 'block';
-                    }
-                }
-            } catch (err) { console.error(err); }
-        }
-
         // --- DIRECT ALERT FUNCTION ---
         function sendDirectAlert(data) {
             const tokenToUse = getObsTokenFromInput();
 
-            if(!tokenToUse) {
+            if(!tokenToUse || tokenToUse === "Loading...") {
                 return alert("Error: OBS Link not loaded. Please wait.");
             }
             
@@ -221,11 +186,12 @@
             }, 100);
         }
 
-        // --- BUTTON 1: SEND TEST ---
-        async function sendTestAlert() {
+        // --- BUTTON 1: MANUAL TEST (Fixed to use Socket) ---
+        function manualTestAlert() {
             const btn = document.getElementById('test-btn');
             btn.disabled = true; btn.innerText = "Sending...";
             
+            // DIRECTLY SEND TO SOCKET - DO NOT USE API
             sendDirectAlert({
                 tipper: "Test User",
                 amount: 500,
@@ -233,11 +199,11 @@
             });
 
             alert("Test Alert Sent!");
-            btn.disabled = false; btn.innerText = "🔥 Test Alert";
+            setTimeout(() => { btn.disabled = false; btn.innerText = "🔥 Test Alert"; }, 1000);
         }
 
-        // --- BUTTON 2: REPLAY LATEST ---
-        async function replayLastTip() {
+        // --- BUTTON 2: REPLAY LATEST (Fixed to use Socket) ---
+        function manualReplayTip() {
             const btn = document.getElementById('replay-btn');
             btn.disabled = true; btn.innerText = "Scanning...";
 
@@ -257,7 +223,7 @@
                         const msg = cells[1].innerText.replace(/["“”]/g, '').trim(); 
                         const amtRaw = cells[2].innerText; 
                         
-                        // FIX: Clean the amount (remove dots/symbols)
+                        // FIX: Clean the amount
                         const cleanAmount = amtRaw.replace(/[^0-9]/g, '') || "0"; 
 
                         lastTip = {
@@ -277,15 +243,12 @@
                 alert("No recent tips found in the table.");
             }
 
-            btn.disabled = false; btn.innerText = "🔄 Latest Tip";
+            setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000);
         }
 
         function copyToClipboard(id) {
             var c = document.getElementById(id); c.select(); document.execCommand("copy"); alert("Copied!");
         }
-
-        // Run internal loader
-        loadDashboard();
     </script>
     
     <script src="/js/dashboard.js"></script>
