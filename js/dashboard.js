@@ -7,7 +7,6 @@ if (window.location.pathname.endsWith('.html')) {
 }
 // ----------------------------------------------------
 
-// ... rest of your existing code ...
 // ⚠️ REPLACE WITH YOUR RENDER URL
 const API_URL = "https://app.xdfun.in"; 
 
@@ -34,15 +33,14 @@ async function loadDashboard() {
             document.getElementById('role-badge').innerText = user.role.toUpperCase();
 
             const logoImg = document.getElementById('current-logo');
+            if (user.logo_url) {
+                logoImg.src = user.logo_url;
+            } else {
+                // Generates a nice avatar with their initials
+                logoImg.src = `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
+            }
 
-if (user.logo_url) {
-    logoImg.src = user.logo_url;
-} else {
-    // Generates a nice avatar with their initials
-    logoImg.src = `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
-}
             // 4. HANDLE ROLES
-            // ✅ FIXED SYNTAX ERROR HERE (It was missing 'user.role')
             if (user.role === 'creator') {
                 // SHOW Creator Tools
                 document.getElementById('creator-section').style.display = 'block';
@@ -51,9 +49,7 @@ if (user.logo_url) {
                 const withdrawBtn = document.getElementById('withdraw-btn');
                 if(withdrawBtn) withdrawBtn.style.display = 'inline-block';
 
-                // ---------------------------------------------------------
-                // ✅ ADDED: SET THEME DROPDOWN TO SAVED CHOICE
-                // ---------------------------------------------------------
+                // Set Theme Dropdown
                 if (user.overlay_theme) {
                     document.getElementById('theme-selector').value = user.overlay_theme;
                 } else {
@@ -64,16 +60,14 @@ if (user.logo_url) {
                 const overlayLink = `${API_URL}/overlay/${user.obs_token}`;
                 document.getElementById('overlay-url').value = overlayLink;
 
-                // --- 👇 NEW CODE (For Stats Widget) - PASTE THIS BELOW 👇 ---
+                // Stats Widget Link
                 const statsLink = `${API_URL}/stats-overlay/${user.obs_token}`;
-                
-                // We check if the element exists first to prevent errors
                 const statsInput = document.getElementById('stats-link');
                 if (statsInput) {
                     statsInput.value = statsLink;
                 }
 
-                const tipLink = `https://tip.xdfun.in/${user.username}`;
+                const tipLink = `https://tip.xdfun.in/u/${user.username}`;
                 document.getElementById('tip-page-url').value = tipLink;
 
                 // Load History
@@ -103,9 +97,15 @@ async function loadHistory(token) {
         const container = document.getElementById('history-container');
         
         if (data.success && data.history.length > 0) {
+            // NOTE: We structure this specifically so replayLastTip can read it later
             let html = '<table class="history-table"><thead><tr><th>SENDER</th><th>MESSAGE</th><th>AMOUNT</th><th>DATE</th></tr></thead><tbody>';
             data.history.forEach(tip => {
-                html += `<tr><td style="font-weight:bold;">${tip.sender}</td><td style="color:#aaa;">"${tip.message}"</td><td class="history-amount">+${tip.amount}</td><td>${tip.date}</td></tr>`;
+                html += `<tr>
+                    <td style="font-weight:bold;">${tip.sender}</td>
+                    <td style="color:#aaa;">"${tip.message}"</td>
+                    <td class="history-amount">+${tip.amount}</td>
+                    <td>${tip.date}</td>
+                </tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -231,6 +231,7 @@ async function loadWithdrawals(token) {
         const data = await res.json();
         const container = document.getElementById('payout-container');
         
+        // Fix: Ensure the table structure exists before filling logic
         if (data.success && data.history.length > 0) {
             let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>T_ID</th></tr></thead><tbody>';
             data.history.forEach(w => {
@@ -253,6 +254,8 @@ async function loadWithdrawals(token) {
         console.error("Payout History Error", err);
     }
 }
+
+// Standard Test Alert
 async function sendTestAlert() {
     const btn = document.getElementById('test-btn');
     const token = localStorage.getItem('token');
@@ -263,39 +266,122 @@ async function sendTestAlert() {
     btn.disabled = true;
 
     try {
-        const res = await fetch('https://xdtip-backend.onrender.com/test-alert', {
+        // Use the global API_URL
+        const res = await fetch(`${API_URL}/overlay/test-alert`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            // Sending a body so backend can use it if configured
+            body: JSON.stringify({ tipper: "Test User", amount: 500, message: "Test Alert" })
         });
         
         const data = await res.json();
         
         if (data.success) {
             btn.innerText = "✅ Sent!";
-            setTimeout(() => { btn.innerText = "🔥 Send Test Alert"; btn.disabled = false; }, 2000);
+            setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000);
         } else {
-            alert("Failed: " + data.error);
-            btn.innerText = "❌ Error";
+            // Fallback: If API fails, try Direct Socket if available
+            if(typeof window.socket !== 'undefined') {
+                window.socket.emit('new-tip', { tipper: "Test User", amount: 500, message: "Test Alert" });
+                btn.innerText = "✅ Sent (Socket)";
+                setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000);
+            } else {
+                alert("Failed: " + data.error);
+                btn.innerText = "❌ Error";
+            }
         }
     } catch (err) {
         console.error(err);
-        alert("Server Error");
-        btn.innerText = "🔥 Send Test Alert";
-        btn.disabled = false;
+        // Fallback on error
+        if(typeof window.socket !== 'undefined') {
+             window.socket.emit('new-tip', { tipper: "Test User", amount: 500, message: "Test Alert" });
+             btn.innerText = "✅ Sent (Socket)";
+             setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000);
+        } else {
+            alert("Server Error");
+            btn.innerText = "🔥 Test Alert";
+            btn.disabled = false;
+        }
+    }
+}
+
+// ----------------------------------------------------
+// 🆕 NEW FEATURE: REPLAY LATEST TIP
+// ----------------------------------------------------
+async function replayLastTip() {
+    const btn = document.getElementById('replay-btn');
+    if(btn) {
+        btn.disabled = true;
+        btn.innerText = "Scanning...";
+    }
+
+    let lastTip = null;
+
+    // 1. SCRAPE DATA FROM THE TABLE ON SCREEN
+    const container = document.getElementById('history-container');
+    if (container) {
+        // Find the first row in the table body
+        const firstRow = container.querySelector('tbody tr');
+        if (firstRow) {
+            const cells = firstRow.getElementsByTagName('td');
+            // Check if we have enough columns (Sender, Message, Amount)
+            if (cells.length >= 3) {
+                // Col 0: Sender, Col 1: Message, Col 2: Amount
+                const rawSender = cells[0].innerText.trim();
+                const rawMessage = cells[1].innerText.replace(/["“”]/g, '').trim(); // Remove quotes
+                const rawAmount = cells[2].innerText.replace(/[^0-9.]/g, ''); // Keep only numbers
+
+                lastTip = {
+                    tipper: rawSender,
+                    amount: rawAmount || "0",
+                    message: rawMessage
+                };
+            }
+        }
+    }
+
+    // 2. SEND TO OVERLAY VIA SOCKET
+    if (lastTip) {
+        // Check if Socket.IO is loaded (from HTML)
+        if (typeof window.socket !== 'undefined') {
+            console.log("Replaying via Socket:", lastTip);
+            
+            // Get OBS Token from the input box
+            const urlInput = document.getElementById('overlay-url');
+            let tokenToUse = null;
+            if (urlInput && urlInput.value.includes('/overlay/')) {
+                tokenToUse = urlInput.value.split('/overlay/')[1];
+            }
+
+            if (tokenToUse) {
+                // Ensure we are in the room
+                window.socket.emit('join-overlay', tokenToUse);
+                
+                // Send the alert
+                setTimeout(() => {
+                    window.socket.emit('new-tip', lastTip);
+                    alert(`Replaying tip from ${lastTip.tipper}!`);
+                }, 100);
+            } else {
+                alert("Could not find OBS Token. Wait for dashboard to load completely.");
+            }
+        } else {
+            alert("Socket connection missing. Please refresh the page.");
+        }
+    } else {
+        alert("No recent tips found in the history table.");
+    }
+
+    if(btn) {
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerText = "🔄 Latest Tip";
+        }, 1000);
     }
 }
 
 // Run on load
 loadDashboard();
-
-
-
-
-
-
-
-
-
