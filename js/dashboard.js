@@ -8,14 +8,14 @@ if (window.location.pathname.endsWith('.html')) {
 // ----------------------------------------------------
 // ⚠️ CONFIGURATION
 // ----------------------------------------------------
-const API_URL = "https://xdtip-backend.onrender.com"; // Your Backend URL
+const API_URL = "https://xdtip-backend.onrender.com"; 
 
 async function loadDashboard() {
     const token = localStorage.getItem('token');
     if (!token) return window.location.href = "/login/";
 
     try {
-        const res = await fetch(`${API_URL}/me`, {
+        const res = await fetch(`${API_URL}/api/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -23,24 +23,22 @@ async function loadDashboard() {
         if (data.success) {
             const user = data.user;
             
-            // Fill Info
+            // 1. Fill Basic Info
             document.getElementById('user-name').innerText = user.username;
             document.getElementById('balance').innerText = user.balance;
             
-            // Role Badge Logic
+            // 2. Role Badge Logic (Colors)
             const roleBadge = document.getElementById('role-badge');
-            if (roleBadge) {
+            if(roleBadge) {
                 roleBadge.innerText = user.role.toUpperCase();
                 if(user.role === 'creator') roleBadge.classList.add('creator');
             }
 
-            // Logo Logic
+            // 3. Logo
             const logoImg = document.getElementById('current-logo');
-            if (logoImg) {
-                logoImg.src = user.logo_url || `https://ui-avatars.com/api/?name=${user.username}&background=random`;
-            }
+            if(logoImg) logoImg.src = user.logo_url || `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
 
-            // Creator Tools
+            // 4. Creator Tools
             if (user.role === 'creator') {
                 document.getElementById('creator-section').style.display = 'block';
                 const withdrawBtn = document.getElementById('withdraw-btn');
@@ -50,7 +48,6 @@ async function loadDashboard() {
                     document.getElementById('theme-selector').value = user.overlay_theme || 'classic';
                 }
 
-                // Links
                 document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${user.obs_token}`;
                 if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${user.obs_token}`;
                 if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${user.username}`;
@@ -64,49 +61,48 @@ async function loadDashboard() {
             logout();
         }
     } catch (err) {
-        console.error("Failed to load dashboard", err);
+        console.error("Dashboard Load Error", err);
     }
 }
 
 // ----------------------------------------------------
-// 🔄 REPLAY LATEST TIP (Calls the new Backend Endpoint)
+// 🔄 REPLAY LATEST TIP (UPDATED)
 // ----------------------------------------------------
 async function replayLastTip() {
     const btn = document.getElementById('replay-btn');
     const token = localStorage.getItem('token');
-    btn.disabled = true; btn.innerText = "Scanning...";
+    
+    if(btn) { btn.disabled = true; btn.innerText = "Scanning..."; }
 
     let lastTip = null;
 
-    // 1. Get Data from the Table on Screen
+    // 1. Read the table
     const container = document.getElementById('history-container');
     if (container) {
         const firstRow = container.querySelector('tbody tr');
         if (firstRow) {
             const cells = firstRow.getElementsByTagName('td');
             if (cells.length >= 3) {
-                // Parse the visible table data
                 lastTip = {
                     tipper: cells[0].innerText.trim(),
-                    // Clean amount (remove ₹, $, commas, etc)
-                    amount: cells[2].innerText.replace(/[^0-9.]/g, ''), 
-                    // Clean message (remove quotes)
+                    amount: cells[2].innerText.replace(/[^0-9.]/g, ''), // Numbers only
                     message: cells[1].innerText.replace(/["“”]/g, '').trim()
                 };
             }
         }
     }
 
-    // 2. Send to Backend
+    // 2. Send to Server (Backend will forward to Overlay)
     if (lastTip) {
         try {
-            console.log("Sending Replay:", lastTip);
-            const res = await fetch(`${API_URL}/replay-alert`, {
+            console.log("Replaying:", lastTip);
+            const res = await fetch(`${API_URL}/test-alert`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`, 
                     'Content-Type': 'application/json' 
                 },
+                // We send the REAL data now!
                 body: JSON.stringify(lastTip)
             });
             
@@ -114,81 +110,75 @@ async function replayLastTip() {
             if (data.success) {
                 alert(`Replaying tip from ${lastTip.tipper}!`);
             } else {
-                alert("Server Error: Did you add the /replay-alert code to your backend?");
+                alert("Server rejected request.");
             }
         } catch(e) {
             console.error(e);
-            alert("Connection Failed");
+            alert("Connection Error.");
         }
     } else {
-        alert("No recent tips found in the table.");
+        alert("No recent tips found.");
     }
 
-    setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000);
+    if(btn) { setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000); }
 }
 
-// Standard Test Alert
+// ----------------------------------------------------
+// 🔥 STANDARD TEST ALERT
+// ----------------------------------------------------
 async function sendTestAlert() {
     const btn = document.getElementById('test-btn');
     const token = localStorage.getItem('token');
-    btn.innerText = "Sending..."; btn.disabled = true;
+    if(btn) { btn.innerText = "Sending..."; btn.disabled = true; }
 
     try {
+        // Send EMPTY body so server uses default "Test Bot"
         const res = await fetch(`${API_URL}/test-alert`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({}) 
         });
         const data = await res.json();
-        if (data.success) btn.innerText = "✅ Sent!";
-        else alert("Failed: " + data.error);
+        if (data.success && btn) btn.innerText = "✅ Sent!";
     } catch (err) { alert("Server Error"); }
     
-    setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000);
+    if(btn) { setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000); }
 }
 
-// Other Helper Functions...
+// Helpers
 async function loadHistory(token) {
     try {
-        const res = await fetch(`${API_URL}/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`${API_URL}/api/tips/history`, { headers: { 'Authorization': `Bearer ${token}` } });
         const data = await res.json();
         const container = document.getElementById('history-container');
-        
-        if (data.success && data.history.length > 0) {
+        if (data && data.length > 0) {
             let html = '<table class="history-table"><thead><tr><th>SENDER</th><th>MESSAGE</th><th>AMOUNT</th><th>DATE</th></tr></thead><tbody>';
-            data.history.forEach(tip => {
-                html += `<tr>
-                    <td style="font-weight:bold;">${tip.sender}</td>
-                    <td style="color:#aaa;">"${tip.message}"</td>
-                    <td class="history-amount">+${tip.amount}</td>
-                    <td>${tip.date}</td>
-                </tr>`;
+            data.forEach(tip => {
+                html += `<tr><td style="font-weight:bold;">${tip.tipper}</td><td style="color:#aaa;">"${tip.message}"</td><td class="history-amount">+${tip.amount}</td><td>${tip.date}</td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
         } else {
             container.innerHTML = '<p style="color: #444; text-align:center;">No tips yet.</p>';
         }
-    } catch (err) { console.error(err); }
+    } catch (err) {}
 }
 
 async function loadWithdrawals(token) {
     try {
-        const res = await fetch(`${API_URL}/withdrawals`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`${API_URL}/api/withdrawals`, { headers: { 'Authorization': `Bearer ${token}` } });
         const data = await res.json();
         const container = document.getElementById('payout-container');
-        
-        if (data.success && data.history.length > 0) {
-            let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>T_ID</th></tr></thead><tbody>';
-            data.history.forEach(w => {
+        if (data && data.length > 0) {
+            let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>ID</th></tr></thead><tbody>';
+            data.forEach(w => {
                 let color = w.status === 'paid' ? '#4caf50' : '#ff9800';
-                html += `<tr><td>${w.date}</td><td style="font-weight:bold;">${w.amount}</td><td style="color:${color};">${w.status}</td><td>#${w.t_id}</td></tr>`;
+                html += `<tr><td>${w.date}</td><td style="font-weight:bold;">${w.amount}</td><td style="color:${color};">${w.status}</td><td>#${w.id}</td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
-        } else {
-            container.innerHTML = '<p style="color: #444; font-size:13px;">No payouts yet.</p>';
         }
-    } catch (err) { console.error(err); }
+    } catch (err) {}
 }
 
 function copyToClipboard(elementId) {
@@ -196,8 +186,8 @@ function copyToClipboard(elementId) {
     copyText.select(); navigator.clipboard.writeText(copyText.value); alert("Copied!");
 }
 function logout() { localStorage.removeItem('token'); window.location.href = "/login/"; }
-async function saveTheme() { /* Your existing saveTheme code */ }
-async function uploadLogo() { /* Your existing uploadLogo code */ }
-async function submitWithdraw() { /* Your existing submitWithdraw code */ }
+async function saveTheme() { /* Your saveTheme logic */ }
+async function uploadLogo() { /* Your uploadLogo logic */ }
+async function submitWithdraw() { /* Your submitWithdraw logic */ }
 
 loadDashboard();
