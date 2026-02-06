@@ -55,9 +55,8 @@
         <div id="creator-section" style="margin-top: 60px;">
             <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
                 <div style="position: relative;">
-                    <img id="current-logo" 
-     src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" 
-     style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
+                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
                 </div>            
                 <div style="flex: 1;">
                     <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
@@ -212,65 +211,60 @@
                     headers: { 'Authorization': token }
                 });
                 
-                // FIX 1: Check if the response is OK before trying to parse JSON
-                if (!res.ok) {
-                    throw new Error(`Server returned status: ${res.status}`);
-                }
-                
-                // FIX 2: Only parse JSON if we know the response is valid
                 const data = await res.json();
 
-                // Update Text Info
-                document.getElementById('user-name').innerText = data.user.username;
-                document.getElementById('balance').innerText = data.user.wallet_balance;
-                document.getElementById('role-badge').innerText = data.user.role.toUpperCase();
+                if (res.ok) {
+                    // Update Text Info
+                    document.getElementById('user-name').innerText = data.user.username;
+                    document.getElementById('balance').innerText = data.user.wallet_balance;
+                    document.getElementById('role-badge').innerText = data.user.role.toUpperCase();
 
-                // Sections Logic
-                if (data.user.role === 'creator') {
-                    document.getElementById('creator-section').style.display = 'block';
-                    document.getElementById('withdraw-btn').style.display = 'block';
+                    // Sections Logic
+                    if (data.user.role === 'creator') {
+                        document.getElementById('creator-section').style.display = 'block';
+                        document.getElementById('withdraw-btn').style.display = 'block';
 
-                    // FILL THE LINKS
-                    const obsToken = data.user.obs_token;
-                    
-                    // 1. Alert Overlay
-                    if(document.getElementById('overlay-url')) {
-                        document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
-                    }
-                    
-                    // 2. Stats Overlay (NEW)
-                    if(document.getElementById('stats-link')) {
-                        document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
-                    }
+                        // FILL THE LINKS
+                        const obsToken = data.user.obs_token;
+                        
+                        // 1. Alert Overlay
+                        if(document.getElementById('overlay-url')) {
+                            document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
+                        }
+                        
+                        // 2. Stats Overlay (NEW)
+                        if(document.getElementById('stats-link')) {
+                            document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
+                        }
 
-                    // 3. Tip Page
-                    if(document.getElementById('tip-page-url')) {
-                        document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
-                    }
+                        // 3. Tip Page
+                        if(document.getElementById('tip-page-url')) {
+                            document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
+                        }
 
-                    // Theme Selector
-                    if(data.user.overlay_theme) {
-                        document.getElementById('theme-selector').value = data.user.overlay_theme;
-                    }
+                        // Theme Selector
+                        if(data.user.overlay_theme) {
+                            document.getElementById('theme-selector').value = data.user.overlay_theme;
+                        }
 
-                    // Load Logo
-                    if(data.user.logo_url) {
-                        document.getElementById('current-logo').src = data.user.logo_url;
+                        // Load Logo
+                        if(data.user.logo_url) {
+                            document.getElementById('current-logo').src = data.user.logo_url;
+                        }
+
+                    } else {
+                        document.getElementById('viewer-section').style.display = 'block';
                     }
 
                 } else {
-                    document.getElementById('viewer-section').style.display = 'block';
+                    localStorage.removeItem('token');
+                    window.location.href = 'https://tip.xdfun.in/';
                 }
-
             } catch (err) {
                 console.error("Error loading dashboard:", err);
-                // Optional: Redirect to login if the error is 401/403 or API is down
-                if (err.message.includes('401') || err.message.includes('403')) {
-                     localStorage.removeItem('token');
-                     window.location.href = 'https://tip.xdfun.in/';
-                }
             }
         }
+
         // Copy Function
         function copyToClipboard(elementId) {
             var copyText = document.getElementById(elementId);
@@ -291,13 +285,6 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
