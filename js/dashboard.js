@@ -23,28 +23,29 @@ async function loadDashboard() {
         if (data.success) {
             const user = data.user;
             
-            // 1. Fill Basic Info
+            // 1. Info
             if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
             if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
             
-            // 2. ROLE BADGE LOGIC (Updated)
+            // 2. ROLE BADGE LOGIC (Explicit Checks)
             const roleBadge = document.getElementById('role-badge');
             if(roleBadge) {
-                const role = (user.role || "viewer").toLowerCase(); // Default to viewer if missing
+                // Default to 'viewer' if role is missing or weird
+                let role = (user.role || "viewer").toLowerCase();
                 
-                console.log("Detected Role:", role); // DEBUG: Check console to see what role is detected
-                
+                // Set Text
                 roleBadge.innerText = role.toUpperCase();
                 
-                // Reset class list to base
+                // Clear old classes
                 roleBadge.className = 'badge'; 
                 
-                // Apply Color Class
-                if(role === 'creator') {
+                // Apply New Class
+                if (role === 'creator') {
                     roleBadge.classList.add('creator');
-                } else if(role === 'admin') {
+                } else if (role === 'admin') {
                     roleBadge.classList.add('admin');
                 } else {
+                    // Force 'viewer' style for everyone else
                     roleBadge.classList.add('viewer');
                 }
             }
@@ -53,7 +54,7 @@ async function loadDashboard() {
             const logoImg = document.getElementById('current-logo');
             if(logoImg) logoImg.src = user.logo_url || `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
 
-            // 4. VIEW LOGIC (Admins also see Creator Tools)
+            // 4. View Logic (Admins get Creator Access too)
             if (user.role === 'creator' || user.role === 'admin') {
                 document.getElementById('creator-section').style.display = 'block';
                 const withdrawBtn = document.getElementById('withdraw-btn');
@@ -63,7 +64,6 @@ async function loadDashboard() {
                     document.getElementById('theme-selector').value = user.overlay_theme || 'classic';
                 }
 
-                // Links
                 document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${user.obs_token}`;
                 if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${user.obs_token}`;
                 if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${user.username}`;
@@ -71,7 +71,6 @@ async function loadDashboard() {
                 loadHistory(token);
                 loadWithdrawals(token);
             } else {
-                // Viewers see this
                 document.getElementById('viewer-section').style.display = 'block';
             }
         } else {
@@ -209,5 +208,6 @@ async function uploadLogo() { /* logo logic */ }
 async function submitWithdraw() { /* withdraw logic */ }
 
 loadDashboard();
+
 
 
