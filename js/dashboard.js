@@ -232,7 +232,7 @@ async function submitWithdraw() {
 
     try {
         // 4. Send request to your specific backend route
-        const response = await fetch('/withdraw', { 
+        const response = await fetch('/api/withdraw', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -389,6 +389,7 @@ async function loadPayoutHistory() {
 }
 
 loadDashboard();
+
 
 
 
