@@ -17,6 +17,29 @@
         .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
         .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
         .history-amount { color: #ff3b3b; font-weight: bold; }
+        /* Add this to your existing CSS */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    margin-left: 10px;
+    background: #222; /* Default Dark Background */
+    border: 1px solid #333;
+    color: #888;
+}
+
+/* Specific Style for CREATOR role */
+.badge.creator {
+    background: rgba(255, 152, 0, 0.15); /* Orange Tint */
+    border: 1px solid rgba(255, 152, 0, 0.4);
+    color: #ff9800; /* Orange Text */
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.2);
+}
     </style>
 </head>
 <body>
@@ -32,7 +55,10 @@
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
         <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="font-size:12px; margin-left:10px;">...</span></h1>
+        <h1 style="font-size: 42px; margin: 0; display: flex; align-items: center; justify-content: center; gap: 10px;">
+    <span id="user-name">Loading...</span> 
+    <span id="role-badge" class="badge">...</span>
+</h1>
     </div>
 
     <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
@@ -158,3 +184,4 @@
     <script src="/js/dashboard.js"></script>
 </body>
 </html>
+
