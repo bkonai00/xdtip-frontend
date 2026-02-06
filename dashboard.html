@@ -9,7 +9,9 @@
     </script>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
-    <script src="/socket.io/socket.io.js"></script>
+    
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -147,19 +149,20 @@
         if (!token) window.location.href = 'https://tip.xdfun.in/';
 
         var userObsToken = null; 
-        var socket = io(); // Socket connection
+        
+        // FIX 2: Connect Socket to the APP Server (where overlay lives)
+        // NOT the current page URL.
+        var socket = io('https://app.xdfun.in'); 
 
-        // Helper to grab token from the input box if API failed
+        // Helper to grab token
         function getObsTokenFromInput() {
-            if (userObsToken) return userObsToken; // Return if we already have it
+            if (userObsToken) return userObsToken; 
             
-            // Try to grab from the input field value (e.g., ".../overlay/UUID")
             const urlInput = document.getElementById('overlay-url').value;
             if (urlInput && urlInput.includes('/overlay/')) {
                 const parts = urlInput.split('/overlay/');
                 if (parts[1]) {
                     userObsToken = parts[1].trim();
-                    console.log("Extracted Token from Input:", userObsToken);
                     return userObsToken;
                 }
             }
@@ -173,7 +176,6 @@
                 
                 if (res.status === 404) {
                     console.warn("API Not Found. Attempting to run in 'Offline/UI' mode.");
-                    // Force show creator section just in case
                     document.getElementById('creator-section').style.display = 'block';
                     return; 
                 }
@@ -181,9 +183,9 @@
                 const data = await res.json();
                 if(data.user) {
                     // Update UI
-                    document.getElementById('user-name').innerText = data.user.username || "User";
-                    document.getElementById('balance').innerText = data.user.wallet_balance || "0";
-                    document.getElementById('role-badge').innerText = (data.user.role || "").toUpperCase();
+                    if(document.getElementById('user-name')) document.getElementById('user-name').innerText = data.user.username || "User";
+                    if(document.getElementById('balance')) document.getElementById('balance').innerText = data.user.wallet_balance || "0";
+                    if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = (data.user.role || "").toUpperCase();
 
                     if (data.user.role === 'creator') {
                         document.getElementById('creator-section').style.display = 'block';
@@ -194,7 +196,7 @@
                         if(document.getElementById('overlay-url')) document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${userObsToken}`;
                         if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${userObsToken}`;
                         if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
-                        if(data.user.logo_url) document.getElementById('current-logo').src = data.user.logo_url;
+                        if(document.getElementById('current-logo') && data.user.logo_url) document.getElementById('current-logo').src = data.user.logo_url;
                     } else {
                         document.getElementById('viewer-section').style.display = 'block';
                     }
@@ -202,12 +204,11 @@
             } catch (err) { console.error(err); }
         }
 
-        // --- DIRECT SOCKET ALERT FUNCTION ---
         function sendDirectAlert(data) {
             const tokenToUse = getObsTokenFromInput();
 
             if(!tokenToUse || tokenToUse === "Loading...") {
-                return alert("Error: OBS Link not loaded. Cannot identify overlay.");
+                return alert("Error: OBS Link not loaded. Wait for dashboard or paste link manually.");
             }
             
             // Join Room
@@ -230,17 +231,7 @@
                 message: "This is a test alert! 🚨"
             };
 
-            // Use Direct Socket (Bypasses API)
             sendDirectAlert(testData);
-
-            // Optional: Try API just in case
-            try {
-                fetch('https://app.xdfun.in/api/overlay/test-alert', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                    body: JSON.stringify(testData)
-                }).catch(e => {}); 
-            } catch(e) {}
 
             alert("Test Alert Sent to Overlay!");
             btn.disabled = false; btn.innerText = "🔥 Test Alert";
@@ -252,17 +243,14 @@
 
             let lastTip = null;
 
-            // VISUAL SCRAPING (Reads the table on your screen)
             const container = document.getElementById('history-container');
             if (container) {
-                // Find any table row
                 const firstRow = container.querySelector('tbody tr') || container.querySelector('tr:nth-child(2)') || container.querySelector('tr');
                 if (firstRow) {
                     const cells = firstRow.getElementsByTagName('td');
                     if (cells.length >= 2) {
-                        // FIX: Clean the text content to remove dots/spaces
                         const rawAmount = cells[1].innerText; 
-                        const cleanAmount = rawAmount.replace(/[^0-9]/g, ''); // KEEPS ONLY NUMBERS
+                        const cleanAmount = rawAmount.replace(/[^0-9]/g, ''); 
                         
                         lastTip = {
                             tipper: cells[0].innerText.trim(),
@@ -275,10 +263,10 @@
 
             if (lastTip) {
                 console.log("Replaying Clean Data:", lastTip);
-                sendDirectAlert(lastTip); // Send via Socket
+                sendDirectAlert(lastTip); 
                 alert(`Replaying tip from ${lastTip.tipper} (₹${lastTip.amount})`);
             } else {
-                alert("History table empty or unreadable. Wait for dashboard.js to load data.");
+                alert("History table empty. No recent tips to replay.");
             }
 
             btn.disabled = false; btn.innerText = "🔄 Latest Tip";
@@ -288,7 +276,6 @@
             var c = document.getElementById(id); c.select(); document.execCommand("copy"); alert("Copied!");
         }
 
-        // Wait 1 second for dashboard.js to populate fields before running our logic
         setTimeout(loadDashboard, 1000);
     </script>
     
