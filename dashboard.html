@@ -9,14 +9,29 @@
     </script>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
+    
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         #creator-section, #viewer-section, #withdraw-btn { display: none; }
         .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
         .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
         .history-amount { color: #ff3b3b; font-weight: bold; }
+
+        /* ✅ FIX 2: BADGE STYLES */
+        .badge {
+            font-size: 12px; padding: 4px 8px; border-radius: 4px;
+            background: #222; border: 1px solid #333; color: #888;
+            margin-left: 10px; vertical-align: middle;
+        }
+        .badge.creator {
+            background: rgba(255, 165, 0, 0.15);
+            color: #ff9800; border-color: #ff9800;
+        }
     </style>
 </head>
 <body>
@@ -32,7 +47,10 @@
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
         <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="font-size:12px; margin-left:10px;">...</span></h1>
+        <h1 style="font-size: 42px; margin: 0;">
+            <span id="user-name">Loading...</span> 
+            <span id="role-badge" class="badge">...</span>
+        </h1>
     </div>
 
     <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
@@ -146,14 +164,7 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-            <a href="/contact">Contact Us</a>
-        </div>
-    </footer>
+    <footer><p>&copy; 2024 xdtip. All rights reserved.</p></footer>
 
     <script src="/js/dashboard.js"></script>
 </body>
