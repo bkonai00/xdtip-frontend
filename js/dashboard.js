@@ -287,9 +287,57 @@ async function sendTestAlert() {
         btn.disabled = false;
     }
 }
+// ----------------------------------------------------
+// ↺ REPLAY RECENT TIP FUNCTION
+// ----------------------------------------------------
+async function replayRecentTip() {
+    const btn = document.getElementById('replay-btn');
+    const token = localStorage.getItem('token');
+
+    if (!token) return alert("Please login first");
+
+    // 1. UI Loading State
+    const originalText = btn.innerText;
+    btn.innerText = "Sending...";
+    btn.disabled = true;
+
+    try {
+        // 2. Call the Backend Endpoint
+        // We use API_URL defined at the top of your file
+        const res = await fetch(`${API_URL}/replay-alert`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            btn.innerText = "✅ Sent!";
+            // Reset button after 2 seconds
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.disabled = false; 
+            }, 2000);
+        } else {
+            alert(data.message || "No recent tips found.");
+            btn.innerText = "❌ Error";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        console.error("Replay Error:", err);
+        alert("Could not connect to server.");
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
 
 // Run on load
 loadDashboard();
+
 
 
 
