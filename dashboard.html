@@ -157,7 +157,7 @@
 
     <script>
         // 1. CONNECT TO THE OVERLAY SERVER DIRECTLY
-        // The overlay lives on app.xdfun.in, so the socket is there too.
+        // We use a different variable name to avoid conflicts
         var socket = io('https://app.xdfun.in'); 
 
         // Helper to grab the OBS Token from the text box
@@ -169,32 +169,36 @@
             return null;
         }
 
-        // --- BUTTON 1: MANUAL TEST (Keep using API for this) ---
-        async function manualTestAlert() {
+        // --- BUTTON 1: MANUAL TEST (Uses Socket to ensure it works) ---
+        function manualTestAlert() {
             const btn = document.getElementById('test-btn');
-            const token = localStorage.getItem('token');
-            const BACKEND_URL = "https://xdtip-backend.onrender.com"; // Your API Backend
-
             btn.disabled = true; btn.innerText = "Sending...";
             
-            try {
-                // We use the API here because it guarantees a "Test Alert" sound
-                await fetch(`${BACKEND_URL}/test-alert`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({}) // Body is ignored by server anyway
-                });
-                alert("Test Alert Sent!");
-            } catch(e) {
-                console.error(e);
-                alert("Failed. Check console.");
+            // We verify the OBS token exists first
+            const tokenToUse = getObsToken();
+            
+            if (tokenToUse) {
+                // Join Room
+                socket.emit('join-overlay', tokenToUse);
+                
+                // Send Test Data
+                setTimeout(() => {
+                    socket.emit('new-tip', {
+                        tipper: "Test User",
+                        amount: 500,
+                        message: "This is a test alert! 🚨"
+                    });
+                    alert("Test Alert Sent!");
+                }, 100);
+            } else {
+                alert("Wait for dashboard to load...");
             }
 
             setTimeout(() => { btn.disabled = false; btn.innerText = "🔥 Test Alert"; }, 1000);
         }
 
-        // --- BUTTON 2: REPLAY LATEST (FIXED: Uses Socket Direct) ---
-        async function manualReplayTip() {
+        // --- BUTTON 2: REPLAY LATEST (Uses Socket Direct) ---
+        function manualReplayTip() {
             const btn = document.getElementById('replay-btn');
             btn.disabled = true; btn.innerText = "Scanning...";
 
@@ -219,7 +223,7 @@
                 }
             }
 
-            // 2. SEND VIA SOCKET (Bypasses the Server's "Fake Message" logic)
+            // 2. SEND VIA SOCKET
             if (lastTip) {
                 const tokenToUse = getObsToken();
                 
@@ -252,8 +256,7 @@
     </script>
     
     <script src="/js/dashboard.js"></script>
-    
-    <script src="/js/dashboard.js"></script>
 </body>
 </html>
+
 
