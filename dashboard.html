@@ -208,67 +208,48 @@
             window.location.href = 'https://tip.xdfun.in/';
         }
 
+        // --- DASHBOARD LOADER (With 404 Protection) ---
         async function loadDashboard() {
             try {
                 const res = await fetch('https://app.xdfun.in/api/me', {
                     headers: { 'Authorization': token }
                 });
                 
+                // If API is missing (404), stop here instead of crashing
+                if (res.status === 404) {
+                    console.warn("User API not found. Some dashboard features may be empty.");
+                    return; 
+                }
+
+                if (!res.ok) throw new Error("Failed to load user data");
+
                 const data = await res.json();
 
-                if (res.ok) {
-                    // Update Text Info
-                    document.getElementById('user-name').innerText = data.user.username;
-                    document.getElementById('balance').innerText = data.user.wallet_balance;
-                    document.getElementById('role-badge').innerText = data.user.role.toUpperCase();
+                // Update UI safely
+                if(data.user) {
+                    if(document.getElementById('user-name')) document.getElementById('user-name').innerText = data.user.username || "User";
+                    if(document.getElementById('balance')) document.getElementById('balance').innerText = data.user.wallet_balance || "0";
+                    if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = (data.user.role || "Viewer").toUpperCase();
 
-                    // Sections Logic
                     if (data.user.role === 'creator') {
                         document.getElementById('creator-section').style.display = 'block';
                         document.getElementById('withdraw-btn').style.display = 'block';
-
-                        // FILL THE LINKS
+                        
                         const obsToken = data.user.obs_token;
-                        
-                        // 1. Alert Overlay
-                        if(document.getElementById('overlay-url')) {
-                            document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
-                        }
-                        
-                        // 2. Stats Overlay (NEW)
-                        if(document.getElementById('stats-link')) {
-                            document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
-                        }
-
-                        // 3. Tip Page
-                        if(document.getElementById('tip-page-url')) {
-                            document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
-                        }
-
-                        // Theme Selector
-                        if(data.user.overlay_theme) {
-                            document.getElementById('theme-selector').value = data.user.overlay_theme;
-                        }
-
-                        // Load Logo
-                        if(data.user.logo_url) {
-                            document.getElementById('current-logo').src = data.user.logo_url;
-                        }
-
+                        if(document.getElementById('overlay-url')) document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
+                        if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
+                        if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
+                        if(document.getElementById('theme-selector') && data.user.overlay_theme) document.getElementById('theme-selector').value = data.user.overlay_theme;
+                        if(document.getElementById('current-logo') && data.user.logo_url) document.getElementById('current-logo').src = data.user.logo_url;
                     } else {
                         document.getElementById('viewer-section').style.display = 'block';
                     }
-
-                } else {
-                    localStorage.removeItem('token');
-                    window.location.href = 'https://tip.xdfun.in/';
                 }
             } catch (err) {
-                console.error("Error loading dashboard:", err);
+                console.error("Dashboard Error:", err);
             }
         }
 
-        // Copy Function
         function copyToClipboard(elementId) {
             var copyText = document.getElementById(elementId);
             copyText.select();
@@ -277,52 +258,87 @@
             alert("Copied: " + copyText.value);
         }
 
-        // --- NEW FUNCTION: Replay Latest Tip ---
+        // --- SEND TEST ALERT ---
+        async function sendTestAlert() {
+            const btn = document.getElementById('test-btn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Sending...";
+            
+            try {
+                await fetch('https://app.xdfun.in/api/overlay/test-alert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                    body: JSON.stringify({
+                        tipper: "Test User",
+                        amount: 500,
+                        message: "This is a test alert! 🚨"
+                    })
+                });
+                alert("Test Alert Sent!");
+            } catch(e) {
+                console.error(e);
+                alert("Failed to send test. (Check Console)");
+            }
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+
+        // --- REPLAY LATEST TIP (SCREEN READER VERSION) ---
+        // Since the API is 404, we read the history table displayed on the screen!
         async function replayLastTip() {
             const btn = document.getElementById('replay-btn');
             const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = "Replaying...";
+            btn.innerText = "Scanning...";
 
-            try {
-                // 1. Fetch History to get the latest tip
-                const res = await fetch('https://app.xdfun.in/api/tips/history?limit=1', {
-                    headers: { 'Authorization': token }
-                });
-                const data = await res.json();
+            let lastTip = null;
 
-                if (res.ok && data.length > 0) {
-                    const lastTip = data[0]; // Get the first item (Latest)
-                    
-                    // 2. Send it as a "Test Alert" (Replay)
-                    // Note: We use the existing test-alert endpoint but with real data
+            // 1. Look for the table inside 'history-container'
+            const container = document.getElementById('history-container');
+            if (container) {
+                // Try to find the first row of data
+                const firstRow = container.querySelector('tbody tr') || container.querySelector('tr:nth-child(2)'); // Adjust based on table structure
+                
+                if (firstRow) {
+                    const cells = firstRow.getElementsByTagName('td');
+                    if (cells.length >= 2) {
+                        // Assuming Column 1 is Name, Column 2 is Amount, Column 3 is Message (if exists)
+                        lastTip = {
+                            tipper: cells[0].innerText.trim(),
+                            amount: cells[1].innerText.replace(/[^0-9.]/g, ''), // Extract only numbers
+                            message: cells[2] ? cells[2].innerText.trim() : "Replayed Tip"
+                        };
+                    }
+                }
+            }
+
+            // 2. If we found a tip on screen, send it!
+            if (lastTip) {
+                try {
+                    console.log("Replaying:", lastTip);
                     await fetch('https://app.xdfun.in/api/overlay/test-alert', {
                         method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': token 
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
                         body: JSON.stringify({
-                            tipper: lastTip.tipper || "Anonymous",
+                            tipper: lastTip.tipper,
                             amount: lastTip.amount,
                             message: lastTip.message
                         })
                     });
-                    
-                    alert(`Replaying tip from ${lastTip.tipper || "Anonymous"}!`);
-                } else {
-                    alert("No tip history found to replay.");
+                    alert(`Replaying tip from ${lastTip.tipper}!`);
+                } catch(err) {
+                    alert("Found tip on screen but failed to send to overlay.");
                 }
-            } catch (e) {
-                console.error("Replay Error:", e);
-                alert("Failed to replay tip. Check console.");
+            } else {
+                // 3. If screen is empty, fallback to a dummy replay or error
+                alert("History table is empty or loading. Cannot replay yet.");
             }
 
             btn.disabled = false;
             btn.innerText = originalText;
         }
 
-        // Run Dashboard Logic
         loadDashboard();
     </script>
     
@@ -330,3 +346,4 @@
 
 </body>
 </html>
+
