@@ -209,7 +209,7 @@
         async function loadDashboard() {
     try {
         // FIX: Removed "/api" to match your backend route
-        const res = await fetch('https://app.xdfun.in/me', {
+        const res = await fetch('https://app.xdfun.in/api/me', {
             headers: { 'Authorization': token }
         });
         
@@ -285,6 +285,7 @@
 
 </body>
 </html>
+
 
 
 
