@@ -11,10 +11,6 @@ if (window.location.pathname.endsWith('.html')) {
 // ----------------------------------------------------
 const API_URL = "https://app.xdfun.in"; 
 
-// 1. CONNECT SOCKET DIRECTLY TO THE OVERLAY SERVER
-// This allows us to bypass the API and send exact data
-const socket = io('https://app.xdfun.in'); 
-
 async function loadDashboard() {
     const token = localStorage.getItem('token');
     if (!token) return window.location.href = "/login/";
@@ -29,15 +25,16 @@ async function loadDashboard() {
             const user = data.user;
             
             // Fill Info
-            document.getElementById('user-name').innerText = user.username;
-            document.getElementById('balance').innerText = user.balance;
-            document.getElementById('role-badge').innerText = user.role.toUpperCase();
+            if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
+            if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
+            if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = user.role.toUpperCase();
 
+            // Image Fix
             const logoImg = document.getElementById('current-logo');
-            if (user.logo_url) logoImg.src = user.logo_url;
-            else logoImg.src = `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
+            if(logoImg) {
+                logoImg.src = user.logo_url ? user.logo_url : `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
+            }
 
-            // Creator Tools
             if (user.role === 'creator') {
                 document.getElementById('creator-section').style.display = 'block';
                 const withdrawBtn = document.getElementById('withdraw-btn');
@@ -47,12 +44,10 @@ async function loadDashboard() {
                     document.getElementById('theme-selector').value = user.overlay_theme || 'classic';
                 }
 
-                // Links
                 document.getElementById('overlay-url').value = `${API_URL}/overlay/${user.obs_token}`;
                 if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `${API_URL}/stats-overlay/${user.obs_token}`;
                 if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${user.username}`;
 
-                // Load Data
                 loadHistory(token);
                 loadWithdrawals(token);
             } else {
@@ -66,6 +61,7 @@ async function loadDashboard() {
     }
 }
 
+// History Loader
 async function loadHistory(token) {
     try {
         const res = await fetch(`${API_URL}/history`, {
@@ -141,7 +137,6 @@ async function uploadLogo() {
             document.getElementById('current-logo').src = data.url;
             alert("Logo Updated!");
         } else {
-            status.innerText = "Failed.";
             alert("Upload Failed: " + data.error);
         }
     } catch (err) { alert("Server Error"); }
@@ -182,7 +177,7 @@ async function loadWithdrawals(token) {
             let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>T_ID</th></tr></thead><tbody>';
             data.history.forEach(w => {
                 let color = w.status === 'paid' ? '#4caf50' : '#ff9800';
-                html += `<tr><td>${w.date}</td><td style="font-weight:bold;">${w.amount}</td><td style="color:${color}; font-weight:bold; text-transform:uppercase;">${w.status}</td><td style="font-weight:bold;">#${w.t_id}</td></tr>`;
+                html += `<tr><td>${w.date}</td><td style="font-weight:bold;">${w.amount}</td><td style="color:${color};">${w.status}</td><td>#${w.t_id}</td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -192,17 +187,13 @@ async function loadWithdrawals(token) {
     } catch (err) { console.error("Payout History Error", err); }
 }
 
-// ------------------------------------------------------------------
-// 🔥 1. STANDARD TEST ALERT (Uses API)
-// ------------------------------------------------------------------
+// --- SEND TEST ALERT ---
 async function sendTestAlert() {
     const btn = document.getElementById('test-btn');
     const token = localStorage.getItem('token');
     btn.innerText = "Sending..."; btn.disabled = true;
 
     try {
-        // NOTE: This API endpoint FORCES the message "This is a test alert"
-        // It ignores whatever body we send.
         const res = await fetch('https://xdtip-backend.onrender.com/test-alert', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
@@ -212,62 +203,60 @@ async function sendTestAlert() {
         else alert("Failed: " + data.error);
     } catch (err) { alert("Server Error"); }
     
-    setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000);
+    setTimeout(() => { btn.innerText = "🔥 Send Test Alert"; btn.disabled = false; }, 2000);
 }
 
-// ------------------------------------------------------------------
-// 🔄 2. REPLAY LATEST TIP (Uses Socket Direct to Bypass API Limits)
-// ------------------------------------------------------------------
-function replayLastTip() {
+// --- REPLAY LATEST TIP (UPDATED) ---
+async function replayLastTip() {
     const btn = document.getElementById('replay-btn');
+    const token = localStorage.getItem('token');
     btn.disabled = true; btn.innerText = "Scanning...";
 
     let lastTip = null;
 
-    // 1. READ THE TABLE (Screen Scraping)
     const container = document.getElementById('history-container');
     if (container) {
-        // Try to find the first data row
         const firstRow = container.querySelector('tbody tr');
         if (firstRow) {
             const cells = firstRow.getElementsByTagName('td');
             if (cells.length >= 3) {
-                // Column 0: Sender, Column 1: Message, Column 2: Amount
-                const rawSender = cells[0].innerText.trim();
-                const rawMessage = cells[1].innerText.replace(/["“”]/g, '').trim(); 
-                const rawAmount = cells[2].innerText.replace(/[^0-9]/g, '');
-
+                // Extract clean data
+                const rawAmount = cells[2].innerText.replace(/[^0-9]/g, ''); 
                 lastTip = {
-                    tipper: rawSender,
-                    amount: rawAmount || "0",
-                    message: rawMessage
+                    tipper: cells[0].innerText.trim(),
+                    amount: rawAmount || "0", 
+                    message: cells[1].innerText.replace(/["“”]/g, '').trim()
                 };
             }
         }
     }
 
-    // 2. SEND VIA SOCKET
     if (lastTip) {
-        // Get OBS Token from the input field
-        const urlInput = document.getElementById('overlay-url');
-        if (urlInput && urlInput.value.includes('/overlay/')) {
-            const obsToken = urlInput.value.split('/overlay/')[1];
+        try {
+            console.log("Sending Replay to Server:", lastTip);
             
-            // A. Join Room
-            socket.emit('join-overlay', obsToken);
+            // 🚨 THIS CALLS THE NEW BACKEND ENDPOINT
+            const res = await fetch('https://xdtip-backend.onrender.com/replay-alert', {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(lastTip)
+            });
             
-            // B. Send Alert (Bypassing Server API)
-            setTimeout(() => {
-                console.log("Replaying via Socket:", lastTip);
-                socket.emit('new-tip', lastTip);
-                alert(`Replaying tip from ${lastTip.tipper}!`);
-            }, 100);
-            
-        } else {
-            alert("Error: OBS Token not found. Please wait for dashboard to load.");
+            const data = await res.json();
+            if (data.success) {
+                alert(`Replaying: ${lastTip.tipper}`);
+            } else {
+                alert("Server rejected replay. Did you add the backend code?");
+            }
+        } catch(e) {
+            console.error(e);
+            alert("Failed to connect to server.");
         }
     } else {
-        alert("No recent tips found in the list.");
+        alert("No recent tips found in the table.");
     }
 
     setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000);
