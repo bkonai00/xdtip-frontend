@@ -30,16 +30,23 @@ async function loadDashboard() {
             // 2. ROLE BADGE LOGIC (Updated)
             const roleBadge = document.getElementById('role-badge');
             if(roleBadge) {
-                const role = user.role.toLowerCase(); // Convert to lowercase to be safe
+                const role = (user.role || "viewer").toLowerCase(); // Default to viewer if missing
+                
+                console.log("Detected Role:", role); // DEBUG: Check console to see what role is detected
+                
                 roleBadge.innerText = role.toUpperCase();
                 
-                // Reset class list
+                // Reset class list to base
                 roleBadge.className = 'badge'; 
                 
-                // Apply Color based on role
-                if(role === 'creator') roleBadge.classList.add('creator');
-                else if(role === 'admin') roleBadge.classList.add('admin');
-                else roleBadge.classList.add('viewer');
+                // Apply Color Class
+                if(role === 'creator') {
+                    roleBadge.classList.add('creator');
+                } else if(role === 'admin') {
+                    roleBadge.classList.add('admin');
+                } else {
+                    roleBadge.classList.add('viewer');
+                }
             }
 
             // 3. Logo
@@ -74,7 +81,6 @@ async function loadDashboard() {
         console.error("Dashboard Load Error:", err);
     }
 }
-
 // ----------------------------------------------------
 // 🔄 REPLAY LATEST TIP
 // ----------------------------------------------------
@@ -203,4 +209,5 @@ async function uploadLogo() { /* logo logic */ }
 async function submitWithdraw() { /* withdraw logic */ }
 
 loadDashboard();
+
 
