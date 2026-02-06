@@ -2,8 +2,7 @@
 // 🧹 URL CLEANER
 // ----------------------------------------------------
 if (window.location.pathname.endsWith('.html')) {
-    const cleanUrl = window.location.pathname.replace('.html', '');
-    window.history.replaceState(null, '', cleanUrl);
+    window.history.replaceState(null, '', window.location.pathname.replace('.html', ''));
 }
 
 // ----------------------------------------------------
@@ -16,9 +15,18 @@ async function loadDashboard() {
     if (!token) return window.location.href = "/login/";
 
     try {
-        const res = await fetch(`${API_URL}/api/me`, {
+        // ✅ FIXED: Removed '/api' prefix (Back to /me)
+        const res = await fetch(`${API_URL}/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        
+        // Safety check: if server returns 404 or HTML error
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            console.error("Server returned non-JSON response:", await res.text());
+            return;
+        }
+
         const data = await res.json();
 
         if (data.success) {
@@ -27,17 +35,19 @@ async function loadDashboard() {
             // 1. Fill Basic Info
             if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
             if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
-            if(document.getElementById('role-badge')) {
-                const badge = document.getElementById('role-badge');
-                badge.innerText = user.role.toUpperCase();
-                if(user.role === 'creator') badge.classList.add('creator');
+            
+            // 2. Role Badge Logic
+            const roleBadge = document.getElementById('role-badge');
+            if(roleBadge) {
+                roleBadge.innerText = user.role.toUpperCase();
+                if(user.role === 'creator') roleBadge.classList.add('creator');
             }
 
-            // 2. Logo
+            // 3. Logo
             const logoImg = document.getElementById('current-logo');
             if(logoImg) logoImg.src = user.logo_url || `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
 
-            // 3. Creator Tools
+            // 4. Creator Tools
             if (user.role === 'creator') {
                 document.getElementById('creator-section').style.display = 'block';
                 const withdrawBtn = document.getElementById('withdraw-btn');
@@ -61,12 +71,12 @@ async function loadDashboard() {
             logout();
         }
     } catch (err) {
-        console.error("Failed to load dashboard", err);
+        console.error("Dashboard Load Error:", err);
     }
 }
 
 // ----------------------------------------------------
-// 🔄 REPLAY LATEST TIP (Calls the new Backend Endpoint)
+// 🔄 REPLAY LATEST TIP
 // ----------------------------------------------------
 async function replayLastTip() {
     const btn = document.getElementById('replay-btn');
@@ -76,20 +86,16 @@ async function replayLastTip() {
 
     let lastTip = null;
 
-    // 1. Read the table on the screen
+    // 1. Read Table
     const container = document.getElementById('history-container');
     if (container) {
-        // Try to find the first data row
         const firstRow = container.querySelector('tbody tr');
         if (firstRow) {
             const cells = firstRow.getElementsByTagName('td');
             if (cells.length >= 3) {
-                // Scrape the data
                 lastTip = {
                     tipper: cells[0].innerText.trim(),
-                    // Remove currency symbols and non-numbers
                     amount: cells[2].innerText.replace(/[^0-9.]/g, ''), 
-                    // Remove quotes from message
                     message: cells[1].innerText.replace(/["“”]/g, '').trim()
                 };
             }
@@ -99,9 +105,7 @@ async function replayLastTip() {
     // 2. Send to Backend
     if (lastTip) {
         try {
-            console.log("Sending Replay:", lastTip);
-            
-            // This calls the NEW endpoint we added in Step 1
+            console.log("Replaying:", lastTip);
             const res = await fetch(`${API_URL}/replay-alert`, {
                 method: 'POST',
                 headers: { 
@@ -115,14 +119,14 @@ async function replayLastTip() {
             if (data.success) {
                 alert(`Replaying tip from ${lastTip.tipper}!`);
             } else {
-                alert("Server rejected replay. Did you add the backend code?");
+                alert("Server Error. Check console.");
             }
         } catch(e) {
             console.error(e);
             alert("Connection Failed");
         }
     } else {
-        alert("No recent tips found in the table.");
+        alert("No recent tips found.");
     }
 
     if(btn) { setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000); }
@@ -141,7 +145,7 @@ async function sendTestAlert() {
         const res = await fetch(`${API_URL}/test-alert`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({}) // Sends empty body so server uses default
+            body: JSON.stringify({}) 
         });
         const data = await res.json();
         if (data.success && btn) btn.innerText = "✅ Sent!";
@@ -154,13 +158,14 @@ async function sendTestAlert() {
 // Helpers
 async function loadHistory(token) {
     try {
-        const res = await fetch(`${API_URL}/api/tips/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+        // ✅ FIXED: Removed '/api/tips' -> Back to '/history'
+        const res = await fetch(`${API_URL}/history`, { headers: { 'Authorization': `Bearer ${token}` } });
         const data = await res.json();
         const container = document.getElementById('history-container');
-        if (data && data.length > 0) {
+        if (data.success && data.history.length > 0) {
             let html = '<table class="history-table"><thead><tr><th>SENDER</th><th>MESSAGE</th><th>AMOUNT</th><th>DATE</th></tr></thead><tbody>';
-            data.forEach(tip => {
-                html += `<tr><td style="font-weight:bold;">${tip.tipper}</td><td style="color:#aaa;">"${tip.message}"</td><td class="history-amount">+${tip.amount}</td><td>${tip.date}</td></tr>`;
+            data.history.forEach(tip => {
+                html += `<tr><td style="font-weight:bold;">${tip.sender}</td><td style="color:#aaa;">"${tip.message}"</td><td class="history-amount">+${tip.amount}</td><td>${tip.date}</td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -172,14 +177,15 @@ async function loadHistory(token) {
 
 async function loadWithdrawals(token) {
     try {
-        const res = await fetch(`${API_URL}/api/withdrawals`, { headers: { 'Authorization': `Bearer ${token}` } });
+        // ✅ FIXED: Removed '/api' -> Back to '/withdrawals'
+        const res = await fetch(`${API_URL}/withdrawals`, { headers: { 'Authorization': `Bearer ${token}` } });
         const data = await res.json();
         const container = document.getElementById('payout-container');
-        if (data && data.length > 0) {
+        if (data.success && data.history.length > 0) {
             let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>ID</th></tr></thead><tbody>';
-            data.forEach(w => {
+            data.history.forEach(w => {
                 let color = w.status === 'paid' ? '#4caf50' : '#ff9800';
-                html += `<tr><td>${w.date}</td><td style="font-weight:bold;">${w.amount}</td><td style="color:${color};">${w.status}</td><td>#${w.id}</td></tr>`;
+                html += `<tr><td>${w.date}</td><td style="font-weight:bold;">${w.amount}</td><td style="color:${color};">${w.status}</td><td>#${w.t_id}</td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
