@@ -10,11 +10,10 @@
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
     
-    <script src="https://app.xdfun.in/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
     <style>
         #creator-section, #viewer-section, #withdraw-btn { display: none; }
         .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -27,16 +26,16 @@
 
     <nav>
         <a href="https://tip.xdfun.in/" style="text-decoration:none; color:inherit;">
-            <div class="logo">
-                <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
-            </div>
+                <div class="logo">
+                    <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
+                </div>
         </a>
         <div class="nav-links"></div>
     </nav>
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
         <p style="color: #888; letter-spacing: 1px; font-size: 12px; margin-bottom: 10px;">WELCOME BACK</p>
-        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="font-size:12px; margin-left:10px;">...</span></h1>
+        <h1 style="font-size: 42px; margin: 0;"><span id="user-name">Loading...</span> <span id="role-badge" class="badge" style="position:static; vertical-align:middle; font-size:12px; margin-left:10px;">...</span></h1>
     </div>
 
     <div style="max-width: 900px; margin: -40px auto 0 auto; padding: 0 20px;">
@@ -55,72 +54,99 @@
         <div id="creator-section" style="margin-top: 60px;">
             <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
                 <div style="position: relative;">
-                    <img id="current-logo" src="https://ui-avatars.com/api/?name=User" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
+                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
                 </div>            
                 <div style="flex: 1;">
                     <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
                     <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Upload a square image (PNG/JPG).</p>
+                    
                     <input type="file" id="logo-file" accept="image/*" style="display: none;" onchange="uploadLogo()">
-                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">📸 Upload New Logo</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">
+                        📸 Upload New Logo
+                    </button>
                     <span id="upload-status" style="font-size: 12px; margin-left: 10px; color: #888;"></span>
                 </div>
             </div>
 
             <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
-                <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">STREAMER TOOLS</h3>
+                <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
+                    STREAMER TOOLS
+                </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
-                    
+
                     <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
                         <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box Settings</h4>
 
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="color: #666; font-size: 11px; font-weight: 600;">DESIGN STYLE</label>
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">DESIGN STYLE</label>
                             <div style="display: flex; gap: 10px;">
-                                <select id="theme-selector" style="flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px;">
-                                    <option value="classic">Classic</option>
-                                    <option value="neon">Neon</option>
-                                    <option value="minimal">Minimal</option>
+                                <select id="theme-selector" style="flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; outline: none; font-size: 13px;">
+                                    <option value="classic">Classic (Standard)</option>
+                                    <option value="neon">Neon (Cyberpunk)</option>
+                                    <option value="minimal">Minimal (Clean)</option>
                                 </select>
-                                <button class="btn" onclick="saveTheme()" style="padding: 0 16px; background: #333; color: white; border: 1px solid #444; border-radius: 6px;">Save</button>
+                                <button class="btn" onclick="saveTheme()" style="padding: 0 16px; background: #333; color: white; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-size: 13px;">Save</button>
                             </div>
                         </div>
 
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #666; font-size: 13px; margin: 0;">OBS Browser Source URL</p>
+                            <p style="color: #666; font-size: 13px; margin: 0;">Add this as a "Browser Source" in OBS.</p>
                             <div style="display: flex; gap: 8px;">
-                                <input type="text" id="overlay-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333;">Copy</button>
+                                <input type="text" id="overlay-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <button class="btn btn-secondary" onclick="copyToClipboard('overlay-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
                         </div>
 
                         <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                             <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
                             <div style="display: flex; gap: 10px;">
-                                <button onclick="manualTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔥 Test Alert</button>
-                                <button onclick="manualReplayTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔄 Latest Tip</button>
+                                <button onclick="sendTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                                    🔥 Test Alert
+                                </button>
+                                <button onclick="replayLastTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                                    🔄 Latest Tip
+                                </button>
                             </div>
-                            <p id="socket-status" style="font-size: 10px; color: #666; margin:0;">Socket Status: Connecting...</p>
                         </div>
                     </div>
 
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222;">
-                        <h4 style="margin: 0; font-size: 16px;">🔗 Important Links</h4>
-                        <div style="margin-top: 20px;">
-                            <label style="color: #666; font-size: 11px; font-weight: bold;">STATS WIDGET</label>
-                            <div style="display: flex; gap: 8px; margin-top: 5px;">
-                                <input type="text" id="stats-link" readonly value="Loading..." style="flex:1; padding:10px; background:#1a1a1a; border:1px solid #333; color:#888; border-radius:6px;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')">Copy</button>
-                            </div>
+                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
+                        <h4 style="margin: 0; font-size: 16px;">📊 Stats / Leaderboard</h4>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
+                                Shows <b>Top Tipper</b> and <b>Recent Tips</b> permanently on screen.
+                            </p>
+                            <p style="color: #555; font-size: 12px; margin: 0;">*Auto-matches your selected Theme.</p>
                         </div>
-                        <div style="margin-top: 20px;">
-                            <label style="color: #666; font-size: 11px; font-weight: bold;">TIP PAGE</label>
-                            <div style="display: flex; gap: 8px; margin-top: 5px;">
-                                <input type="text" id="tip-page-url" readonly value="Loading..." style="flex:1; padding:10px; background:#1a1a1a; border:1px solid #333; color:#888; border-radius:6px;">
-                                <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')">Copy</button>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">WIDGET LINK (OBS)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <button class="btn btn-secondary" onclick="copyToClipboard('stats-link')" style="padding: 0 16px; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
                         </div>
                     </div>
+
+                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
+                        <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="tip-page-url" readonly value="https://tips.gg/u/username" style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
+                            </div>
+                        </div>
+                        <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
+                             <button style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                                SHARE THIS WITH YOUR VIEWERS
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -134,119 +160,39 @@
                 <p style="color: #666; font-style: italic;">Loading history...</p>
             </div>
         </div>
-        <div id="viewer-section" style="margin-top: 60px; text-align: center;"><p style="color: #888;">Viewer Dashboard</p></div>
+
+        <div id="viewer-section" style="margin-top: 60px; text-align: center;">
+            <h3 style="color: #fff;">Ready to support?</h3>
+            <p style="color: #888;">Find a creator and send your first tip.</p>
+            <a href="/tip" class="btn" style="display: inline-block; margin-top: 10px;">Send a Tip</a>
+        </div>
+
     </div>
 
     <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
             <h2 style="margin-top:0;">Withdraw Funds</h2>
+            <p style="color:#888; font-size:14px;">Min: 100 Tokens</p>
+            
             <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px;">
-            <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px;">
+            <input type="text" id="w-upi" placeholder="UPI ID (e.g. name@okhdfc)" style="margin-bottom:20px;">
+            
             <button class="btn" onclick="submitWithdraw()">Request Payout</button>
             <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Cancel</button>
         </div>
     </div>
 
-    <script>
-        // 1. CONNECT TO THE OVERLAY SERVER (With Websocket forced)
-        // Note: We removed the variable name 'API_URL' to avoid conflicts
-        var socket = io('https://app.xdfun.in', {
-            transports: ['websocket', 'polling'] 
-        });
+    <footer>
+        <p>&copy; 2024 xdtip. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/refund-policy">Refund Policy</a>
+            <a href="/contact">Contact Us</a>
+        </div>
+    </footer>
 
-        // Debug Socket Connection
-        socket.on('connect', () => {
-            console.log("✅ Socket Connected! ID:", socket.id);
-            document.getElementById('socket-status').innerText = "Socket Status: Connected ✅";
-            document.getElementById('socket-status').style.color = "#00ff88";
-        });
-
-        socket.on('disconnect', () => {
-            console.log("❌ Socket Disconnected");
-            document.getElementById('socket-status').innerText = "Socket Status: Disconnected ❌";
-            document.getElementById('socket-status').style.color = "red";
-        });
-
-        function getObsToken() {
-            const urlInput = document.getElementById('overlay-url');
-            if (urlInput && urlInput.value.includes('/overlay/')) {
-                return urlInput.value.split('/overlay/')[1];
-            }
-            return null;
-        }
-
-        // --- BUTTON 1: MANUAL TEST (Uses Socket) ---
-        function manualTestAlert() {
-            const btn = document.getElementById('test-btn');
-            btn.disabled = true; btn.innerText = "Sending...";
-            
-            const tokenToUse = getObsToken();
-            
-            if (tokenToUse) {
-                // IMPORTANT: Re-join the room every time we send
-                socket.emit('join-overlay', tokenToUse);
-                
-                setTimeout(() => {
-                    socket.emit('new-tip', {
-                        tipper: "Test User",
-                        amount: 500,
-                        message: "This is a test alert! 🚨"
-                    });
-                    console.log("Sent Test Alert to Room:", tokenToUse);
-                }, 100);
-            } else {
-                alert("Wait for dashboard to load...");
-            }
-            setTimeout(() => { btn.disabled = false; btn.innerText = "🔥 Test Alert"; }, 1000);
-        }
-
-        // --- BUTTON 2: REPLAY LATEST (Uses Socket) ---
-        function manualReplayTip() {
-            const btn = document.getElementById('replay-btn');
-            btn.disabled = true; btn.innerText = "Scanning...";
-
-            let lastTip = null;
-            const container = document.getElementById('history-container');
-            if (container) {
-                const firstRow = container.querySelector('tbody tr') || container.querySelector('tr:nth-child(2)');
-                if (firstRow) {
-                    const cells = firstRow.getElementsByTagName('td');
-                    if (cells.length >= 3) {
-                        const rawAmount = cells[2].innerText.replace(/[^0-9]/g, ''); 
-                        lastTip = {
-                            tipper: cells[0].innerText.trim(),
-                            amount: rawAmount || "0", 
-                            message: cells[1].innerText.replace(/["“”]/g, '').trim()
-                        };
-                    }
-                }
-            }
-
-            if (lastTip) {
-                const tokenToUse = getObsToken();
-                if (tokenToUse) {
-                    // IMPORTANT: Re-join the room
-                    socket.emit('join-overlay', tokenToUse);
-
-                    setTimeout(() => {
-                        console.log("Sending Replay Data:", lastTip);
-                        socket.emit('new-tip', lastTip);
-                        alert(`Replaying: ${lastTip.tipper}`);
-                    }, 200);
-                } else {
-                    alert("Error: Overlay Link not loaded yet.");
-                }
-            } else {
-                alert("No recent tips found in the table.");
-            }
-            setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000);
-        }
-
-        function copyToClipboard(id) {
-            var c = document.getElementById(id); c.select(); document.execCommand("copy"); alert("Copied!");
-        }
-    </script>
-    
     <script src="/js/dashboard.js"></script>
+
 </body>
 </html>
