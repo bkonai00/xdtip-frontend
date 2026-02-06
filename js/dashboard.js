@@ -2,7 +2,8 @@
 // 🧹 URL CLEANER
 // ----------------------------------------------------
 if (window.location.pathname.endsWith('.html')) {
-    window.history.replaceState(null, '', window.location.pathname.replace('.html', ''));
+    const cleanUrl = window.location.pathname.replace('.html', '');
+    window.history.replaceState(null, '', cleanUrl);
 }
 
 // ----------------------------------------------------
@@ -24,21 +25,19 @@ async function loadDashboard() {
             const user = data.user;
             
             // 1. Fill Basic Info
-            document.getElementById('user-name').innerText = user.username;
-            document.getElementById('balance').innerText = user.balance;
-            
-            // 2. Role Badge Logic (Colors)
-            const roleBadge = document.getElementById('role-badge');
-            if(roleBadge) {
-                roleBadge.innerText = user.role.toUpperCase();
-                if(user.role === 'creator') roleBadge.classList.add('creator');
+            if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
+            if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
+            if(document.getElementById('role-badge')) {
+                const badge = document.getElementById('role-badge');
+                badge.innerText = user.role.toUpperCase();
+                if(user.role === 'creator') badge.classList.add('creator');
             }
 
-            // 3. Logo
+            // 2. Logo
             const logoImg = document.getElementById('current-logo');
             if(logoImg) logoImg.src = user.logo_url || `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
 
-            // 4. Creator Tools
+            // 3. Creator Tools
             if (user.role === 'creator') {
                 document.getElementById('creator-section').style.display = 'block';
                 const withdrawBtn = document.getElementById('withdraw-btn');
@@ -48,6 +47,7 @@ async function loadDashboard() {
                     document.getElementById('theme-selector').value = user.overlay_theme || 'classic';
                 }
 
+                // Links
                 document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${user.obs_token}`;
                 if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${user.obs_token}`;
                 if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${user.username}`;
@@ -61,12 +61,12 @@ async function loadDashboard() {
             logout();
         }
     } catch (err) {
-        console.error("Dashboard Load Error", err);
+        console.error("Failed to load dashboard", err);
     }
 }
 
 // ----------------------------------------------------
-// 🔄 REPLAY LATEST TIP (UPDATED)
+// 🔄 REPLAY LATEST TIP (Calls the new Backend Endpoint)
 // ----------------------------------------------------
 async function replayLastTip() {
     const btn = document.getElementById('replay-btn');
@@ -76,33 +76,38 @@ async function replayLastTip() {
 
     let lastTip = null;
 
-    // 1. Read the table
+    // 1. Read the table on the screen
     const container = document.getElementById('history-container');
     if (container) {
+        // Try to find the first data row
         const firstRow = container.querySelector('tbody tr');
         if (firstRow) {
             const cells = firstRow.getElementsByTagName('td');
             if (cells.length >= 3) {
+                // Scrape the data
                 lastTip = {
                     tipper: cells[0].innerText.trim(),
-                    amount: cells[2].innerText.replace(/[^0-9.]/g, ''), // Numbers only
+                    // Remove currency symbols and non-numbers
+                    amount: cells[2].innerText.replace(/[^0-9.]/g, ''), 
+                    // Remove quotes from message
                     message: cells[1].innerText.replace(/["“”]/g, '').trim()
                 };
             }
         }
     }
 
-    // 2. Send to Server (Backend will forward to Overlay)
+    // 2. Send to Backend
     if (lastTip) {
         try {
-            console.log("Replaying:", lastTip);
-            const res = await fetch(`${API_URL}/test-alert`, {
+            console.log("Sending Replay:", lastTip);
+            
+            // This calls the NEW endpoint we added in Step 1
+            const res = await fetch(`${API_URL}/replay-alert`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`, 
                     'Content-Type': 'application/json' 
                 },
-                // We send the REAL data now!
                 body: JSON.stringify(lastTip)
             });
             
@@ -110,14 +115,14 @@ async function replayLastTip() {
             if (data.success) {
                 alert(`Replaying tip from ${lastTip.tipper}!`);
             } else {
-                alert("Server rejected request.");
+                alert("Server rejected replay. Did you add the backend code?");
             }
         } catch(e) {
             console.error(e);
-            alert("Connection Error.");
+            alert("Connection Failed");
         }
     } else {
-        alert("No recent tips found.");
+        alert("No recent tips found in the table.");
     }
 
     if(btn) { setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000); }
@@ -129,17 +134,18 @@ async function replayLastTip() {
 async function sendTestAlert() {
     const btn = document.getElementById('test-btn');
     const token = localStorage.getItem('token');
+    
     if(btn) { btn.innerText = "Sending..."; btn.disabled = true; }
 
     try {
-        // Send EMPTY body so server uses default "Test Bot"
         const res = await fetch(`${API_URL}/test-alert`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({}) 
+            body: JSON.stringify({}) // Sends empty body so server uses default
         });
         const data = await res.json();
         if (data.success && btn) btn.innerText = "✅ Sent!";
+        else alert("Failed: " + data.error);
     } catch (err) { alert("Server Error"); }
     
     if(btn) { setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000); }
@@ -186,8 +192,8 @@ function copyToClipboard(elementId) {
     copyText.select(); navigator.clipboard.writeText(copyText.value); alert("Copied!");
 }
 function logout() { localStorage.removeItem('token'); window.location.href = "/login/"; }
-async function saveTheme() { /* Your saveTheme logic */ }
-async function uploadLogo() { /* Your uploadLogo logic */ }
-async function submitWithdraw() { /* Your submitWithdraw logic */ }
+async function saveTheme() { /* theme logic */ }
+async function uploadLogo() { /* logo logic */ }
+async function submitWithdraw() { /* withdraw logic */ }
 
 loadDashboard();
