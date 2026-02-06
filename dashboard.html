@@ -156,91 +156,82 @@
     </div>
 
     <script>
+        // --- CONFIG ---
+        // I found this URL in your previous code logs - this is likely the correct backend!
+        const BACKEND_URL = "https://xdtip-backend.onrender.com"; 
+
         // 2. CONNECT SOCKET
-        var socket = io('https://app.xdfun.in'); 
+        var socket = io(BACKEND_URL); 
 
-        // Helper to grab token
-        function getObsTokenFromInput() {
-            const urlInput = document.getElementById('overlay-url');
-            if (urlInput && urlInput.value.includes('/overlay/')) {
-                return urlInput.value.split('/overlay/')[1];
-            }
-            return null;
-        }
-
-        // --- DIRECT ALERT FUNCTION ---
-        function sendDirectAlert(data) {
-            const tokenToUse = getObsTokenFromInput();
-
-            if(!tokenToUse || tokenToUse === "Loading...") {
-                return alert("Error: OBS Link not loaded. Please wait.");
-            }
-            
-            // Join Room
-            socket.emit('join-overlay', tokenToUse);
-            
-            // Send Alert
-            setTimeout(() => {
-                console.log("Emitting via Socket:", data);
-                socket.emit('new-tip', data); 
-            }, 100);
-        }
-
-        // --- BUTTON 1: MANUAL TEST (Fixed to use Socket) ---
-        function manualTestAlert() {
+        // --- BUTTON 1: MANUAL TEST (Uses API) ---
+        async function manualTestAlert() {
             const btn = document.getElementById('test-btn');
+            const token = localStorage.getItem('token');
             btn.disabled = true; btn.innerText = "Sending...";
             
-            // DIRECTLY SEND TO SOCKET - DO NOT USE API
-            sendDirectAlert({
-                tipper: "Test User",
-                amount: 500,
-                message: "This is a test alert! 🚨"
-            });
+            try {
+                // We use the Render backend URL here
+                await fetch(`${BACKEND_URL}/test-alert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        tipper: "Test User",
+                        amount: 500,
+                        message: "Test Alert 🚨"
+                    })
+                });
+                alert("Test Alert Sent!");
+            } catch(e) {
+                console.error(e);
+                alert("Failed. Check console.");
+            }
 
-            alert("Test Alert Sent!");
             setTimeout(() => { btn.disabled = false; btn.innerText = "🔥 Test Alert"; }, 1000);
         }
 
-        // --- BUTTON 2: REPLAY LATEST (Fixed to use Socket) ---
-        function manualReplayTip() {
+        // --- BUTTON 2: REPLAY LATEST (Uses API) ---
+        async function manualReplayTip() {
             const btn = document.getElementById('replay-btn');
+            const token = localStorage.getItem('token');
             btn.disabled = true; btn.innerText = "Scanning...";
 
             let lastTip = null;
 
-            // 1. READ THE TABLE ON THE SCREEN
+            // 1. READ THE TABLE
             const container = document.getElementById('history-container');
             if (container) {
-                // Find ANY table row
                 const firstRow = container.querySelector('tbody tr') || container.querySelector('tr:nth-child(2)');
-                
                 if (firstRow) {
                     const cells = firstRow.getElementsByTagName('td');
                     if (cells.length >= 3) {
-                        // Extract Text
-                        const name = cells[0].innerText.trim();
-                        const msg = cells[1].innerText.replace(/["“”]/g, '').trim(); 
                         const amtRaw = cells[2].innerText; 
-                        
-                        // FIX: Clean the amount
                         const cleanAmount = amtRaw.replace(/[^0-9]/g, '') || "0"; 
 
                         lastTip = {
-                            tipper: name,
+                            tipper: cells[0].innerText.trim(),
                             amount: cleanAmount, 
-                            message: msg
+                            message: cells[1].innerText.replace(/["“”]/g, '').trim()
                         };
                     }
                 }
             }
 
-            // 2. SEND IT
+            // 2. SEND VIA API
             if (lastTip) {
-                sendDirectAlert(lastTip); 
-                alert(`Replaying: ${lastTip.tipper} sent ${lastTip.amount}`);
+                try {
+                    console.log("Replaying:", lastTip);
+                    // Use the same test-alert endpoint to "fake" a new tip using old data
+                    await fetch(`${BACKEND_URL}/test-alert`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(lastTip)
+                    });
+                    alert(`Replaying: ${lastTip.tipper}`);
+                } catch(e) {
+                    alert("Failed to send replay request.");
+                }
             } else {
-                alert("No recent tips found in the table.");
+                alert("No recent tips found.");
             }
 
             setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000);
