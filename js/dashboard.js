@@ -266,7 +266,130 @@ async function submitWithdraw() {
         alert("Something went wrong. Please check your connection.");
     }
 }
+async function uploadLogo() {
+    const fileInput = document.getElementById('logo-file');
+    const statusSpan = document.getElementById('upload-status');
+    const logoImg = document.getElementById('current-logo');
+    
+    // 1. Check if file is selected
+    if (fileInput.files.length === 0) return;
+    const file = fileInput.files[0];
+
+    // 2. Prepare visual feedback
+    if (statusSpan) statusSpan.innerText = "Uploading...";
+    if (statusSpan) statusSpan.style.color = "#888";
+
+    // 3. Prepare the data (Must use FormData for files)
+    const formData = new FormData();
+    formData.append('logo', file); // The key 'logo' MUST match upload.single('logo') in your backend
+
+    // 4. Get Auth Token
+    const token = localStorage.getItem('token'); 
+
+    try {
+        const response = await fetch('/upload-logo', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+                // IMPORTANT: Do NOT set 'Content-Type': 'multipart/form-data' here.
+                // The browser sets it automatically with the correct boundary when using FormData.
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Success!
+            if (statusSpan) {
+                statusSpan.innerText = "Success!";
+                statusSpan.style.color = "#00ff88";
+            }
+            // Update the image immediately without refreshing
+            logoImg.src = result.url;
+        } else {
+            // Error from server
+            if (statusSpan) statusSpan.innerText = "Failed";
+            alert("Upload Error: " + (result.error || "Unknown error"));
+        }
+
+    } catch (error) {
+        console.error("Upload error:", error);
+        if (statusSpan) statusSpan.innerText = "Error";
+        alert("Network error. Please try again.");
+    }
+}
+
+async function loadPayoutHistory() {
+    const container = document.getElementById('payout-container');
+    const token = localStorage.getItem('token'); // Get auth token
+
+    try {
+        const response = await fetch('/withdrawals', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            if (data.history.length === 0) {
+                container.innerHTML = '<p style="color:#666; font-style:italic; padding:20px 0;">No payout history yet.</p>';
+                return;
+            }
+
+            // Build the Table HTML
+            let html = `
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>ID</th>
+                            <th>AMOUNT</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.history.forEach(tx => {
+                // Determine color based on status
+                let statusColor = '#888'; // Default Grey
+                if (tx.status === 'pending') statusColor = '#ffaa00'; // Orange
+                if (tx.status === 'completed' || tx.status === 'paid') statusColor = '#00ff88'; // Green
+                if (tx.status === 'rejected') statusColor = '#ff3355'; // Red
+
+                html += `
+                    <tr>
+                        <td style="color:#aaa;">${tx.date}</td>
+                        <td style="color:#666; font-size:12px; font-family:monospace;">#${tx.t_id}</td>
+                        <td class="history-amount">${tx.amount} Tokens</td>
+                        <td>
+                            <span style="color:${statusColor}; border:1px solid ${statusColor}; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; text-transform:uppercase;">
+                                ${tx.status}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<p style="color:#ff3355;">Failed to load history.</p>';
+        }
+
+    } catch (error) {
+        console.error("Payout History Error:", error);
+        container.innerHTML = '<p style="color:#666;">Error loading data.</p>';
+    }
+}
+
 loadDashboard();
+
 
 
 
