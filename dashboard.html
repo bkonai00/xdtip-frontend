@@ -55,8 +55,7 @@
         <div id="creator-section" style="margin-top: 60px;">
             <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
                 <div style="position: relative;">
-                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
-                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                    <img id="current-logo" src="https://ui-avatars.com/api/?name=XD&background=random" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
                 </div>            
                 <div style="flex: 1;">
                     <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
@@ -206,7 +205,7 @@
 
         async function loadDashboard() {
             try {
-                const res = await fetch('https://app.xdfun.in/api/me', {
+                const res = await fetch('https://app.xdfun.in/me', {
                     headers: { 'Authorization': token }
                 });
                 
@@ -284,6 +283,7 @@
 
 </body>
 </html>
+
 
 
 
