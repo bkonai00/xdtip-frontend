@@ -156,29 +156,33 @@
     </div>
 
     <script>
-        // --- CONFIG ---
-        // I found this URL in your previous code logs - this is likely the correct backend!
-        const BACKEND_URL = "https://xdtip-backend.onrender.com"; 
+        // 1. CONNECT TO THE OVERLAY SERVER DIRECTLY
+        // The overlay lives on app.xdfun.in, so the socket is there too.
+        var socket = io('https://app.xdfun.in'); 
 
-        // 2. CONNECT SOCKET
-        var socket = io(BACKEND_URL); 
+        // Helper to grab the OBS Token from the text box
+        function getObsToken() {
+            const urlInput = document.getElementById('overlay-url');
+            if (urlInput && urlInput.value.includes('/overlay/')) {
+                return urlInput.value.split('/overlay/')[1];
+            }
+            return null;
+        }
 
-        // --- BUTTON 1: MANUAL TEST (Uses API) ---
+        // --- BUTTON 1: MANUAL TEST (Keep using API for this) ---
         async function manualTestAlert() {
             const btn = document.getElementById('test-btn');
             const token = localStorage.getItem('token');
+            const BACKEND_URL = "https://xdtip-backend.onrender.com"; // Your API Backend
+
             btn.disabled = true; btn.innerText = "Sending...";
             
             try {
-                // We use the Render backend URL here
+                // We use the API here because it guarantees a "Test Alert" sound
                 await fetch(`${BACKEND_URL}/test-alert`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({
-                        tipper: "Test User",
-                        amount: 500,
-                        message: "Test Alert 🚨"
-                    })
+                    body: JSON.stringify({}) // Body is ignored by server anyway
                 });
                 alert("Test Alert Sent!");
             } catch(e) {
@@ -189,49 +193,54 @@
             setTimeout(() => { btn.disabled = false; btn.innerText = "🔥 Test Alert"; }, 1000);
         }
 
-        // --- BUTTON 2: REPLAY LATEST (Uses API) ---
+        // --- BUTTON 2: REPLAY LATEST (FIXED: Uses Socket Direct) ---
         async function manualReplayTip() {
             const btn = document.getElementById('replay-btn');
-            const token = localStorage.getItem('token');
             btn.disabled = true; btn.innerText = "Scanning...";
 
             let lastTip = null;
 
-            // 1. READ THE TABLE
+            // 1. READ THE TABLE ON THE SCREEN
             const container = document.getElementById('history-container');
             if (container) {
                 const firstRow = container.querySelector('tbody tr') || container.querySelector('tr:nth-child(2)');
                 if (firstRow) {
                     const cells = firstRow.getElementsByTagName('td');
                     if (cells.length >= 3) {
-                        const amtRaw = cells[2].innerText; 
-                        const cleanAmount = amtRaw.replace(/[^0-9]/g, '') || "0"; 
-
+                        // Extract Data
+                        const rawAmount = cells[2].innerText.replace(/[^0-9]/g, ''); // Numbers only
+                        
                         lastTip = {
                             tipper: cells[0].innerText.trim(),
-                            amount: cleanAmount, 
+                            amount: rawAmount || "0", 
                             message: cells[1].innerText.replace(/["“”]/g, '').trim()
                         };
                     }
                 }
             }
 
-            // 2. SEND VIA API
+            // 2. SEND VIA SOCKET (Bypasses the Server's "Fake Message" logic)
             if (lastTip) {
-                try {
-                    console.log("Replaying:", lastTip);
-                    // Use the same test-alert endpoint to "fake" a new tip using old data
-                    await fetch(`${BACKEND_URL}/test-alert`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify(lastTip)
-                    });
-                    alert(`Replaying: ${lastTip.tipper}`);
-                } catch(e) {
-                    alert("Failed to send replay request.");
+                const tokenToUse = getObsToken();
+                
+                if (tokenToUse) {
+                    console.log("Connecting to room:", tokenToUse);
+                    console.log("Sending Data:", lastTip);
+
+                    // A. Join the specific Overlay Room
+                    socket.emit('join-overlay', tokenToUse);
+
+                    // B. Wait 100ms for connection, then Send
+                    setTimeout(() => {
+                        socket.emit('new-tip', lastTip);
+                        alert(`Replaying: ${lastTip.tipper} (₹${lastTip.amount})`);
+                    }, 200);
+                    
+                } else {
+                    alert("Error: Overlay Link not loaded yet. Please wait.");
                 }
             } else {
-                alert("No recent tips found.");
+                alert("No recent tips found in the table.");
             }
 
             setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000);
@@ -243,5 +252,8 @@
     </script>
     
     <script src="/js/dashboard.js"></script>
+    
+    <script src="/js/dashboard.js"></script>
 </body>
 </html>
+
