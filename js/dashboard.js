@@ -206,9 +206,68 @@ function copyToClipboard(elementId) {
 function logout() { localStorage.removeItem('token'); window.location.href = "/login/"; }
 async function saveTheme() { /* theme logic */ }
 async function uploadLogo() { /* logo logic */ }
-async function submitWithdraw() { /* withdraw logic */ }
+// Function to handle the Payout Request
+async function submitWithdraw() {
+    // 1. Get values from HTML inputs
+    const amountInput = document.getElementById('w-amount');
+    const upiInput = document.getElementById('w-upi');
+    
+    // Convert amount to number immediately
+    const amount = parseFloat(amountInput.value);
+    const upiValue = upiInput.value.trim();
+    
+    // 2. Validate inputs
+    if (!amount || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+    if (!upiValue) {
+        alert("Please enter a valid UPI ID.");
+        return;
+    }
 
+    // 3. Get the Token (Assuming you store it in localStorage after login)
+    // If you use cookies, you might not need this line.
+    const token = localStorage.getItem('token'); 
+
+    try {
+        // 4. Send request to your specific backend route
+        const response = await fetch('/withdraw', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // specific header for 'authenticateToken' middleware
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ 
+                amount: amount, 
+                upiId: upiValue  // <--- CRITICAL FIX: Backend expects 'upiId', not 'upi'
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Success: " + data.message);
+            document.getElementById('withdraw-modal').style.display = 'none';
+            
+            // Clear inputs
+            amountInput.value = '';
+            upiInput.value = '';
+
+            // Optional: Reload to update balance displayed on screen
+            window.location.reload();
+        } else {
+            alert("Error: " + (data.error || "Withdrawal failed"));
+        }
+
+    } catch (error) {
+        console.error("Withdrawal Request Error:", error);
+        alert("Something went wrong. Please check your connection.");
+    }
+}
 loadDashboard();
+
 
 
 
