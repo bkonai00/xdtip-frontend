@@ -287,54 +287,9 @@ async function sendTestAlert() {
         btn.disabled = false;
     }
 }
-// ----------------------------------------------------
-// ↺ REPLAY FUNCTION
-// ----------------------------------------------------
-async function replayRecentTip() {
-    const btn = document.getElementById('replay-btn');
-    const token = localStorage.getItem('token');
 
-    if (!token) return alert("Please login first");
-
-    // UI: Show loading
-    const originalText = btn.innerText;
-    btn.innerText = "Processing...";
-    btn.disabled = true;
-
-    try {
-        // Call the new backend endpoint
-        const res = await fetch(`${API_URL}/replay-alert`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-            btn.innerText = "✅ Sent to OBS";
-            setTimeout(() => { 
-                btn.innerText = originalText; 
-                btn.disabled = false; 
-            }, 2000);
-        } else {
-            alert(data.message || "Failed to replay.");
-            btn.innerText = "❌ Failed";
-            btn.disabled = false;
-        }
-    } catch (err) {
-        console.error(err);
-        alert("Server connection failed.");
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
-}
 // Run on load
 loadDashboard();
-
-
 
 
 
