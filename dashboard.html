@@ -22,15 +22,32 @@
         .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
         .history-amount { color: #ff3b3b; font-weight: bold; }
 
-        /* ✅ FIX 2: BADGE STYLES */
+        /* --- ROLE BADGES --- */
         .badge {
-            font-size: 12px; padding: 4px 8px; border-radius: 4px;
+            font-size: 12px; padding: 4px 10px; border-radius: 50px;
             background: #222; border: 1px solid #333; color: #888;
-            margin-left: 10px; vertical-align: middle;
+            margin-left: 10px; vertical-align: middle; display: inline-block;
+            font-weight: 700; letter-spacing: 1px;
         }
+
+        /* 🟠 CREATOR (Orange) */
         .badge.creator {
             background: rgba(255, 165, 0, 0.15);
             color: #ff9800; border-color: #ff9800;
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.2);
+        }
+
+        /* 🔴 ADMIN (Red) - NEW */
+        .badge.admin {
+            background: rgba(220, 20, 60, 0.15);
+            color: #ff3b3b; border-color: #ff3b3b;
+            box-shadow: 0 0 10px rgba(255, 59, 59, 0.2);
+        }
+
+        /* 🔵 VIEWER (Blue) - NEW */
+        .badge.viewer {
+            background: rgba(0, 188, 212, 0.15);
+            color: #00bcd4; border-color: #00bcd4;
         }
     </style>
 </head>
@@ -166,4 +183,5 @@
     <script src="/js/dashboard.js"></script>
 </body>
 </html>
+
 
