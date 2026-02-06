@@ -9,13 +9,11 @@
     </script>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
+    <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* Hide sections by default to prevent flickering */
         #creator-section, #viewer-section, #withdraw-btn { display: none; }
-        
-        /* History Table Styles */
         .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .history-table th { text-align: left; color: #888; font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid #222; }
         .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
@@ -27,11 +25,10 @@
     <nav>
         <a href="https://tip.xdfun.in/" style="text-decoration:none; color:inherit;">
                 <div class="logo">
-                    <img src="images/logo.png" alt="XDTIP" style="height: 40px; vertical-align: middle;">
+                    <h2 style="color:white; margin:0; font-family:'Inter';">XDTIP</h2>
                 </div>
         </a>
-        <div class="nav-links">
-            </div>
+        <div class="nav-links"></div>
     </nav>
 
     <div style="background: linear-gradient(180deg, rgba(255,59,59,0.05) 0%, rgba(5,5,5,0) 100%); padding: 60px 20px; text-align: center; border-bottom: 1px solid #111;">
@@ -55,31 +52,25 @@
         <div id="creator-section" style="margin-top: 60px;">
             <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
                 <div style="position: relative;">
-                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" 
+                    <img id="current-logo" src="https://ui-avatars.com/api/?name=User&background=random" 
                          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
                 </div>            
                 <div style="flex: 1;">
                     <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
                     <p style="color: #666; font-size: 13px; margin: 0 0 10px 0;">Upload a square image (PNG/JPG).</p>
-                    
                     <input type="file" id="logo-file" accept="image/*" style="display: none;" onchange="uploadLogo()">
-                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">
-                        📸 Upload New Logo
-                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('logo-file').click()" style="margin:0;">📸 Upload New Logo</button>
                     <span id="upload-status" style="font-size: 12px; margin-left: 10px; color: #888;"></span>
                 </div>
             </div>
 
             <div style="font-family: system-ui, -apple-system, sans-serif; color: white;">
-                <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">
-                    STREAMER TOOLS
-                </h3>
+                <h3 style="color: #eee; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 25px; font-weight: 600;">STREAMER TOOLS</h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
-
                     <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
                         <h4 style="margin: 0; font-size: 16px;">🔴 Alert Box Settings</h4>
-
+                        
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">DESIGN STYLE</label>
                             <div style="display: flex; gap: 10px;">
@@ -102,29 +93,16 @@
 
                         <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                             <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
-                            
                             <div style="display: flex; gap: 10px;">
-                                <button onclick="sendTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">
-                                    🔥 Test Alert
-                                </button>
-                                <button onclick="replayLastTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">
-                                    🔄 Latest Tip
-                                </button>
+                                <button onclick="sendTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">🔥 Test Alert</button>
+                                <button onclick="replayLastTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">🔄 Latest Tip</button>
                             </div>
                         </div>
                     </div>
 
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
+                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222;">
                         <h4 style="margin: 0; font-size: 16px;">📊 Stats / Leaderboard</h4>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                                Shows <b>Top Tipper</b> and <b>Recent Tips</b> permanently on screen.
-                            </p>
-                            <p style="color: #555; font-size: 12px; margin: 0;">*Auto-matches your selected Theme.</p>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 20px;">
                             <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">WIDGET LINK (OBS)</label>
                             <div style="display: flex; gap: 8px;">
                                 <input type="text" id="stats-link" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
@@ -133,218 +111,187 @@
                         </div>
                     </div>
 
-                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 20px;">
+                    <div style="background: #111; padding: 24px; border-radius: 12px; border: 1px solid #222;">
                         <h4 style="margin: 0; font-size: 16px;">🔗 Your Tipping Page</h4>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <p style="color: #888; font-size: 14px; line-height: 1.5; margin: 0;">
-                                This is your public profile where viewers can send donations. Changes made here update instantly.
-                            </p>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                         <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 20px;">
                             <label style="color: #666; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">PUBLIC LINK</label>
                             <div style="display: flex; gap: 8px;">
-                                <input type="text" id="tip-page-url" readonly value="https://tips.gg/u/username" style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
+                                <input type="text" id="tip-page-url" readonly value="Loading..." style="flex: 1; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; border-radius: 6px; font-size: 12px; outline: none;">
                                 <button class="btn btn-secondary" onclick="copyToClipboard('tip-page-url')" style="padding: 0 16px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">Copy</button>
                             </div>
                         </div>
-
-                        <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: auto;">
-                             <button style="width: 100%; background: #222; color: white; padding: 12px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                                SHARE THIS WITH YOUR VIEWERS
-                            </button>
-                        </div>
                     </div>
-
                 </div>
             </div>
-
-            <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">PAYOUT HISTORY</h3>
-            <div id="payout-container">
-                <p style="color: #666; font-style: italic;">Loading payouts...</p>
-            </div> 
 
             <h3 style="color: #444; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; margin-top: 60px;">RECENT TIPS</h3>
             <div id="history-container">
                 <p style="color: #666; font-style: italic;">Loading history...</p>
             </div>
         </div>
-
-        <div id="viewer-section" style="margin-top: 60px; text-align: center;">
-            <h3 style="color: #fff;">Ready to support?</h3>
-            <p style="color: #888;">Find a creator and send your first tip.</p>
-            <a href="/tip" class="btn" style="display: inline-block; margin-top: 10px;">Send a Tip</a>
-        </div>
-
+        <div id="viewer-section" style="margin-top: 60px; text-align: center;"><p style="color: #888;">Viewer Dashboard</p></div>
     </div>
 
     <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
             <h2 style="margin-top:0;">Withdraw Funds</h2>
-            <p style="color:#888; font-size:14px;">Min: 100 Tokens</p>
-            
             <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px;">
-            <input type="text" id="w-upi" placeholder="UPI ID (e.g. name@okhdfc)" style="margin-bottom:20px;">
-            
+            <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px;">
             <button class="btn" onclick="submitWithdraw()">Request Payout</button>
             <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Cancel</button>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2024 xdtip. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-            <a href="/refund-policy">Refund Policy</a>
-            <a href="/contact">Contact Us</a>
-        </div>
-    </footer>
-
     <script>
         const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = 'https://tip.xdfun.in/';
+        if (!token) window.location.href = 'https://tip.xdfun.in/';
+
+        var userObsToken = null; 
+        var socket = io(); // Socket connection
+
+        // Helper to grab token from the input box if API failed
+        function getObsTokenFromInput() {
+            if (userObsToken) return userObsToken; // Return if we already have it
+            
+            // Try to grab from the input field value (e.g., ".../overlay/UUID")
+            const urlInput = document.getElementById('overlay-url').value;
+            if (urlInput && urlInput.includes('/overlay/')) {
+                const parts = urlInput.split('/overlay/');
+                if (parts[1]) {
+                    userObsToken = parts[1].trim();
+                    console.log("Extracted Token from Input:", userObsToken);
+                    return userObsToken;
+                }
+            }
+            return null;
         }
 
-        // --- DASHBOARD LOADER (With 404 Protection) ---
         async function loadDashboard() {
             try {
-                const res = await fetch('https://app.xdfun.in/api/me', {
-                    headers: { 'Authorization': token }
-                });
+                // Try fetching API
+                const res = await fetch('https://app.xdfun.in/api/me', { headers: { 'Authorization': token } });
                 
-                // If API is missing (404), stop here instead of crashing
                 if (res.status === 404) {
-                    console.warn("User API not found. Some dashboard features may be empty.");
+                    console.warn("API Not Found. Attempting to run in 'Offline/UI' mode.");
+                    // Force show creator section just in case
+                    document.getElementById('creator-section').style.display = 'block';
                     return; 
                 }
-
-                if (!res.ok) throw new Error("Failed to load user data");
-
+                
                 const data = await res.json();
-
-                // Update UI safely
                 if(data.user) {
-                    if(document.getElementById('user-name')) document.getElementById('user-name').innerText = data.user.username || "User";
-                    if(document.getElementById('balance')) document.getElementById('balance').innerText = data.user.wallet_balance || "0";
-                    if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = (data.user.role || "Viewer").toUpperCase();
+                    // Update UI
+                    document.getElementById('user-name').innerText = data.user.username || "User";
+                    document.getElementById('balance').innerText = data.user.wallet_balance || "0";
+                    document.getElementById('role-badge').innerText = (data.user.role || "").toUpperCase();
 
                     if (data.user.role === 'creator') {
                         document.getElementById('creator-section').style.display = 'block';
                         document.getElementById('withdraw-btn').style.display = 'block';
                         
-                        const obsToken = data.user.obs_token;
-                        if(document.getElementById('overlay-url')) document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${obsToken}`;
-                        if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${obsToken}`;
+                        userObsToken = data.user.obs_token; // SAVE TOKEN
+                        
+                        if(document.getElementById('overlay-url')) document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${userObsToken}`;
+                        if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${userObsToken}`;
                         if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${data.user.username}`;
-                        if(document.getElementById('theme-selector') && data.user.overlay_theme) document.getElementById('theme-selector').value = data.user.overlay_theme;
-                        if(document.getElementById('current-logo') && data.user.logo_url) document.getElementById('current-logo').src = data.user.logo_url;
+                        if(data.user.logo_url) document.getElementById('current-logo').src = data.user.logo_url;
                     } else {
                         document.getElementById('viewer-section').style.display = 'block';
                     }
                 }
-            } catch (err) {
-                console.error("Dashboard Error:", err);
+            } catch (err) { console.error(err); }
+        }
+
+        // --- DIRECT SOCKET ALERT FUNCTION ---
+        function sendDirectAlert(data) {
+            const tokenToUse = getObsTokenFromInput();
+
+            if(!tokenToUse || tokenToUse === "Loading...") {
+                return alert("Error: OBS Link not loaded. Cannot identify overlay.");
             }
+            
+            // Join Room
+            socket.emit('join-overlay', tokenToUse);
+            
+            // Send Alert
+            setTimeout(() => {
+                console.log("Emitting via Socket:", data);
+                socket.emit('new-tip', data); 
+            }, 100);
         }
 
-        function copyToClipboard(elementId) {
-            var copyText = document.getElementById(elementId);
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); 
-            document.execCommand("copy");
-            alert("Copied: " + copyText.value);
-        }
-
-        // --- SEND TEST ALERT ---
         async function sendTestAlert() {
             const btn = document.getElementById('test-btn');
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = "Sending...";
+            btn.disabled = true; btn.innerText = "Sending...";
             
+            const testData = {
+                tipper: "Test User",
+                amount: 500,
+                message: "This is a test alert! 🚨"
+            };
+
+            // Use Direct Socket (Bypasses API)
+            sendDirectAlert(testData);
+
+            // Optional: Try API just in case
             try {
-                await fetch('https://app.xdfun.in/api/overlay/test-alert', {
+                fetch('https://app.xdfun.in/api/overlay/test-alert', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                    body: JSON.stringify({
-                        tipper: "Test User",
-                        amount: 500,
-                        message: "This is a test alert! 🚨"
-                    })
-                });
-                alert("Test Alert Sent!");
-            } catch(e) {
-                console.error(e);
-                alert("Failed to send test. (Check Console)");
-            }
-            btn.disabled = false;
-            btn.innerText = originalText;
+                    body: JSON.stringify(testData)
+                }).catch(e => {}); 
+            } catch(e) {}
+
+            alert("Test Alert Sent to Overlay!");
+            btn.disabled = false; btn.innerText = "🔥 Test Alert";
         }
 
-        // --- REPLAY LATEST TIP (SCREEN READER VERSION) ---
-        // Since the API is 404, we read the history table displayed on the screen!
         async function replayLastTip() {
             const btn = document.getElementById('replay-btn');
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = "Scanning...";
+            btn.disabled = true; btn.innerText = "Scanning...";
 
             let lastTip = null;
 
-            // 1. Look for the table inside 'history-container'
+            // VISUAL SCRAPING (Reads the table on your screen)
             const container = document.getElementById('history-container');
             if (container) {
-                // Try to find the first row of data
-                const firstRow = container.querySelector('tbody tr') || container.querySelector('tr:nth-child(2)'); // Adjust based on table structure
-                
+                // Find any table row
+                const firstRow = container.querySelector('tbody tr') || container.querySelector('tr:nth-child(2)') || container.querySelector('tr');
                 if (firstRow) {
                     const cells = firstRow.getElementsByTagName('td');
                     if (cells.length >= 2) {
-                        // Assuming Column 1 is Name, Column 2 is Amount, Column 3 is Message (if exists)
+                        // FIX: Clean the text content to remove dots/spaces
+                        const rawAmount = cells[1].innerText; 
+                        const cleanAmount = rawAmount.replace(/[^0-9]/g, ''); // KEEPS ONLY NUMBERS
+                        
                         lastTip = {
                             tipper: cells[0].innerText.trim(),
-                            amount: cells[1].innerText.replace(/[^0-9.]/g, ''), // Extract only numbers
+                            amount: cleanAmount || "0", 
                             message: cells[2] ? cells[2].innerText.trim() : "Replayed Tip"
                         };
                     }
                 }
             }
 
-            // 2. If we found a tip on screen, send it!
             if (lastTip) {
-                try {
-                    console.log("Replaying:", lastTip);
-                    await fetch('https://app.xdfun.in/api/overlay/test-alert', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                        body: JSON.stringify({
-                            tipper: lastTip.tipper,
-                            amount: lastTip.amount,
-                            message: lastTip.message
-                        })
-                    });
-                    alert(`Replaying tip from ${lastTip.tipper}!`);
-                } catch(err) {
-                    alert("Found tip on screen but failed to send to overlay.");
-                }
+                console.log("Replaying Clean Data:", lastTip);
+                sendDirectAlert(lastTip); // Send via Socket
+                alert(`Replaying tip from ${lastTip.tipper} (₹${lastTip.amount})`);
             } else {
-                // 3. If screen is empty, fallback to a dummy replay or error
-                alert("History table is empty or loading. Cannot replay yet.");
+                alert("History table empty or unreadable. Wait for dashboard.js to load data.");
             }
 
-            btn.disabled = false;
-            btn.innerText = originalText;
+            btn.disabled = false; btn.innerText = "🔄 Latest Tip";
         }
 
-        loadDashboard();
+        function copyToClipboard(id) {
+            var c = document.getElementById(id); c.select(); document.execCommand("copy"); alert("Copied!");
+        }
+
+        // Wait 1 second for dashboard.js to populate fields before running our logic
+        setTimeout(loadDashboard, 1000);
     </script>
     
     <script src="/js/dashboard.js"></script>
-
 </body>
 </html>
-
-
