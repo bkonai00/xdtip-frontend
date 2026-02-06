@@ -1,20 +1,25 @@
 // ----------------------------------------------------
-// 🧹 URL CLEANER
+// 🧹 URL CLEANER: Hides ".html" from the browser bar
 // ----------------------------------------------------
 if (window.location.pathname.endsWith('.html')) {
-    window.history.replaceState(null, '', window.location.pathname.replace('.html', ''));
+    const cleanUrl = window.location.pathname.replace('.html', '');
+    window.history.replaceState(null, '', cleanUrl);
 }
+// ----------------------------------------------------
 
-// ----------------------------------------------------
-// ⚠️ CONFIGURATION
-// ----------------------------------------------------
-const API_URL = "https://xdtip-backend.onrender.com"; 
+// ... rest of your existing code ...
+// ⚠️ REPLACE WITH YOUR RENDER URL
+const API_URL = "https://app.xdfun.in"; 
+
+// ⚠️ REPLACE WITH YOUR GITHUB PAGES URL
+const FRONTEND_URL = "https://tip.xdfun.in/xdtip-frontend/"; 
 
 async function loadDashboard() {
     const token = localStorage.getItem('token');
     if (!token) return window.location.href = "/login/";
 
     try {
+        // 1. Fetch User Data
         const res = await fetch(`${API_URL}/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -22,152 +27,81 @@ async function loadDashboard() {
 
         if (data.success) {
             const user = data.user;
-            
-            // 1. Fill Basic Info
-            if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
-            if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
-            
-            // 2. ROLE BADGE LOGIC (Updated)
-            const roleBadge = document.getElementById('role-badge');
-            if(roleBadge) {
-                const role = (user.role || "viewer").toLowerCase(); // Default to viewer if missing
-                
-                console.log("Detected Role:", role); // DEBUG: Check console to see what role is detected
-                
-                roleBadge.innerText = role.toUpperCase();
-                
-                // Reset class list to base
-                roleBadge.className = 'badge'; 
-                
-                // Apply Color Class
-                if(role === 'creator') {
-                    roleBadge.classList.add('creator');
-                } else if(role === 'admin') {
-                    roleBadge.classList.add('admin');
-                } else {
-                    roleBadge.classList.add('viewer');
-                }
-            }
 
-            // 3. Logo
+            // 2. Fill Basic Info
+            document.getElementById('user-name').innerText = user.username;
+            document.getElementById('balance').innerText = user.balance;
+            document.getElementById('role-badge').innerText = user.role.toUpperCase();
+
             const logoImg = document.getElementById('current-logo');
-            if(logoImg) logoImg.src = user.logo_url || `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
 
-            // 4. VIEW LOGIC (Admins also see Creator Tools)
-            if (user.role === 'creator' || user.role === 'admin') {
+if (user.logo_url) {
+    logoImg.src = user.logo_url;
+} else {
+    // Generates a nice avatar with their initials
+    logoImg.src = `https://ui-avatars.com/api/?name=${user.username}&background=00ff88&color=000&size=128`;
+}
+            // 4. HANDLE ROLES
+            // ✅ FIXED SYNTAX ERROR HERE (It was missing 'user.role')
+            if (user.role === 'creator') {
+                // SHOW Creator Tools
                 document.getElementById('creator-section').style.display = 'block';
+                
+                // Show Withdraw Button
                 const withdrawBtn = document.getElementById('withdraw-btn');
                 if(withdrawBtn) withdrawBtn.style.display = 'inline-block';
 
-                if(document.getElementById('theme-selector')) {
-                    document.getElementById('theme-selector').value = user.overlay_theme || 'classic';
+                // ---------------------------------------------------------
+                // ✅ ADDED: SET THEME DROPDOWN TO SAVED CHOICE
+                // ---------------------------------------------------------
+                if (user.overlay_theme) {
+                    document.getElementById('theme-selector').value = user.overlay_theme;
+                } else {
+                    document.getElementById('theme-selector').value = 'classic';
                 }
 
-                // Links
-                document.getElementById('overlay-url').value = `https://app.xdfun.in/overlay/${user.obs_token}`;
-                if(document.getElementById('stats-link')) document.getElementById('stats-link').value = `https://app.xdfun.in/stats-overlay/${user.obs_token}`;
-                if(document.getElementById('tip-page-url')) document.getElementById('tip-page-url').value = `https://tip.xdfun.in/u/${user.username}`;
+                // Generate Links
+                const overlayLink = `${API_URL}/overlay/${user.obs_token}`;
+                document.getElementById('overlay-url').value = overlayLink;
 
+                // --- 👇 NEW CODE (For Stats Widget) - PASTE THIS BELOW 👇 ---
+                const statsLink = `${API_URL}/stats-overlay/${user.obs_token}`;
+                
+                // We check if the element exists first to prevent errors
+                const statsInput = document.getElementById('stats-link');
+                if (statsInput) {
+                    statsInput.value = statsLink;
+                }
+
+                const tipLink = `https://tip.xdfun.in/${user.username}`;
+                document.getElementById('tip-page-url').value = tipLink;
+
+                // Load History
                 loadHistory(token);
                 loadWithdrawals(token);
+
             } else {
-                // Viewers see this
+                // SHOW Viewer Section
                 document.getElementById('viewer-section').style.display = 'block';
             }
+
         } else {
             logout();
         }
     } catch (err) {
-        console.error("Dashboard Load Error:", err);
+        console.error("Failed to load dashboard", err);
     }
 }
-// ----------------------------------------------------
-// 🔄 REPLAY LATEST TIP
-// ----------------------------------------------------
-async function replayLastTip() {
-    const btn = document.getElementById('replay-btn');
-    const token = localStorage.getItem('token');
-    
-    if(btn) { btn.disabled = true; btn.innerText = "Scanning..."; }
 
-    let lastTip = null;
-
-    // 1. Read Table
-    const container = document.getElementById('history-container');
-    if (container) {
-        const firstRow = container.querySelector('tbody tr');
-        if (firstRow) {
-            const cells = firstRow.getElementsByTagName('td');
-            if (cells.length >= 3) {
-                lastTip = {
-                    tipper: cells[0].innerText.trim(),
-                    amount: cells[2].innerText.replace(/[^0-9.]/g, ''), 
-                    message: cells[1].innerText.replace(/["“”]/g, '').trim()
-                };
-            }
-        }
-    }
-
-    // 2. Send to Backend
-    if (lastTip) {
-        try {
-            console.log("Replaying:", lastTip);
-            const res = await fetch(`${API_URL}/replay-alert`, {
-                method: 'POST',
-                headers: { 
-                    'Authorization': `Bearer ${token}`, 
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify(lastTip)
-            });
-            
-            const data = await res.json();
-            if (data.success) {
-                alert(`Replaying tip from ${lastTip.tipper}!`);
-            } else {
-                alert("Server Error. Check console.");
-            }
-        } catch(e) {
-            console.error(e);
-            alert("Connection Failed");
-        }
-    } else {
-        alert("No recent tips found.");
-    }
-
-    if(btn) { setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000); }
-}
-
-// ----------------------------------------------------
-// 🔥 STANDARD TEST ALERT
-// ----------------------------------------------------
-async function sendTestAlert() {
-    const btn = document.getElementById('test-btn');
-    const token = localStorage.getItem('token');
-    
-    if(btn) { btn.innerText = "Sending..."; btn.disabled = true; }
-
-    try {
-        const res = await fetch(`${API_URL}/test-alert`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({}) 
-        });
-        const data = await res.json();
-        if (data.success && btn) btn.innerText = "✅ Sent!";
-        else alert("Failed: " + data.error);
-    } catch (err) { alert("Server Error"); }
-    
-    if(btn) { setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000); }
-}
-
-// Helpers
+// Fetch and Render History (Creators Only)
 async function loadHistory(token) {
     try {
-        // ✅ FIXED: Removed '/api/tips' -> Back to '/history'
-        const res = await fetch(`${API_URL}/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`${API_URL}/history`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await res.json();
         const container = document.getElementById('history-container');
+        
         if (data.success && data.history.length > 0) {
             let html = '<table class="history-table"><thead><tr><th>SENDER</th><th>MESSAGE</th><th>AMOUNT</th><th>DATE</th></tr></thead><tbody>';
             data.history.forEach(tip => {
@@ -176,219 +110,188 @@ async function loadHistory(token) {
             html += '</tbody></table>';
             container.innerHTML = html;
         } else {
-            container.innerHTML = '<p style="color: #444; text-align:center;">No tips yet.</p>';
+            container.innerHTML = '<p style="color: #444; text-align:center;">No tips received yet. Share your link!</p>';
         }
-    } catch (err) {}
+    } catch (err) { console.error("History Error", err); }
 }
 
+// Helper: Copy to Clipboard
+function copyToClipboard(elementId) {
+    const copyText = document.getElementById(elementId);
+    copyText.select();
+    navigator.clipboard.writeText(copyText.value);
+    alert("Copied link: " + copyText.value);
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    window.location.href = "/login/";
+}
+
+// Save Theme Function
+async function saveTheme() {
+    const theme = document.getElementById('theme-selector').value;
+    const token = localStorage.getItem('token');
+    
+    try {
+        const res = await fetch(`${API_URL}/update-theme`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ theme })
+        });
+        const data = await res.json();
+        if(data.success) {
+            alert("Theme updated! Refresh your OBS to see changes.");
+        }
+    } catch(err) {
+        alert("Failed to save theme");
+    }
+}
+
+// Upload Logo Function
+async function uploadLogo() {
+    const fileInput = document.getElementById('logo-file');
+    const file = fileInput.files[0];
+    const status = document.getElementById('upload-status');
+    const token = localStorage.getItem('token');
+
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+        alert("File too big! Max size is 2MB.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    try {
+        status.innerText = "Uploading...";
+        const res = await fetch(`${API_URL}/upload-logo`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            status.innerText = "Done!";
+            document.getElementById('current-logo').src = data.url;
+            alert("Logo Updated Successfully!");
+        } else {
+            status.innerText = "Failed.";
+            alert("Upload Failed: " + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        status.innerText = "Error.";
+        alert("Server Error");
+    }
+}
+
+// Submit Withdrawal Function
+async function submitWithdraw() {
+    const amount = document.getElementById('w-amount').value;
+    const upiId = document.getElementById('w-upi').value;
+    const token = localStorage.getItem('token');
+
+    if(!amount || !upiId) return alert("Please fill all details");
+
+    try {
+        const res = await fetch(`${API_URL}/withdraw`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ amount, upiId })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            document.getElementById('withdraw-modal').style.display = 'none';
+            loadDashboard(); 
+        } else {
+            alert(data.error);
+        }
+    } catch (err) {
+        alert("Request Failed");
+    }
+}
+
+// Fetch Withdrawal History
 async function loadWithdrawals(token) {
     try {
-        // ✅ FIXED: Removed '/api' -> Back to '/withdrawals'
-        const res = await fetch(`${API_URL}/withdrawals`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`${API_URL}/withdrawals`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await res.json();
         const container = document.getElementById('payout-container');
+        
         if (data.success && data.history.length > 0) {
-            let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>ID</th></tr></thead><tbody>';
+            let html = '<table class="history-table"><thead><tr><th>DATE</th><th>AMOUNT</th><th>STATUS</th><th>T_ID</th></tr></thead><tbody>';
             data.history.forEach(w => {
                 let color = w.status === 'paid' ? '#4caf50' : '#ff9800';
-                html += `<tr><td>${w.date}</td><td style="font-weight:bold;">${w.amount}</td><td style="color:${color};">${w.status}</td><td>#${w.t_id}</td></tr>`;
+                html += `
+                    <tr>
+                        <td>${w.date}</td>
+                        <td style="font-weight:bold;">${w.amount}</td>
+                        <td style="color:${color}; text-transform:uppercase; font-size:12px; font-weight:bold;">${w.status}</td>
+                        <td style="font-weight:bold;">#${w.t_id}</td>
+                    </tr>
+                `;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
-        }
-    } catch (err) {}
-}
-
-function copyToClipboard(elementId) {
-    const copyText = document.getElementById(elementId);
-    copyText.select(); navigator.clipboard.writeText(copyText.value); alert("Copied!");
-}
-function logout() { localStorage.removeItem('token'); window.location.href = "/login/"; }
-async function saveTheme() { /* theme logic */ }
-async function uploadLogo() { /* logo logic */ }
-// Function to handle the Payout Request
-async function submitWithdraw() {
-    // 1. Get values from HTML inputs
-    const amountInput = document.getElementById('w-amount');
-    const upiInput = document.getElementById('w-upi');
-    
-    // Convert amount to number immediately
-    const amount = parseFloat(amountInput.value);
-    const upiValue = upiInput.value.trim();
-    
-    // 2. Validate inputs
-    if (!amount || amount <= 0) {
-        alert("Please enter a valid amount.");
-        return;
-    }
-    if (!upiValue) {
-        alert("Please enter a valid UPI ID.");
-        return;
-    }
-
-    // 3. Get the Token (Assuming you store it in localStorage after login)
-    // If you use cookies, you might not need this line.
-    const token = localStorage.getItem('token'); 
-
-    try {
-        // 4. Send request to your specific backend route
-        const response = await fetch('/api/withdraw', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // specific header for 'authenticateToken' middleware
-                'Authorization': `Bearer ${token}` 
-            },
-            body: JSON.stringify({ 
-                amount: amount, 
-                upiId: upiValue  // <--- CRITICAL FIX: Backend expects 'upiId', not 'upi'
-            })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            alert("Success: " + data.message);
-            document.getElementById('withdraw-modal').style.display = 'none';
-            
-            // Clear inputs
-            amountInput.value = '';
-            upiInput.value = '';
-
-            // Optional: Reload to update balance displayed on screen
-            window.location.reload();
         } else {
-            alert("Error: " + (data.error || "Withdrawal failed"));
+            container.innerHTML = '<p style="color: #444; font-size:13px;">No withdrawal requests yet.</p>';
         }
-
-    } catch (error) {
-        console.error("Withdrawal Request Error:", error);
-        alert("Something went wrong. Please check your connection.");
+    } catch (err) {
+        console.error("Payout History Error", err);
     }
 }
-async function uploadLogo() {
-    const fileInput = document.getElementById('logo-file');
-    const statusSpan = document.getElementById('upload-status');
-    const logoImg = document.getElementById('current-logo');
-    
-    // 1. Check if file is selected
-    if (fileInput.files.length === 0) return;
-    const file = fileInput.files[0];
+async function sendTestAlert() {
+    const btn = document.getElementById('test-btn');
+    const token = localStorage.getItem('token');
 
-    // 2. Prepare visual feedback
-    if (statusSpan) statusSpan.innerText = "Uploading...";
-    if (statusSpan) statusSpan.style.color = "#888";
+    if (!token) return alert("Please login first");
 
-    // 3. Prepare the data (Must use FormData for files)
-    const formData = new FormData();
-    formData.append('logo', file); // The key 'logo' MUST match upload.single('logo') in your backend
-
-    // 4. Get Auth Token
-    const token = localStorage.getItem('token'); 
+    btn.innerText = "Sending...";
+    btn.disabled = true;
 
     try {
-        const response = await fetch('/upload-logo', {
+        const res = await fetch('https://xdtip-backend.onrender.com/test-alert', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-                // IMPORTANT: Do NOT set 'Content-Type': 'multipart/form-data' here.
-                // The browser sets it automatically with the correct boundary when using FormData.
-            },
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            // Success!
-            if (statusSpan) {
-                statusSpan.innerText = "Success!";
-                statusSpan.style.color = "#00ff88";
-            }
-            // Update the image immediately without refreshing
-            logoImg.src = result.url;
-        } else {
-            // Error from server
-            if (statusSpan) statusSpan.innerText = "Failed";
-            alert("Upload Error: " + (result.error || "Unknown error"));
-        }
-
-    } catch (error) {
-        console.error("Upload error:", error);
-        if (statusSpan) statusSpan.innerText = "Error";
-        alert("Network error. Please try again.");
-    }
-}
-
-async function loadPayoutHistory() {
-    const container = document.getElementById('payout-container');
-    const token = localStorage.getItem('token'); // Get auth token
-
-    try {
-        const response = await fetch('/withdrawals', {
-            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            if (data.history.length === 0) {
-                container.innerHTML = '<p style="color:#666; font-style:italic; padding:20px 0;">No payout history yet.</p>';
-                return;
-            }
-
-            // Build the Table HTML
-            let html = `
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>DATE</th>
-                            <th>ID</th>
-                            <th>AMOUNT</th>
-                            <th>STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            data.history.forEach(tx => {
-                // Determine color based on status
-                let statusColor = '#888'; // Default Grey
-                if (tx.status === 'pending') statusColor = '#ffaa00'; // Orange
-                if (tx.status === 'completed' || tx.status === 'paid') statusColor = '#00ff88'; // Green
-                if (tx.status === 'rejected') statusColor = '#ff3355'; // Red
-
-                html += `
-                    <tr>
-                        <td style="color:#aaa;">${tx.date}</td>
-                        <td style="color:#666; font-size:12px; font-family:monospace;">#${tx.t_id}</td>
-                        <td class="history-amount">${tx.amount} Tokens</td>
-                        <td>
-                            <span style="color:${statusColor}; border:1px solid ${statusColor}; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; text-transform:uppercase;">
-                                ${tx.status}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += `</tbody></table>`;
-            container.innerHTML = html;
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            btn.innerText = "✅ Sent!";
+            setTimeout(() => { btn.innerText = "🔥 Send Test Alert"; btn.disabled = false; }, 2000);
         } else {
-            container.innerHTML = '<p style="color:#ff3355;">Failed to load history.</p>';
+            alert("Failed: " + data.error);
+            btn.innerText = "❌ Error";
         }
-
-    } catch (error) {
-        console.error("Payout History Error:", error);
-        container.innerHTML = '<p style="color:#666;">Error loading data.</p>';
+    } catch (err) {
+        console.error(err);
+        alert("Server Error");
+        btn.innerText = "🔥 Send Test Alert";
+        btn.disabled = false;
     }
 }
 
+// Run on load
 loadDashboard();
+
+
 
 
 
