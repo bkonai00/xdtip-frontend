@@ -27,37 +27,42 @@
         .history-table td { padding: 15px 0; border-bottom: 1px solid #111; color: white; }
         .history-amount { color: #00ff88; font-weight: bold; }
 
-        /* --- ROLE BADGE STYLES (SOLID COLORS) --- */
+        /* --- ROLE BADGE STYLES (UPDATED FOR VISIBILITY) --- */
         .badge {
             font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 4px; /* Boxy look */
-            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-weight: 800; /* Extra Bold */
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 12px;
+            letter-spacing: 1px;
+            margin-left: 15px;
             display: inline-block;
             vertical-align: middle;
-            color: white !important; /* Force White Text */
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid transparent; /* Prepare for border */
         }
 
         /* 🟠 CREATOR (Gold/Orange) */
         .badge.creator {
-            background-color: #f59e0b; 
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+            background: rgba(255, 165, 0, 0.2); /* Darker Orange Background */
+            color: #ffaa00; /* Bright Gold Text */
+            border-color: rgba(255, 170, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
         }
 
-        /* 🔴 ADMIN (Solid Red) */
+        /* 🔴 ADMIN (Bright Red) */
         .badge.admin {
-            background-color: #dc2626; /* Bright Red */
-            box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+            background: rgba(255, 0, 60, 0.2); /* Dark Red Background */
+            color: #ff3355; /* Bright Neon Red Text */
+            border-color: rgba(255, 0, 60, 0.5);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.2);
         }
 
-        /* 🔵 VIEWER (Solid Blue) */
+        /* 🔵 VIEWER (Bright Cyan) */
         .badge.viewer {
-            background-color: #2563eb; /* Bright Blue */
-            box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+            background: rgba(0, 200, 255, 0.2); /* Dark Blue Background */
+            color: #00eaff; /* Bright Neon Cyan Text */
+            border-color: rgba(0, 200, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
         }
     </style>
 </head>
@@ -193,6 +198,7 @@
     <script src="/js/dashboard.js"></script>
 </body>
 </html>
+
 
 
 
