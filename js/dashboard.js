@@ -25,9 +25,19 @@ async function loadDashboard() {
             const user = data.user;
             
             // Fill Info
-            if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
-            if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
-            if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = user.role.toUpperCase();
+            // Fill Info
+if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
+if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
+
+// Role Badge Logic
+const roleBadge = document.getElementById('role-badge');
+if(roleBadge) {
+    roleBadge.innerText = user.role.toUpperCase();
+    // Add special coloring if they are a creator
+    if(user.role === 'creator') {
+        roleBadge.classList.add('creator');
+    }
+}
 
             // Image Fix
             const logoImg = document.getElementById('current-logo');
@@ -263,3 +273,4 @@ async function replayLastTip() {
 }
 
 loadDashboard();
+
