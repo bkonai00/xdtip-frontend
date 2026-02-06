@@ -186,8 +186,11 @@
     <div id="withdraw-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:#111; padding:30px; border-radius:12px; border:1px solid #333; width:300px; text-align:center;">
             <h2 style="margin-top:0;">Withdraw Funds</h2>
-            <input type="number" id="w-amount" placeholder="Amount" style="margin-bottom:10px;">
-            <input type="text" id="w-upi" placeholder="UPI ID" style="margin-bottom:20px;">
+            <input type="number" id="w-amount" placeholder="Amount" 
+       style="width: 100%; box-sizing: border-box; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; margin-bottom: 10px;">
+
+<input type="text" id="w-upi" placeholder="UPI ID" 
+       style="width: 100%; box-sizing: border-box; padding: 10px; background: #222; border: 1px solid #333; color: white; border-radius: 6px; margin-bottom: 20px;">
             <button class="btn" onclick="submitWithdraw()">Request Payout</button>
             <button class="btn btn-secondary" onclick="document.getElementById('withdraw-modal').style.display='none'" style="margin-top:10px;">Cancel</button>
         </div>
@@ -198,6 +201,7 @@
     <script src="/js/dashboard.js"></script>
 </body>
 </html>
+
 
 
 
