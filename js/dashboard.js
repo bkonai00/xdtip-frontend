@@ -288,7 +288,7 @@ async function sendTestAlert() {
     }
 }
 // ----------------------------------------------------
-// ↺ REPLAY RECENT TIP FUNCTION
+// ↺ REPLAY FUNCTION
 // ----------------------------------------------------
 async function replayRecentTip() {
     const btn = document.getElementById('replay-btn');
@@ -296,15 +296,13 @@ async function replayRecentTip() {
 
     if (!token) return alert("Please login first");
 
-    // 1. UI Feedback (Loading State)
+    // UI: Show loading
     const originalText = btn.innerText;
-    btn.innerText = "Sending...";
+    btn.innerText = "Processing...";
     btn.disabled = true;
-    btn.style.opacity = "0.7";
 
     try {
-        // 2. Send Request to Backend
-        // We are calling a new endpoint: /replay-alert
+        // Call the new backend endpoint
         const res = await fetch(`${API_URL}/replay-alert`, {
             method: 'POST',
             headers: {
@@ -316,30 +314,26 @@ async function replayRecentTip() {
         const data = await res.json();
         
         if (data.success) {
-            btn.innerText = "✅ Replayed!";
-            // Reset button after 2 seconds
+            btn.innerText = "✅ Sent to OBS";
             setTimeout(() => { 
                 btn.innerText = originalText; 
                 btn.disabled = false; 
-                btn.style.opacity = "1";
             }, 2000);
         } else {
-            alert("Failed: " + (data.message || data.error));
-            btn.innerText = "❌ Error";
+            alert(data.message || "Failed to replay.");
+            btn.innerText = "❌ Failed";
             btn.disabled = false;
-            btn.style.opacity = "1";
         }
     } catch (err) {
         console.error(err);
-        alert("Server Error: Could not connect.");
+        alert("Server connection failed.");
         btn.innerText = originalText;
         btn.disabled = false;
-        btn.style.opacity = "1";
     }
 }
-
 // Run on load
 loadDashboard();
+
 
 
 
