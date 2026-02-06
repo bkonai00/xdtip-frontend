@@ -9,9 +9,6 @@
     </script>
     <meta charset="UTF-8">
     <title>Dashboard | xdtip</title>
-    
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -54,7 +51,8 @@
         <div id="creator-section" style="margin-top: 60px;">
             <div style="background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;">
                 <div style="position: relative;">
-                    <img id="current-logo" src="https://via.placeholder.com/80?text=?" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
+                    <img id="current-logo" src="https://ui-avatars.com/api/?name=User&background=random" 
+                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333;">
                 </div>            
                 <div style="flex: 1;">
                     <h4 style="margin: 0 0 5px 0;">Channel Logo</h4>
@@ -97,7 +95,6 @@
                             <p style="color: #aaa; font-size: 13px; margin: 0;">Test your overlay:</p>
                             <div style="display: flex; gap: 10px;">
                                 <button onclick="sendTestAlert()" id="test-btn" style="flex: 1; background: #ff9800; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔥 Test Alert</button>
-                                
                                 <button onclick="replayLastTip()" id="replay-btn" style="flex: 1; background: #00bcd4; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔄 Latest Tip</button>
                             </div>
                         </div>
