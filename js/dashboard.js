@@ -10,7 +10,6 @@ if (window.location.pathname.endsWith('.html')) {
 // ⚠️ CONFIGURATION
 // ----------------------------------------------------
 const API_URL = "https://app.xdfun.in"; 
-const socket = io('https://app.xdfun.in'); // Connect Socket
 
 async function loadDashboard() {
     const token = localStorage.getItem('token');
@@ -28,15 +27,7 @@ async function loadDashboard() {
             // Fill Info
             if(document.getElementById('user-name')) document.getElementById('user-name').innerText = user.username;
             if(document.getElementById('balance')) document.getElementById('balance').innerText = user.balance;
-            
-            // --- FIX ROLE BADGE ---
-            const badge = document.getElementById('role-badge');
-            if(badge) {
-                badge.innerText = user.role.toUpperCase();
-                if(user.role === 'creator') {
-                    badge.classList.add('creator'); // Adds orange glow
-                }
-            }
+            if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = user.role.toUpperCase();
 
             // Image Fix
             const logoImg = document.getElementById('current-logo');
@@ -70,6 +61,7 @@ async function loadDashboard() {
     }
 }
 
+// History Loader
 async function loadHistory(token) {
     try {
         const res = await fetch(`${API_URL}/history`, {
@@ -211,23 +203,24 @@ async function sendTestAlert() {
         else alert("Failed: " + data.error);
     } catch (err) { alert("Server Error"); }
     
-    setTimeout(() => { btn.innerText = "🔥 Test Alert"; btn.disabled = false; }, 2000);
+    setTimeout(() => { btn.innerText = "🔥 Send Test Alert"; btn.disabled = false; }, 2000);
 }
 
-// --- REPLAY LATEST TIP (Using Socket to Bypass Server Override) ---
-function replayLastTip() {
+// --- REPLAY LATEST TIP (UPDATED) ---
+async function replayLastTip() {
     const btn = document.getElementById('replay-btn');
+    const token = localStorage.getItem('token');
     btn.disabled = true; btn.innerText = "Scanning...";
 
     let lastTip = null;
 
-    // 1. Read Table
     const container = document.getElementById('history-container');
     if (container) {
         const firstRow = container.querySelector('tbody tr');
         if (firstRow) {
             const cells = firstRow.getElementsByTagName('td');
             if (cells.length >= 3) {
+                // Extract clean data
                 const rawAmount = cells[2].innerText.replace(/[^0-9]/g, ''); 
                 lastTip = {
                     tipper: cells[0].innerText.trim(),
@@ -238,24 +231,32 @@ function replayLastTip() {
         }
     }
 
-    // 2. Send via Socket
     if (lastTip) {
-        // Grab OBS Token
-        const urlInput = document.getElementById('overlay-url');
-        if (urlInput && urlInput.value.includes('/overlay/')) {
-            const obsToken = urlInput.value.split('/overlay/')[1];
+        try {
+            console.log("Sending Replay to Server:", lastTip);
             
-            // Send
-            socket.emit('join-overlay', obsToken);
-            setTimeout(() => {
-                socket.emit('new-tip', lastTip);
+            // 🚨 THIS CALLS THE NEW BACKEND ENDPOINT
+            const res = await fetch('https://xdtip-backend.onrender.com/replay-alert', {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(lastTip)
+            });
+            
+            const data = await res.json();
+            if (data.success) {
                 alert(`Replaying: ${lastTip.tipper}`);
-            }, 100);
-        } else {
-            alert("Error: OBS Link not loaded.");
+            } else {
+                alert("Server rejected replay. Did you add the backend code?");
+            }
+        } catch(e) {
+            console.error(e);
+            alert("Failed to connect to server.");
         }
     } else {
-        alert("No recent tips found.");
+        alert("No recent tips found in the table.");
     }
 
     setTimeout(() => { btn.disabled = false; btn.innerText = "🔄 Latest Tip"; }, 1000);
